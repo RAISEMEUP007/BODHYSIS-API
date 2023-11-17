@@ -44,7 +44,6 @@ const signup = (req, res, next) => {
 };
 
 const login = (req, res, next) => {
-    // checks if email exists
     User.findOne({ where : {
         email: req.body.email, 
     }})

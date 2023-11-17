@@ -1,13 +1,23 @@
 import express from 'express';
-
 import sequelize from './utils/database.js';
-
 import router from './routes/routes.js';
+import dotenv from 'dotenv';
+import cors from "cors";
+
+dotenv.config();
 
 const app = express();
 
-app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: process.env.CORS_ALLOW_ORIGIN
+}));
 
+console.log(`Database host is ${process.env.DB_HOST}`);
+console.log(`Database name is ${process.env.DB_NAME}`);
+console.log(`Database username is ${process.env.DB_USERNAME}`);
+console.log(`Database password is ${process.env.DB_PASSWORD}`);
+
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use((_, res, next) => {
@@ -19,6 +29,6 @@ app.use((_, res, next) => {
 
 app.use(router);
 
-sequelize.sync(); 
+sequelize.sync();
 
 app.listen(5000);
