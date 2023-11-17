@@ -1,8 +1,11 @@
 import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
 
-const sequelize = new Sequelize('bohdisys_dev', 'bohdisys_dev', 'GkpOdiN4%OAvs8', {
+dotenv.config();
+
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
     dialect: 'mysql',
-    host: 'bohdisys-dev.cnbsdl0pi4gg.us-east-1.rds.amazonaws.com', 
+    host: process.env.DB_HOST, 
 });
 
 export default sequelize;
