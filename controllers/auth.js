@@ -1,8 +1,13 @@
 import bcrypt from 'bcryptjs';
-
 import jwt from 'jsonwebtoken';
-
 import User from '../models/user.js';
+import UserForgotPassword from '../models/users_forgot_password.js';
+import { v4 as uuidv4 } from 'uuid';
+import dotenv from 'dotenv';
+//const sgMail = require('@sendgrid/mail');
+import sgMail from '@sendgrid/mail';
+
+dotenv.config();
 
 const signup = (req, res, next) => {
     // checks if email already exists
@@ -69,6 +74,80 @@ const login = (req, res, next) => {
     });
 };
 
+const resetpass = async (req, res, next) => {
+    console.log(req.body);
+    try {
+      const dbUser = await User.findOne({ where: { email: req.body.email } });
+      if (!dbUser) {
+        return res.status(404).json({ message: "User not found" });
+      } else {
+        const id = uuidv4();
+  
+        const verifyLink = `${req.protocol}://${req.get('host')}/changepass/${id}`;
+        const clientDirection = `http://${req.body.clientHost}/changepass/${id}`;
+
+        const currentDate = new Date();
+        currentDate.setMinutes(currentDate.getMinutes() + 15);
+        const formattedExpireDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
+
+        UserForgotPassword.create({
+            user_id: dbUser.id,
+            recover_id: id,
+            client_direction: clientDirection,
+            expire_date: formattedExpireDate,
+        }, {
+            fields: ['user_id', 'recover_id', 'client_direction', 'expire_date']  // Specify the columns to insert data into
+        });
+
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+        const msg = {
+          to: dbUser.email,
+          from: process.env.SENDGRID_SENDER,
+          templateId: process.env.SENDGRID_TEMPLATE_ID,
+          dynamic_template_data: {
+            subject: 'Reset Your Password',
+            name: dbUser.name,
+            link: verifyLink,
+          },
+        };
+        await sgMail.send(msg);
+        return res.status(200).json({ message: "Reset password link is sent. Please check your email" });
+      }
+    } catch (err) {
+      console.error('An error occurred:', err);
+      return res.status(500).send("An error occurred");
+    }
+};  
+
+const changepass = (req, res, next) => {
+    const recoveryId = req.params.id;
+    const currentDate = new Date();
+    console.log(currentDate);
+    UserForgotPassword.findOne({
+        where: {
+            recover_id: recoveryId
+        }
+    }).then((result) => {
+        if (result) {
+            const expireDate = new Date(result.expire_date);
+            if (result.is_expired == 1 || expireDate < currentDate) {
+                console.log("The record is expired");
+                res.status(400).json({ error: "The record is expired" });
+            } else {
+                console.log("-------------");
+                console.log(result.client_direction);
+                res.redirect('http://localhost:19006/changepass/dec58b2f-b544-4784-9982-48c2765cb088');
+            }
+        } else {
+            console.log("Record not found");
+            res.status(404).json({ error: "Record not found" });
+        }
+    }).catch((error) => {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    });
+};
+
 const isAuth = (req, res, next) => {
     const authHeader = req.get("Authorization");
     if (!authHeader) {
@@ -88,4 +167,4 @@ const isAuth = (req, res, next) => {
     };
 };
 
-export { signup, login, isAuth };
+export { signup, login, isAuth, resetpass, changepass };
