@@ -4,7 +4,6 @@ import User from '../models/user.js';
 import UserForgotPassword from '../models/users_forgot_password.js';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
-//const sgMail = require('@sendgrid/mail');
 import sgMail from '@sendgrid/mail';
 
 dotenv.config();
@@ -75,7 +74,6 @@ const login = (req, res, next) => {
 };
 
 const resetpass = async (req, res, next) => {
-    console.log(req.body);
     try {
       const dbUser = await User.findOne({ where: { email: req.body.email } });
       if (!dbUser) {
@@ -83,8 +81,9 @@ const resetpass = async (req, res, next) => {
       } else {
         const id = uuidv4();
   
-        const verifyLink = `${req.protocol}://${req.get('host')}/changepass/${id}`;
-        const clientDirection = `http://${req.body.clientHost}/changepass/${id}`;
+        const verifyLink = `${process.env.BASE_URL}/changepass/${id}`;
+        console.log(verifyLink);
+        const clientDirection = `${req.body.clientHost}/changepass/${id}`;
 
         const currentDate = new Date();
         currentDate.setMinutes(currentDate.getMinutes() + 15);
@@ -122,7 +121,6 @@ const resetpass = async (req, res, next) => {
 const changepass = (req, res, next) => {
     const recoveryId = req.params.id;
     const currentDate = new Date();
-    console.log(currentDate);
     UserForgotPassword.findOne({
         where: {
             recover_id: recoveryId
@@ -131,15 +129,11 @@ const changepass = (req, res, next) => {
         if (result) {
             const expireDate = new Date(result.expire_date);
             if (result.is_expired == 1 || expireDate < currentDate) {
-                console.log("The record is expired");
-                res.status(400).json({ error: "The record is expired" });
+                res.status(400).json({ error: "The link is expired" });
             } else {
-                console.log("-------------");
-                console.log(result.client_direction);
-                res.redirect('http://localhost:19006/changepass/dec58b2f-b544-4784-9982-48c2765cb088');
+                res.redirect(result.client_direction);
             }
         } else {
-            console.log("Record not found");
             res.status(404).json({ error: "Record not found" });
         }
     }).catch((error) => {
@@ -147,6 +141,45 @@ const changepass = (req, res, next) => {
         res.status(500).json({ error: "Internal server error" });
     });
 };
+
+const password = (req, res, next) => {
+    const currentDate = new Date();
+    UserForgotPassword.findOne({
+        where: {
+            recover_id: req.body.recoveryId
+        }
+    }).then((result) => {
+        if (result) {
+            const expireDate = new Date(result.expire_date);
+            if (result.is_expired == 1 || expireDate < currentDate) {
+                res.status(400).json({ error: "The link is expired" });
+            } else {
+                bcrypt.hash(req.body.password, 12, (err, passwordHash) => {
+                    if (passwordHash) {
+                        User.update(
+                          { password: passwordHash },
+                          { where: { id: result.user_id } }
+                        ).then((result) => {
+                            UserForgotPassword.update(
+                                { is_expired: 1 },
+                                { where: { recover_id: req.body.recoveryId } }
+                            )
+                            res.status(200).json({ error: "Password updated successfully" });
+                        }).catch((error) => {
+                            res.status(500).json({ error: "Internal server error" });
+                        });
+                    };
+                });
+            }
+        } else {
+            res.status(404).json({ error: "Record not found" });
+        }
+    }).catch((error) => {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    });
+};
+
 
 const isAuth = (req, res, next) => {
     const authHeader = req.get("Authorization");
@@ -167,4 +200,4 @@ const isAuth = (req, res, next) => {
     };
 };
 
-export { signup, login, isAuth, resetpass, changepass };
+export { signup, login, isAuth, resetpass, changepass, password };
