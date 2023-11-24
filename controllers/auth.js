@@ -1,10 +1,11 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User from '../models/user.js';
-import UserForgotPassword from '../models/users_forgot_password.js';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import sgMail from '@sendgrid/mail';
+
+import User from '../models/user.js';
+import UserForgotPassword from '../models/users_forgot_password.js';
 
 dotenv.config();
 
