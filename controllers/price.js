@@ -16,7 +16,7 @@ const createPriceGroup = (req, res, next) => {
         price_group: req.body.group,
     }})
     .then(price_group => {
-        if (price_group == req.body.group) {
+        if (price_group) {
             return res.status(409).json({message: "This group already exists"});
         } else if (req.body.group) {
             return PriceGroup.create(({
@@ -37,26 +37,44 @@ const createPriceGroup = (req, res, next) => {
 };
 
 const addPricePoint = (req, res, next) => {
-    return PricePoints.create(({
+    PricePoints.findOne({ where : {
         duration: req.body.duration,
         duration_type: req.body.durationType,
-    }))
-    .then(() => {
-        res.status(200).json({message: "Added Successfully"});
+    }})
+    .then(price_group => {
+        if (price_group) {
+            return res.status(409).json({message: "This point already exists"});
+        } else {
+            return PricePoints.create(({
+                duration: req.body.duration,
+                duration_type: req.body.durationType,
+            }))
+            .then((point) => {
+                console.log('point');
+                console.log(point);
+                return res.status(200).json({message: "Added Successfully"});
+            })
+            .catch(err => {
+                console.log(err);
+                return res.status(502).json({message: "An error occurred"});
+            });
+        }
     })
     .catch(err => {
-        console.log(err);
-        res.status(502).json({message: "An error occurred"});
+        console.log('error', err);
     });
 };
 
 const getHeaderData = (req, res, next) => {
     return PricePoints.findAll()
-    .then((pionts) => {
-        const pointsArr = pionts.map(item => item.dataValues.duration + " " + item.dataValues.duration_type);
-        res.status(200).json(pointsArr);
+    .then((points) => {
+        const pointsJSON = points.map((item) => {
+            return {id:item.id, header:item.dataValues.duration + " " + item.dataValues.duration_type};
+        });
+        res.status(200).json(pointsJSON);
     })
     .catch(err => {
+        console.log(err);
         res.status(502).json({message: "An error occurred"});
     });
 };
@@ -85,23 +103,24 @@ const getTableData = (req, res, next) => {
             .then((pionts) => {
                 const pointsArr = pionts.map(item => item.dataValues);
                 
-                var doubleArraiedDtas = {};
+                var doubleArraiedDatas = {};
                 var resData = {};
 
                 datas.map((data, index)=>{
-                    doubleArraiedDtas[data.price_group] = {};
+                    doubleArraiedDatas[data.price_group] = {};
                 });
                 datas.map((data, index)=>{
-                    if(data.point_id) doubleArraiedDtas[data.price_group][data.point_id] = data;
+                    if(data.point_id) doubleArraiedDatas[data.price_group][data.point_id] = data;
                     resData[data.price_group] = {
+                        group_id: data.group_id,
                         is_free: data.is_free,
                         extra_day: data.extra_day,
                         data: []
                     };
                 });
 
-                for(var price_group in doubleArraiedDtas){
-                    var dataFirst = doubleArraiedDtas[price_group];
+                for(var price_group in doubleArraiedDatas){
+                    var dataFirst = doubleArraiedDatas[price_group];
                     pointsArr.map((point, index) => {
                         var dataSecond = dataFirst[point.id];
                         if(dataSecond) {
@@ -121,8 +140,70 @@ const getTableData = (req, res, next) => {
         }
     })
     .catch(error => {
-        res.status(502).json({message: "An error occurred"});
+        res.status(502).json({error: "An error occurred"});
     });
 };
 
-export { createPriceGroup, addPricePoint, getTableData, getHeaderData };
+const setFree = (req, res, next) => {
+    PriceGroup.update(
+      { is_free: req.body.isFree },
+      { where: { price_group: req.body.group } }
+    ).then((result) => {
+        res.status(200).json({ message: "SetFree Successfully" });
+    }).catch((error) => {
+        res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+const saveExtraDay = (req, res, next) => {
+    PriceGroup.update(
+      { extra_day: req.body.extraDay },
+      { where: { price_group: req.body.group } }
+    ).then((result) => {
+        res.status(200).json({ message: "SetFree Successfully" });
+    }).catch((error) => {
+        res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+const setPriceData = (req, res, next) => {
+  const { groupId, pointId, value } = req.body;
+
+  PriceGroupDatas.findOrCreate({
+    where: { 
+      group_id: groupId,
+      point_id: pointId
+    },
+    defaults: {
+      group_id: groupId,
+      point_id: pointId,
+      value: value
+    }
+  }).then(([result, created]) => {
+    if (!created) {
+      PriceGroupDatas.update(
+        { value: value },
+        { 
+          where: { 
+            group_id: groupId,
+            point_id: pointId
+          } 
+        }
+      ).then(() => {
+        res.status(200).json({ message: "Updated price Successfully" });
+      }).catch((error) => {
+        console.log(error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+    } else {
+      res.status(200).json({ message: "SetPrice Successfully" });
+    }
+  }).catch((error) => {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+
+
+export { createPriceGroup, addPricePoint, getTableData, getHeaderData, setFree, setPriceData, saveExtraDay };

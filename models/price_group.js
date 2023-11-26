@@ -13,8 +13,14 @@ const PriceGroup = sequelize.define('price_groups', {
       type: Sequelize.STRING,
       allowNull: false,
    },
+   is_free: {
+      type: Sequelize.BOOLEAN,
+   },
+   extra_day: {
+      type: Sequelize.INTEGER,
+   },
 }, {
    timestamps: false  // Disable timestamps
- });
+});
 
 export default PriceGroup;
