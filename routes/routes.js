@@ -22,14 +22,13 @@ router.post('/price/setpricedata', setPriceData);
 router.post('/price/saveextraday', saveExtraDay);
 
 router.get('/public', (req, res, next) => {
-    res.status(200).json({ message: "here is your public resource" });
+	res.status(200).json({ message: "here is your public resource" });
 });
 
-// will match any other path
 router.use('/', (req, res, next) => {
-    console.log("..");
-    console.log(req.body);
-    res.status(404).json({error : "page not found"});
+	console.log("..");
+	console.log(req.body);
+	res.status(404).json({error : "page not found"});
 });
 
 export default router;
