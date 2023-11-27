@@ -67,12 +67,13 @@ export const addPricePoint = (req, res, next) => {
 };
 
 export const getHeaderData = (req, res, next) => {
-	return PricePoints.findAll()
+	PricePoints.findAll()
 	.then((points) => {
-		const pointsJSON = points.map((item) => {
-			return {id:item.id, header:item.dataValues.duration + " " + item.dataValues.duration_type};
-		});
-		res.status(200).json(pointsJSON);
+    let pointsJSON = [];
+    for (let i = 0; i < points.length; i++) {
+      pointsJSON.push({ id: points[i].id, header: points[i].dataValues.duration + " " + points[i].dataValues.duration_type });
+    }		
+    res.status(200).json(pointsJSON);
 	})
 	.catch(err => {
 		console.log(err);
@@ -81,7 +82,7 @@ export const getHeaderData = (req, res, next) => {
 };
 
 export const getTableData = (req, res, next) => {
-	return sequelize.query(
+	sequelize.query(
 	  `
 	  SELECT
   		t1.id AS group_id,
@@ -102,7 +103,10 @@ export const getTableData = (req, res, next) => {
 		if(datas.length > 0){
 			PricePoints.findAll()
 			.then((pionts) => {
-				const pointsArr = pionts.map(item => item.dataValues);
+				const pointsArr = [];
+				for (let i = 0; i < pionts.length; i++) {
+				  pointsArr.push(pionts[i].dataValues);
+				}
 				
 				var doubleArraiedDatas = {};
 				var resData = {};
@@ -137,7 +141,7 @@ export const getTableData = (req, res, next) => {
 				res.status(502).json({error: "An error occurred"});
 			});
 		}else{
-			res.status(200).json({datas});
+			res.status(200).json({});
 		}
 	})
 	.catch(error => {
@@ -203,4 +207,19 @@ export const setExtraDay = (req, res, next) => {
   }).catch((error) => {
     res.status(500).json({ error: "Internal server error" });
   });
+};
+
+export const deleteGroup = (req, res, next) => {
+	console.log(req.body);
+  PriceGroup.destroy({ where: { price_group: req.body.group } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Group deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Group not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
 };

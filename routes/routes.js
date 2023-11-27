@@ -2,7 +2,7 @@
 import express from 'express';
 
 import { signup, login, isAuth, resetPass, verifyChangePass, newPass } from '../controllers/auth.js';
-import { createPriceGroup, addPricePoint, getTableData, getHeaderData, setFree, setPriceData, setExtraDay } from '../controllers/price.js';
+import { createPriceGroup, addPricePoint, getTableData, getHeaderData, setFree, setPriceData, setExtraDay, deleteGroup } from '../controllers/price.js';
 
 const router = express.Router();
 
@@ -20,6 +20,7 @@ router.get('/price/gettabledata', getTableData);
 router.post('/price/setfree', setFree);
 router.post('/price/setpricedata', setPriceData);
 router.post('/price/setextraday', setExtraDay);
+router.post('/price/deletegroup', deleteGroup);
 
 router.get('/public', (req, res, next) => {
 	res.status(200).json({ message: "here is your public resource" });
