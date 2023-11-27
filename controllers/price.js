@@ -11,7 +11,8 @@ import PriceGroupDatas from '../models/price_group_datas.js';
 
 dotenv.config();
 
-const createPriceGroup = (req, res, next) => {
+export const createPriceGroup = (req, res, next) => {
+  console.log(req.body);
 	PriceGroup.findOne({ where : {
 		price_group: req.body.group,
 	}})
@@ -36,7 +37,7 @@ const createPriceGroup = (req, res, next) => {
 	});
 };
 
-const addPricePoint = (req, res, next) => {
+export const addPricePoint = (req, res, next) => {
 	PricePoints.findOne({ where : {
 		duration: req.body.duration,
 		duration_type: req.body.durationType,
@@ -65,7 +66,7 @@ const addPricePoint = (req, res, next) => {
 	});
 };
 
-const getHeaderData = (req, res, next) => {
+export const getHeaderData = (req, res, next) => {
 	return PricePoints.findAll()
 	.then((points) => {
 		const pointsJSON = points.map((item) => {
@@ -79,7 +80,7 @@ const getHeaderData = (req, res, next) => {
 	});
 };
 
-const getTableData = (req, res, next) => {
+export const getTableData = (req, res, next) => {
 	return sequelize.query(
 	  `
 	  SELECT
@@ -144,7 +145,7 @@ const getTableData = (req, res, next) => {
 	});
 };
 
-const setFree = (req, res, next) => {
+export const setFree = (req, res, next) => {
 	PriceGroup.update(
 	  { is_free: req.body.isFree },
 	  { where: { price_group: req.body.group } }
@@ -155,18 +156,7 @@ const setFree = (req, res, next) => {
 	});
 };
 
-const saveExtraDay = (req, res, next) => {
-	PriceGroup.update(
-	  { extra_day: req.body.extraDay },
-	  { where: { price_group: req.body.group } }
-	).then((result) => {
-		res.status(200).json({ message: "SetFree Successfully" });
-	}).catch((error) => {
-		res.status(500).json({ error: "Internal server error" });
-	});
-};
-
-const setPriceData = (req, res, next) => {
+export const setPriceData = (req, res, next) => {
   const { groupId, pointId, value } = req.body;
 
   PriceGroupDatas.findOrCreate({
@@ -204,4 +194,13 @@ const setPriceData = (req, res, next) => {
   });
 };
 
-export { createPriceGroup, addPricePoint, getTableData, getHeaderData, setFree, setPriceData, saveExtraDay };
+export const setExtraDay = (req, res, next) => {
+  PriceGroup.update(
+    { extra_day: req.body.extraDay },
+    { where: { price_group: req.body.group } }
+  ).then((result) => {
+    res.status(200).json({ message: "SetFree Successfully" });
+  }).catch((error) => {
+    res.status(500).json({ error: "Internal server error" });
+  });
+};

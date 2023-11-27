@@ -9,7 +9,7 @@ import UserForgotPassword from '../models/users_forgot_password.js';
 
 dotenv.config();
 
-const signup = (req, res, next) => {
+export const signup = (req, res, next) => {
 	User.findOne({ where : {
 		email: req.body.email, 
 	}})
@@ -47,7 +47,7 @@ const signup = (req, res, next) => {
 	});
 };
 
-const login = (req, res, next) => {
+export const login = (req, res, next) => {
 	User.findOne({ where : {
 		email: req.body.email, 
 	}})
@@ -72,7 +72,7 @@ const login = (req, res, next) => {
 	});
 };
 
-const resetpass = async (req, res, next) => {
+export const resetPass = async (req, res, next) => {
 	try {
 	  const dbUser = await User.findOne({ where: { email: req.body.email } });
 	  if (!dbUser) {
@@ -115,9 +115,9 @@ const resetpass = async (req, res, next) => {
 	  console.error('An error occurred:', err);
 	  return res.status(500).send("An error occurred");
 	}
-};  
+};
 
-const changepass = (req, res, next) => {
+export const verifyChangePass = (req, res, next) => {
 	const recoveryId = req.params.id;
 	const currentDate = new Date();
 	UserForgotPassword.findOne({
@@ -141,7 +141,7 @@ const changepass = (req, res, next) => {
 	});
 };
 
-const password = (req, res, next) => {
+export const newPass = (req, res, next) => {
 	const currentDate = new Date();
 	UserForgotPassword.findOne({
 		where: {
@@ -179,8 +179,7 @@ const password = (req, res, next) => {
 	});
 };
 
-
-const isAuth = (req, res, next) => {
+export const isAuth = (req, res, next) => {
 	const authHeader = req.get("Authorization");
 	if (!authHeader) {
 		return res.status(401).json({ message: 'not authenticated' });
@@ -198,5 +197,3 @@ const isAuth = (req, res, next) => {
 		res.status(200).json({ message: 'here is your resource' });
 	};
 };
-
-export { signup, login, isAuth, resetpass, changepass, password };
