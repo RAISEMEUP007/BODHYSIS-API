@@ -210,13 +210,26 @@ export const setExtraDay = (req, res, next) => {
 };
 
 export const deleteGroup = (req, res, next) => {
-	console.log(req.body);
   PriceGroup.destroy({ where: { price_group: req.body.group } })
     .then((result) => {
       if (result === 1) {
         res.status(200).json({ message: "Group deleted successfully" });
       } else {
         res.status(404).json({ error: "Group not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const deletePricePoint = (req, res, next) => {
+  PricePoints.destroy({ where: { id: req.body.pointId } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "PricePoint deleted successfully" });
+      } else {
+        res.status(404).json({ error: "PricePoint not found" });
       }
     })
     .catch((error) => {
