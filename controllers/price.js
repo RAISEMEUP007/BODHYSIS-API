@@ -12,7 +12,6 @@ import PriceGroupDatas from '../models/price_group_datas.js';
 dotenv.config();
 
 export const createPriceGroup = (req, res, next) => {
-  console.log(req.body);
 	PriceGroup.findOne({ where : {
 		price_group: req.body.group,
 	}})
@@ -36,6 +35,33 @@ export const createPriceGroup = (req, res, next) => {
 		console.log('error', err);
 	});
 };
+
+export const updatePriceGroup = (req, res, next) => {
+  console.log(req.body);
+  PriceGroup.findOne({ where: { price_group: req.body.oldName } })
+  .then(result => {
+    if (result) {
+      return PriceGroup.update(
+        { price_group: req.body.newName },
+        { where: { price_group: req.body.oldName } }
+      )
+      .then(() => {
+        res.status(200).json({ message: "Updated Successfully" });
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(502).json({ error: "An error occurred" });
+      });
+    } else {
+      return res.status(404).json({ error: "This group is not found" });
+    }
+  })
+  .catch(err => {
+    console.log('error', err);
+    res.status(500).json({ error: "Internal server error" });
+  });
+};
+
 
 export const addPricePoint = (req, res, next) => {
 	PricePoints.findOne({ where : {
@@ -210,13 +236,26 @@ export const setExtraDay = (req, res, next) => {
 };
 
 export const deleteGroup = (req, res, next) => {
-	console.log(req.body);
   PriceGroup.destroy({ where: { price_group: req.body.group } })
     .then((result) => {
       if (result === 1) {
         res.status(200).json({ message: "Group deleted successfully" });
       } else {
         res.status(404).json({ error: "Group not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const deletePricePoint = (req, res, next) => {
+  PricePoints.destroy({ where: { id: req.body.pointId } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "PricePoint deleted successfully" });
+      } else {
+        res.status(404).json({ error: "PricePoint not found" });
       }
     })
     .catch((error) => {
