@@ -9,6 +9,7 @@ import PriceGroup from '../models/price_group.js';
 import PricePoints from '../models/price_points.js';
 import PriceGroupDatas from '../models/price_group_datas.js';
 import PriceSeasons from '../models/price_seasons.js';
+import PriceBrands from '../models/price_brands.js';
 
 dotenv.config();
 
@@ -328,6 +329,66 @@ export const deleteSeason = (req, res, next) => {
         res.status(200).json({ message: "Season deleted successfully" });
       } else {
         res.status(404).json({ error: "Season not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const getBrandsData = (req, res, next) => {
+	PriceBrands.findAll()
+	.then((brands) => {
+    let brandsJSON = [];
+    for (let i = 0; i < brands.length; i++) {
+      brandsJSON.push(brands[i].dataValues);
+    }		
+    res.status(200).json(brandsJSON);
+	})
+	.catch(err => {
+		console.log(err);
+		res.status(502).json({error: "An error occurred"});
+	});
+};
+
+export const saveBrandCell = (req, res, next) => {
+  const { id, column, value } = req.body;
+  console.log(req.body);
+  console.log({
+	  [column]: value,
+	});
+  PriceBrands.findOrCreate({
+	where: { id: id, },
+	defaults: {
+	  [column]: value,
+	}}).then(([result, created]) => {
+		console.log(result);
+		if (!created) {
+		  PriceBrands.update(
+				{ [column]: value },
+				{ where: { id: id, } }
+		  ).then(() => {
+				res.status(200).json({ message: "Updated price Successfully" });
+		  }).catch((error) => {
+				console.log(error);
+				res.status(500).json({ error: "Internal server error" });
+		  });
+		} else {
+		  res.status(200).json({ message: "SetBrand Successfully" });
+		}
+  }).catch((error) => {
+		console.log(error);
+		res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const deleteBrand = (req, res, next) => {
+  PriceBrands.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Brand deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Brand not found" });
       }
     })
     .catch((error) => {
