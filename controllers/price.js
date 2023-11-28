@@ -8,6 +8,7 @@ import sequelize from '../utils/database.js';
 import PriceGroup from '../models/price_group.js';
 import PricePoints from '../models/price_points.js';
 import PriceGroupDatas from '../models/price_group_datas.js';
+import PriceSeasons from '../models/price_seasons.js';
 
 dotenv.config();
 
@@ -108,8 +109,10 @@ export const getHeaderData = (req, res, next) => {
 };
 
 export const getTableData = (req, res, next) => {
-	sequelize.query(
-	  `
+	let seasonId = req.params.seasonId;
+	if(seasonId == 0) seasonId = null;
+
+	const query = `
 	  SELECT
   		t1.id AS group_id,
   		t1.price_group,
@@ -119,10 +122,15 @@ export const getTableData = (req, res, next) => {
   		t2.value
 	  FROM
   		price_groups AS t1
-    		LEFT JOIN price_group_datas AS t2 ON t1.id = t2.group_id
+    		LEFT JOIN price_group_datas AS t2 
+    			ON t1.id = t2.group_id
+    				AND ${seasonId ? 'season_id = ' + seasonId : 'season_id IS NULL'}
     		LEFT JOIN price_points AS t3 ON t2.point_id = t3.id
   	  ORDER BY group_id, point_id
-	  `,
+	  `;
+	  console.log(query);
+	sequelize.query(
+	  query,
 	  { type: sequelize.QueryTypes.SELECT }
 	)
 	.then(datas => {
@@ -188,39 +196,43 @@ export const setFree = (req, res, next) => {
 
 export const setPriceData = (req, res, next) => {
   const { groupId, pointId, value } = req.body;
-
+  let seasonId = null;
+  if(req.body.seasonId) seasonId = req.body.seasonId;
+  console.log(req.body);
   PriceGroupDatas.findOrCreate({
 	where: { 
 	  group_id: groupId,
+	  season_id: seasonId,
 	  point_id: pointId
 	},
 	defaults: {
 	  group_id: groupId,
+	  season_id: seasonId,
 	  point_id: pointId,
 	  value: value
-	}
-  }).then(([result, created]) => {
-	if (!created) {
-	  PriceGroupDatas.update(
-		{ value: value },
-		{ 
-		  where: { 
-			group_id: groupId,
-			point_id: pointId
-		  } 
+	}}).then(([result, created]) => {
+		if (!created) {
+		  PriceGroupDatas.update(
+			{ value: value },
+			{ 
+			  where: { 
+				group_id: groupId,
+				season_id: seasonId,
+				point_id: pointId
+			  } 
+			}
+		  ).then(() => {
+				res.status(200).json({ message: "Updated price Successfully" });
+		  }).catch((error) => {
+				console.log(error);
+				res.status(500).json({ error: "Internal server error" });
+		  });
+		} else {
+		  res.status(200).json({ message: "SetPrice Successfully" });
 		}
-	  ).then(() => {
-		res.status(200).json({ message: "Updated price Successfully" });
-	  }).catch((error) => {
+  }).catch((error) => {
 		console.log(error);
 		res.status(500).json({ error: "Internal server error" });
-	  });
-	} else {
-	  res.status(200).json({ message: "SetPrice Successfully" });
-	}
-  }).catch((error) => {
-	console.log(error);
-	res.status(500).json({ error: "Internal server error" });
   });
 };
 
@@ -261,4 +273,19 @@ export const deletePricePoint = (req, res, next) => {
     .catch((error) => {
       res.status(500).json({ error: "Internal server error" });
     });
+};
+
+export const getSeasonsData = (req, res, next) => {
+	PriceSeasons.findAll()
+	.then((seasons) => {
+    let seasonsJSON = [];
+    for (let i = 0; i < seasons.length; i++) {
+      seasonsJSON.push({ id: seasons[i].id, season: seasons[i].season });
+    }		
+    res.status(200).json(seasonsJSON);
+	})
+	.catch(err => {
+		console.log(err);
+		res.status(502).json({error: "An error occurred"});
+	});
 };

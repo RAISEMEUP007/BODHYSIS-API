@@ -2,7 +2,8 @@
 import express from 'express';
 
 import { signup, login, isAuth, resetPass, verifyChangePass, newPass } from '../controllers/auth.js';
-import { createPriceGroup, addPricePoint, getTableData, getHeaderData, setFree, setPriceData, setExtraDay, deleteGroup, deletePricePoint, updatePriceGroup } from '../controllers/price.js';
+import { createPriceGroup, addPricePoint, getTableData, getHeaderData, setFree, setPriceData, 
+		 setExtraDay, deleteGroup, deletePricePoint, updatePriceGroup, getSeasonsData } from '../controllers/price.js';
 
 const router = express.Router();
 
@@ -14,7 +15,8 @@ router.post('/newpassword', newPass);
 router.get('/private', isAuth);
 
 router.get('/price/getheaderdata', getHeaderData);
-router.get('/price/gettabledata', getTableData);
+router.get('/price/gettabledata/:seasonId', getTableData);
+router.get('/price/getseasonsdata', getSeasonsData);
 router.post('/price/creategroup', createPriceGroup);
 router.post('/price/updategroup', updatePriceGroup);
 router.post('/price/addpricepoint', addPricePoint);
