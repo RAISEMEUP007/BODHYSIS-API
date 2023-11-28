@@ -280,7 +280,7 @@ export const getSeasonsData = (req, res, next) => {
 	.then((seasons) => {
     let seasonsJSON = [];
     for (let i = 0; i < seasons.length; i++) {
-      seasonsJSON.push({ id: seasons[i].id, season: seasons[i].season });
+      seasonsJSON.push(seasons[i].dataValues);
     }		
     res.status(200).json(seasonsJSON);
 	})
@@ -288,4 +288,49 @@ export const getSeasonsData = (req, res, next) => {
 		console.log(err);
 		res.status(502).json({error: "An error occurred"});
 	});
+};
+
+export const saveSeasonCell = (req, res, next) => {
+  const { id, column, value } = req.body;
+  console.log(req.body);
+  console.log({
+	  [column]: value,
+	});
+  PriceSeasons.findOrCreate({
+	where: { id: id, },
+	defaults: {
+	  [column]: value,
+	}}).then(([result, created]) => {
+		console.log(result);
+		if (!created) {
+		  PriceSeasons.update(
+				{ [column]: value },
+				{ where: { id: id, } }
+		  ).then(() => {
+				res.status(200).json({ message: "Updated price Successfully" });
+		  }).catch((error) => {
+				console.log(error);
+				res.status(500).json({ error: "Internal server error" });
+		  });
+		} else {
+		  res.status(200).json({ message: "SetSeason Successfully" });
+		}
+  }).catch((error) => {
+		console.log(error);
+		res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const deleteSeason = (req, res, next) => {
+  PriceSeasons.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Season deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Season not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
 };
