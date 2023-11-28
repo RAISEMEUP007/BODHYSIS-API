@@ -113,6 +113,14 @@ export const getTableData = (req, res, next) => {
 	let seasonId = req.params.seasonId;
 	if(seasonId == 0) seasonId = null;
 
+	let brandId = req.params.brandId;
+	if(brandId == 0) brandId = null;
+
+	console.log('seasonId');
+	console.log(seasonId);
+	console.log('brandId');
+	console.log(brandId);
+
 	const query = `
 	  SELECT
   		t1.id AS group_id,
@@ -126,6 +134,7 @@ export const getTableData = (req, res, next) => {
     		LEFT JOIN price_group_datas AS t2 
     			ON t1.id = t2.group_id
     				AND ${seasonId ? 'season_id = ' + seasonId : 'season_id IS NULL'}
+    				AND ${brandId ? 'brand_id = ' + brandId : 'brand_id IS NULL'}
     		LEFT JOIN price_points AS t3 ON t2.point_id = t3.id
   	  ORDER BY group_id, point_id
 	  `;
@@ -198,31 +207,33 @@ export const setFree = (req, res, next) => {
 export const setPriceData = (req, res, next) => {
   const { groupId, pointId, value } = req.body;
   let seasonId = null;
+  let brandId = null;
   if(req.body.seasonId) seasonId = req.body.seasonId;
+  if(req.body.brandId) brandId = req.body.brandId;
   console.log(req.body);
   PriceGroupDatas.findOrCreate({
 	where: { 
 	  group_id: groupId,
 	  season_id: seasonId,
+	  brand_id: brandId,
 	  point_id: pointId
 	},
 	defaults: {
 	  group_id: groupId,
 	  season_id: seasonId,
 	  point_id: pointId,
+	  brand_id: brandId,
 	  value: value
 	}}).then(([result, created]) => {
 		if (!created) {
 		  PriceGroupDatas.update(
 			{ value: value },
-			{ 
-			  where: { 
-				group_id: groupId,
-				season_id: seasonId,
-				point_id: pointId
-			  } 
-			}
-		  ).then(() => {
+			{ where: { 
+					group_id: groupId,
+					season_id: seasonId,
+		  		brand_id: brandId,
+					point_id: pointId
+			}}).then(() => {
 				res.status(200).json({ message: "Updated price Successfully" });
 		  }).catch((error) => {
 				console.log(error);

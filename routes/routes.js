@@ -15,7 +15,7 @@ router.post('/newpassword', newPass);
 router.get('/private', isAuth);
 
 router.get('/price/getheaderdata', getHeaderData);
-router.get('/price/gettabledata/:seasonId', getTableData);
+router.get('/price/gettabledata/:seasonId/:brandId', getTableData);
 router.post('/price/creategroup', createPriceGroup);
 router.post('/price/updategroup', updatePriceGroup);
 router.post('/price/addpricepoint', addPricePoint);
