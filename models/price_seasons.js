@@ -12,6 +12,9 @@ const PriceSeasons = sequelize.define('price_seasons', {
    season: {
       type: Sequelize.INTEGER,
    },
+   is_active: {
+      type: Sequelize.BOOLEAN,
+   },
 }, {
    timestamps: false  // Disable timestamps
 });
