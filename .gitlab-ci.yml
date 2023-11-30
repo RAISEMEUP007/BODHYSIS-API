@@ -26,7 +26,6 @@ cache:
 
 build:
   script:
-    - npm install -g yarn
     - yarn
     - yarn start
 
