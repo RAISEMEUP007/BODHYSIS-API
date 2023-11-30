@@ -24,15 +24,11 @@ cache:
   paths:
     - node_modules/
 
-test_async:
+build:
   script:
-    - npm install
-    - node ./specs/start.js ./specs/async.spec.js
-
-test_db:
-  script:
-    - npm install
-    - node ./specs/start.js ./specs/db-postgres.spec.js
+    - npm install -g yarn
+    - yarn
+    - yarn start
 
 deploy:
   stage: deploy
