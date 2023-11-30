@@ -13,6 +13,10 @@ const PriceGroupDatas = sequelize.define('price_group_datas', {
       type: Sequelize.INTEGER,
       allowNull: false,
    },
+   table_id: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+   },
    point_id: {
       type: Sequelize.INTEGER,
       allowNull: false,

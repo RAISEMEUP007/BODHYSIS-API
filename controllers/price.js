@@ -8,6 +8,9 @@ import sequelize from '../utils/database.js';
 import PriceGroup from '../models/price_group.js';
 import PricePoints from '../models/price_points.js';
 import PriceGroupDatas from '../models/price_group_datas.js';
+import PriceSeasons from '../models/price_seasons.js';
+import PriceBrands from '../models/price_brands.js';
+import PriceTables from '../models/price_tables.js';
 
 dotenv.config();
 
@@ -108,8 +111,10 @@ export const getHeaderData = (req, res, next) => {
 };
 
 export const getTableData = (req, res, next) => {
-	sequelize.query(
-	  `
+	let tableId = req.params.tableId;
+	if(tableId == 0) tableId = null;
+
+	const query = `
 	  SELECT
   		t1.id AS group_id,
   		t1.price_group,
@@ -119,10 +124,15 @@ export const getTableData = (req, res, next) => {
   		t2.value
 	  FROM
   		price_groups AS t1
-    		LEFT JOIN price_group_datas AS t2 ON t1.id = t2.group_id
+    		LEFT JOIN price_group_datas AS t2 
+    			ON t1.id = t2.group_id
+    				AND ${tableId ? 'table_id = ' + tableId : 'table_id IS NULL'}
     		LEFT JOIN price_points AS t3 ON t2.point_id = t3.id
   	  ORDER BY group_id, point_id
-	  `,
+	  `;
+	  console.log(query);
+	sequelize.query(
+	  query,
 	  { type: sequelize.QueryTypes.SELECT }
 	)
 	.then(datas => {
@@ -188,39 +198,40 @@ export const setFree = (req, res, next) => {
 
 export const setPriceData = (req, res, next) => {
   const { groupId, pointId, value } = req.body;
+  let tableId = null;
+  if(req.body.tableId) tableId = req.body.tableId;
 
   PriceGroupDatas.findOrCreate({
 	where: { 
 	  group_id: groupId,
+	  table_id: tableId,
 	  point_id: pointId
 	},
 	defaults: {
 	  group_id: groupId,
+	  table_id: tableId,
 	  point_id: pointId,
 	  value: value
-	}
-  }).then(([result, created]) => {
-	if (!created) {
-	  PriceGroupDatas.update(
-		{ value: value },
-		{ 
-		  where: { 
-			group_id: groupId,
-			point_id: pointId
-		  } 
+	}}).then(([result, created]) => {
+		if (!created) {
+		  PriceGroupDatas.update(
+			{ value: value },
+			{ where: { 
+					group_id: groupId,
+					table_id: tableId,
+					point_id: pointId
+			}}).then(() => {
+				res.status(200).json({ message: "Updated price Successfully" });
+		  }).catch((error) => {
+				console.log(error);
+				res.status(500).json({ error: "Internal server error" });
+		  });
+		} else {
+		  res.status(200).json({ message: "SetPrice Successfully" });
 		}
-	  ).then(() => {
-		res.status(200).json({ message: "Updated price Successfully" });
-	  }).catch((error) => {
+  }).catch((error) => {
 		console.log(error);
 		res.status(500).json({ error: "Internal server error" });
-	  });
-	} else {
-	  res.status(200).json({ message: "SetPrice Successfully" });
-	}
-  }).catch((error) => {
-	console.log(error);
-	res.status(500).json({ error: "Internal server error" });
   });
 };
 
@@ -261,4 +272,179 @@ export const deletePricePoint = (req, res, next) => {
     .catch((error) => {
       res.status(500).json({ error: "Internal server error" });
     });
+};
+
+export const getSeasonsData = (req, res, next) => {
+	PriceSeasons.findAll()
+	.then((seasons) => {
+    let seasonsJSON = [];
+    for (let i = 0; i < seasons.length; i++) {
+      seasonsJSON.push(seasons[i].dataValues);
+    }		
+    res.status(200).json(seasonsJSON);
+	})
+	.catch(err => {
+		console.log(err);
+		res.status(502).json({error: "An error occurred"});
+	});
+};
+
+export const saveSeasonCell = (req, res, next) => {
+  const { id, column, value } = req.body;
+  console.log(req.body);
+  console.log({
+	  [column]: value,
+	});
+  PriceSeasons.findOrCreate({
+	where: { id: id, },
+	defaults: {
+	  [column]: value,
+	}}).then(([result, created]) => {
+		console.log(result);
+		if (!created) {
+		  PriceSeasons.update(
+				{ [column]: value },
+				{ where: { id: id, } }
+		  ).then(() => {
+				res.status(200).json({ message: "Updated price Successfully" });
+		  }).catch((error) => {
+				console.log(error);
+				res.status(500).json({ error: "Internal server error" });
+		  });
+		} else {
+		  res.status(200).json({ message: "SetSeason Successfully" });
+		}
+  }).catch((error) => {
+		console.log(error);
+		res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const deleteSeason = (req, res, next) => {
+  PriceSeasons.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Season deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Season not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const getBrandsData = (req, res, next) => {
+	PriceBrands.findAll()
+	.then((brands) => {
+    let brandsJSON = [];
+    for (let i = 0; i < brands.length; i++) {
+      brandsJSON.push(brands[i].dataValues);
+    }		
+    res.status(200).json(brandsJSON);
+	})
+	.catch(err => {
+		console.log(err);
+		res.status(502).json({error: "An error occurred"});
+	});
+};
+
+export const saveBrandCell = (req, res, next) => {
+  const { id, column, value } = req.body;
+  console.log(req.body);
+  console.log({
+	  [column]: value,
+	});
+  PriceBrands.findOrCreate({
+	where: { id: id, },
+	defaults: {
+	  [column]: value,
+	}}).then(([result, created]) => {
+		console.log(result);
+		if (!created) {
+		  PriceBrands.update(
+				{ [column]: value },
+				{ where: { id: id, } }
+		  ).then(() => {
+				res.status(200).json({ message: "Updated price Successfully" });
+		  }).catch((error) => {
+				console.log(error);
+				res.status(500).json({ error: "Internal server error" });
+		  });
+		} else {
+		  res.status(200).json({ message: "SetBrand Successfully" });
+		}
+  }).catch((error) => {
+		console.log(error);
+		res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const deleteBrand = (req, res, next) => {
+  PriceBrands.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Brand deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Brand not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const getPriceTablesData = (req, res, next) => {
+	PriceTables.findAll()
+	.then((brands) => {
+    let priceTablesJSON = [];
+    for (let i = 0; i < brands.length; i++) {
+      priceTablesJSON.push(brands[i].dataValues);
+    }		
+    res.status(200).json(priceTablesJSON);
+	})
+	.catch(err => {
+		console.log(err);
+		res.status(502).json({error: "An error occurred"});
+	});
+};
+
+export const savePriceTableCell = (req, res, next) => {
+  const { id, column, value } = req.body;
+  PriceTables.findOrCreate({
+	where: { id: id, },
+	defaults: {
+	  [column]: value,
+	}}).then(([result, created]) => {
+		if (!created) {
+		  PriceTables.update(
+				{ [column]: value },
+				{ where: { id: id, } }
+		  ).then(() => {
+				res.status(200).json({ message: "Updated price Successfully" });
+		  }).catch((error) => {
+				console.log(error);
+				res.status(500).json({ error: "Internal server error" });
+		  });
+		} else {
+		  res.status(200).json({ message: "SetBrand Successfully" });
+		}
+  }).catch((error) => {
+		console.log(error);
+		res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const deletePriceTable = (req, res, next) => {
+  PriceTables.destroy({ where: { id: req.body.id } })
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "Brand deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Brand not found" });
+    }
+  })
+  .catch((error) => {
+    res.status(500).json({ error: "Internal server error" });
+  });
 };
