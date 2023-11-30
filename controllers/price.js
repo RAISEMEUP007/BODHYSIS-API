@@ -40,7 +40,6 @@ export const createPriceGroup = (req, res, next) => {
 };
 
 export const updatePriceGroup = (req, res, next) => {
-  console.log(req.body);
   PriceGroup.findOne({ where: { price_group: req.body.oldName } })
   .then(result => {
     if (result) {
@@ -64,7 +63,6 @@ export const updatePriceGroup = (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   });
 };
-
 
 export const addPricePoint = (req, res, next) => {
 	PricePoints.findOne({ where : {
@@ -291,16 +289,11 @@ export const getSeasonsData = (req, res, next) => {
 
 export const saveSeasonCell = (req, res, next) => {
   const { id, column, value } = req.body;
-  console.log(req.body);
-  console.log({
-	  [column]: value,
-	});
   PriceSeasons.findOrCreate({
 	where: { id: id, },
 	defaults: {
 	  [column]: value,
 	}}).then(([result, created]) => {
-		console.log(result);
 		if (!created) {
 		  PriceSeasons.update(
 				{ [column]: value },
@@ -308,15 +301,21 @@ export const saveSeasonCell = (req, res, next) => {
 		  ).then(() => {
 				res.status(200).json({ message: "Updated price Successfully" });
 		  }).catch((error) => {
-				console.log(error);
-				res.status(500).json({ error: "Internal server error" });
+				if(error.errors[0].validatorKey == 'not_unique'){
+					const message = error.errors[0].message;
+					const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+					res.status(409).json({ error: capitalizedMessage});
+				}else	res.status(500).json({ error: "Internal server error" });
 		  });
 		} else {
 		  res.status(200).json({ message: "SetSeason Successfully" });
 		}
   }).catch((error) => {
-		console.log(error);
-		res.status(500).json({ error: "Internal server error" });
+		if(error.errors[0].validatorKey == 'not_unique'){
+			const message = error.errors[0].message;
+			const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+			res.status(409).json({ error: capitalizedMessage});
+		}else	res.status(500).json({ error: "Internal server error" });
   });
 };
 
@@ -351,10 +350,6 @@ export const getBrandsData = (req, res, next) => {
 
 export const saveBrandCell = (req, res, next) => {
   const { id, column, value } = req.body;
-  console.log(req.body);
-  console.log({
-	  [column]: value,
-	});
   PriceBrands.findOrCreate({
 	where: { id: id, },
 	defaults: {
@@ -368,15 +363,21 @@ export const saveBrandCell = (req, res, next) => {
 		  ).then(() => {
 				res.status(200).json({ message: "Updated price Successfully" });
 		  }).catch((error) => {
-				console.log(error);
-				res.status(500).json({ error: "Internal server error" });
+				if(error.errors[0].validatorKey == 'not_unique'){
+					const message = error.errors[0].message;
+					const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+					res.status(409).json({ error: capitalizedMessage});
+				}else	res.status(500).json({ error: "Internal server error" });
 		  });
 		} else {
 		  res.status(200).json({ message: "SetBrand Successfully" });
 		}
   }).catch((error) => {
-		console.log(error);
-		res.status(500).json({ error: "Internal server error" });
+		if(error.errors[0].validatorKey == 'not_unique'){
+			const message = error.errors[0].message;
+			const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+			res.status(409).json({ error: capitalizedMessage});
+		}else	res.status(500).json({ error: "Internal server error" });
   });
 };
 
@@ -423,15 +424,22 @@ export const savePriceTableCell = (req, res, next) => {
 		  ).then(() => {
 				res.status(200).json({ message: "Updated price Successfully" });
 		  }).catch((error) => {
-				console.log(error);
-				res.status(500).json({ error: "Internal server error" });
+				if(error.errors[0].validatorKey == 'not_unique'){
+					const message = error.errors[0].message;
+					const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+					res.status(409).json({ error: capitalizedMessage});
+				}else	res.status(500).json({ error: "Internal server error" });
 		  });
 		} else {
 		  res.status(200).json({ message: "SetBrand Successfully" });
 		}
   }).catch((error) => {
-		console.log(error);
-		res.status(500).json({ error: "Internal server error" });
+		if(error.errors[0].validatorKey == 'not_unique'){
+			let originalString = error.errors[0].message;
+			let formattedString = originalString.replace(/_/g, " ");
+			formattedString = formattedString.charAt(0).toUpperCase() + formattedString.slice(1);
+			res.status(409).json({ error: formattedString});
+		}else	res.status(500).json({ error: "Internal server error" });
   });
 };
 
