@@ -3,7 +3,8 @@ import express from 'express';
 
 import { signup, login, isAuth, resetPass, verifyChangePass, newPass } from '../controllers/auth.js';
 import { createPriceGroup, addPricePoint, getTableData, getHeaderData, setFree, setPriceData, 
-		 setExtraDay, deleteGroup, deletePricePoint, updatePriceGroup, getSeasonsData, saveSeasonCell, deleteSeason, getBrandsData, saveBrandCell, deleteBrand } from '../controllers/price.js';
+		 setExtraDay, deleteGroup, deletePricePoint, updatePriceGroup, getSeasonsData, saveSeasonCell, deleteSeason, 
+		 getBrandsData, saveBrandCell, deleteBrand, getPriceTablesData, savePriceTableCell, deletePriceTable  } from '../controllers/price.js';
 
 const router = express.Router();
 
@@ -14,8 +15,9 @@ router.get('/changepass/:id', verifyChangePass);
 router.post('/newpassword', newPass);
 router.get('/private', isAuth);
 
+// price group
 router.get('/price/getheaderdata', getHeaderData);
-router.get('/price/gettabledata/:seasonId/:brandId', getTableData);
+router.get('/price/gettabledata/:tableId', getTableData);
 router.post('/price/creategroup', createPriceGroup);
 router.post('/price/updategroup', updatePriceGroup);
 router.post('/price/addpricepoint', addPricePoint);
@@ -24,12 +26,21 @@ router.post('/price/setpricedata', setPriceData);
 router.post('/price/setextraday', setExtraDay);
 router.post('/price/deletegroup', deleteGroup);
 router.post('/price/deletepricepoint', deletePricePoint);
+
+// Seasons management
 router.get('/price/getseasonsdata', getSeasonsData);
 router.post('/price/saveseasoncell', saveSeasonCell);
 router.post('/price/deleteseason', deleteSeason);
+
+// Brands management
 router.get('/price/getbrandsdata', getBrandsData);
 router.post('/price/savebrandcell', saveBrandCell);
 router.post('/price/deletebrand', deleteBrand);
+
+// PriceTables management
+router.get('/price/getpricetablesdata', getPriceTablesData);
+router.post('/price/savepricetablecell', savePriceTableCell);
+router.post('/price/deletepricetable', deletePriceTable);
 
 router.get('/public', (req, res, next) => {
 	res.status(200).json({ message: "here is your public resource" });

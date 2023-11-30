@@ -13,11 +13,7 @@ const PriceGroupDatas = sequelize.define('price_group_datas', {
       type: Sequelize.INTEGER,
       allowNull: false,
    },
-   season_id: {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-   },
-   brand_id: {
+   table_id: {
       type: Sequelize.INTEGER,
       allowNull: true,
    },
