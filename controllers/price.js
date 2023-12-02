@@ -11,6 +11,7 @@ import PriceGroupDatas from '../models/price_group_datas.js';
 import PriceSeasons from '../models/price_seasons.js';
 import PriceBrands from '../models/price_brands.js';
 import PriceTables from '../models/price_tables.js';
+import PriceLogic from '../models/price_logic.js';
 
 dotenv.config();
 
@@ -40,7 +41,6 @@ export const createPriceGroup = (req, res, next) => {
 };
 
 export const updatePriceGroup = (req, res, next) => {
-  console.log(req.body);
   PriceGroup.findOne({ where: { price_group: req.body.oldName } })
   .then(result => {
     if (result) {
@@ -64,7 +64,6 @@ export const updatePriceGroup = (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   });
 };
-
 
 export const addPricePoint = (req, res, next) => {
 	PricePoints.findOne({ where : {
@@ -291,16 +290,11 @@ export const getSeasonsData = (req, res, next) => {
 
 export const saveSeasonCell = (req, res, next) => {
   const { id, column, value } = req.body;
-  console.log(req.body);
-  console.log({
-	  [column]: value,
-	});
   PriceSeasons.findOrCreate({
 	where: { id: id, },
 	defaults: {
 	  [column]: value,
 	}}).then(([result, created]) => {
-		console.log(result);
 		if (!created) {
 		  PriceSeasons.update(
 				{ [column]: value },
@@ -308,15 +302,21 @@ export const saveSeasonCell = (req, res, next) => {
 		  ).then(() => {
 				res.status(200).json({ message: "Updated price Successfully" });
 		  }).catch((error) => {
-				console.log(error);
-				res.status(500).json({ error: "Internal server error" });
+				if(error.errors[0].validatorKey == 'not_unique'){
+					const message = error.errors[0].message;
+					const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+					res.status(409).json({ error: capitalizedMessage});
+				}else	res.status(500).json({ error: "Internal server error" });
 		  });
 		} else {
 		  res.status(200).json({ message: "SetSeason Successfully" });
 		}
   }).catch((error) => {
-		console.log(error);
-		res.status(500).json({ error: "Internal server error" });
+		if(error.errors[0].validatorKey == 'not_unique'){
+			const message = error.errors[0].message;
+			const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+			res.status(409).json({ error: capitalizedMessage});
+		}else	res.status(500).json({ error: "Internal server error" });
   });
 };
 
@@ -351,10 +351,6 @@ export const getBrandsData = (req, res, next) => {
 
 export const saveBrandCell = (req, res, next) => {
   const { id, column, value } = req.body;
-  console.log(req.body);
-  console.log({
-	  [column]: value,
-	});
   PriceBrands.findOrCreate({
 	where: { id: id, },
 	defaults: {
@@ -368,15 +364,21 @@ export const saveBrandCell = (req, res, next) => {
 		  ).then(() => {
 				res.status(200).json({ message: "Updated price Successfully" });
 		  }).catch((error) => {
-				console.log(error);
-				res.status(500).json({ error: "Internal server error" });
+				if(error.errors[0].validatorKey == 'not_unique'){
+					const message = error.errors[0].message;
+					const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+					res.status(409).json({ error: capitalizedMessage});
+				}else	res.status(500).json({ error: "Internal server error" });
 		  });
 		} else {
 		  res.status(200).json({ message: "SetBrand Successfully" });
 		}
   }).catch((error) => {
-		console.log(error);
-		res.status(500).json({ error: "Internal server error" });
+		if(error.errors[0].validatorKey == 'not_unique'){
+			const message = error.errors[0].message;
+			const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+			res.status(409).json({ error: capitalizedMessage});
+		}else	res.status(500).json({ error: "Internal server error" });
   });
 };
 
@@ -423,15 +425,22 @@ export const savePriceTableCell = (req, res, next) => {
 		  ).then(() => {
 				res.status(200).json({ message: "Updated price Successfully" });
 		  }).catch((error) => {
-				console.log(error);
-				res.status(500).json({ error: "Internal server error" });
+				if(error.errors[0].validatorKey == 'not_unique'){
+					const message = error.errors[0].message;
+					const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+					res.status(409).json({ error: capitalizedMessage});
+				}else	res.status(500).json({ error: "Internal server error" });
 		  });
 		} else {
 		  res.status(200).json({ message: "SetBrand Successfully" });
 		}
   }).catch((error) => {
-		console.log(error);
-		res.status(500).json({ error: "Internal server error" });
+		if(error.errors[0].validatorKey == 'not_unique'){
+			let originalString = error.errors[0].message;
+			let formattedString = originalString.replace(/_/g, " ");
+			formattedString = formattedString.charAt(0).toUpperCase() + formattedString.slice(1);
+			res.status(409).json({ error: formattedString});
+		}else	res.status(500).json({ error: "Internal server error" });
   });
 };
 
@@ -448,3 +457,101 @@ export const deletePriceTable = (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   });
 };
+
+export const getPriceLogicData = (req, res, next) => {
+	PriceLogic.findAll({
+	  include: [
+	    { model: PriceBrands, as: 'brand'},
+	    { model: PriceSeasons, as: 'season'},
+	    { model: PriceTables, as: 'priceTable'}
+	  ]
+	}).then((results) => {
+		console.log(results);
+    let priceLogicJSON = [];
+    for (let i = 0; i < results.length; i++) {
+      priceLogicJSON.push(results[i].dataValues);
+    }		
+    res.status(200).json(priceLogicJSON);
+	})
+	.catch(err => {
+		console.log(err);
+		res.status(502).json({error: "An error occurred"});
+	});
+};
+
+export const createPriceLogic = (req, res, next) => {
+	PriceLogic.findOne({ where : {
+		brand_id: req.body.brandId,
+		season_id: req.body.seasonId,
+		table_id: req.body.tableId,
+	}})
+	.then(result => {
+		if (result) {
+			return res.status(409).json({error: "This logic already exists"});
+		} {
+			return PriceLogic.create(({
+				brand_id: req.body.brandId,
+				season_id: req.body.seasonId,
+				table_id: req.body.tableId,
+			}))
+			.then(() => {
+				res.status(200).json({message: "Added Successfully"});
+			})
+			.catch(err => {
+				console.log(err);
+				res.status(502).json({error: "An error occurred"});
+			});
+		}
+	})
+	.catch(err => {
+		console.log('error', err);
+	});
+};
+
+export const savePriceLogicCell = (req, res, next) => {
+  const { id, column, value } = req.body;
+  PriceLogic.findOrCreate({
+	where: { id: id, },
+	defaults: {
+	  [column]: value,
+	}}).then(([result, created]) => {
+		if (!created) {
+		  PriceLogic.update(
+				{ [column]: value },
+				{ where: { id: id, } }
+		  ).then(() => {
+				res.status(200).json({ message: "Updated price Successfully" });
+		  }).catch((error) => {
+				if(error.errors[0].validatorKey == 'not_unique'){
+					const message = error.errors[0].message;
+					const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+					res.status(409).json({ error: capitalizedMessage});
+				}else	res.status(500).json({ error: "Internal server error" });
+		  });
+		} else {
+		  res.status(200).json({ message: "SetBrand Successfully" });
+		}
+  }).catch((error) => {
+		if(error.errors[0].validatorKey == 'not_unique'){
+			let originalString = error.errors[0].message;
+			let formattedString = originalString.replace(/_/g, " ");
+			formattedString = formattedString.charAt(0).toUpperCase() + formattedString.slice(1);
+			res.status(409).json({ error: formattedString});
+		}else	res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const deletePriceLogic = (req, res, next) => {
+  PriceLogic.destroy({ where: { id: req.body.id } })
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "Brand deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Brand not found" });
+    }
+  })
+  .catch((error) => {
+    res.status(500).json({ error: "Internal server error" });
+  });
+};
+
