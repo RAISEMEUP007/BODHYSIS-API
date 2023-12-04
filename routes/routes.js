@@ -5,7 +5,8 @@ import { signup, login, isAuth, resetPass, verifyChangePass, newPass } from '../
 import { createPriceGroup, addPricePoint, getTableData, getHeaderData, setFree, setPriceData, 
 		 setExtraDay, deleteGroup, deletePricePoint, updatePriceGroup, getSeasonsData, saveSeasonCell, deleteSeason, 
 		 getBrandsData, saveBrandCell, deleteBrand, getPriceTablesData, savePriceTableCell, deletePriceTable,
-		 getPriceLogicData, createPriceLogic, deletePriceLogic } from '../controllers/price.js';
+		 getPriceLogicData, createPriceLogic, deletePriceLogic} from '../controllers/price.js';
+import { getProductCategoriesData, saveProductCategory, deleteProductCategory } from '../controllers/product.js';
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ router.get('/changepass/:id', verifyChangePass);
 router.post('/newpassword', newPass);
 router.get('/private', isAuth);
 
+/* ----- price ----- */
 // price group
 router.get('/price/getheaderdata', getHeaderData);
 router.get('/price/gettabledata/:tableId', getTableData);
@@ -47,6 +49,16 @@ router.post('/price/deletepricetable', deletePriceTable);
 router.get('/price/getpricelogicdata', getPriceLogicData);
 router.post('/price/createpricelogic', createPriceLogic);
 router.post('/price/deletepricelogic', deletePriceLogic);
+/* ----- price ----- */
+
+/* ----- product ----- */
+// Product category
+router.get('/product/getproductcategoriesdata', getProductCategoriesData);
+router.post('/product/saveproductcategory', saveProductCategory);
+router.post('/product/deleteproductcategory', deleteProductCategory);
+
+
+/* ----- product ----- */
 
 router.get('/public', (req, res, next) => {
 	res.status(200).json({ message: "here is your public resource" });
