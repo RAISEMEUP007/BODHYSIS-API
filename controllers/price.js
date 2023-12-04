@@ -195,43 +195,73 @@ export const setFree = (req, res, next) => {
 	});
 };
 
-export const setPriceData = (req, res, next) => {
+export const priceValidation = (req, res, next) => {
   const { groupId, pointId, value } = req.body;
   let tableId = null;
   if(req.body.tableId) tableId = req.body.tableId;
 
-  PriceGroupDatas.findOrCreate({
-	where: { 
+  PriceGroupDatas.findOne({	where: { 
 	  group_id: groupId,
 	  table_id: tableId,
-	  point_id: pointId
-	},
-	defaults: {
-	  group_id: groupId,
-	  table_id: tableId,
-	  point_id: pointId,
 	  value: value
-	}}).then(([result, created]) => {
-		if (!created) {
-		  PriceGroupDatas.update(
-			{ value: value },
-			{ where: { 
-					group_id: groupId,
-					table_id: tableId,
-					point_id: pointId
-			}}).then(() => {
-				res.status(200).json({ message: "Updated price Successfully" });
-		  }).catch((error) => {
-				console.log(error);
-				res.status(500).json({ error: "Internal server error" });
-		  });
+	}}).then((result) => {
+		if (result) {
+		  res.status(404).json({ message: "Conflict price" });
 		} else {
-		  res.status(200).json({ message: "SetPrice Successfully" });
+		  res.status(200).json({ message: "No confliction" });
 		}
   }).catch((error) => {
 		console.log(error);
 		res.status(500).json({ error: "Internal server error" });
   });
+};
+
+export const setPriceData = (req, res, next) => {
+  const { groupId, pointId, value } = req.body;
+  let tableId = null;
+  if(req.body.tableId) tableId = req.body.tableId;
+
+  PriceGroupDatas.findOne({	where: { 
+	  group_id: groupId,
+	  table_id: tableId,
+	  value: value
+	}}).then((result) => {
+		if(value && result){
+			return res.status(409).json({error: "Price already exists"});
+		}
+	  PriceGroupDatas.findOrCreate({
+			where: { 
+			  group_id: groupId,
+			  table_id: tableId,
+			  point_id: pointId
+			},
+			defaults: {
+			  group_id: groupId,
+			  table_id: tableId,
+			  point_id: pointId,
+			  value: value
+			}}).then(([result, created]) => {
+				if (!created) {
+				  PriceGroupDatas.update(
+					{ value: value },
+					{ where: { 
+							group_id: groupId,
+							table_id: tableId,
+							point_id: pointId
+					}}).then(() => {
+						res.status(200).json({ message: "Updated price Successfully" });
+				  }).catch((error) => {
+						console.log(error);
+						res.status(500).json({ error: "Internal server error" });
+				  });
+				} else {
+				  res.status(200).json({ message: "SetPrice Successfully" });
+				}
+		  }).catch((error) => {
+				console.log(error);
+				res.status(500).json({ error: "Internal server error" });
+		  });
+	});
 };
 
 export const setExtraDay = (req, res, next) => {

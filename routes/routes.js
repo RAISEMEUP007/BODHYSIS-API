@@ -2,7 +2,7 @@
 import express from 'express';
 
 import { signup, login, isAuth, resetPass, verifyChangePass, newPass } from '../controllers/auth.js';
-import { createPriceGroup, addPricePoint, getTableData, getHeaderData, setFree, setPriceData, 
+import { createPriceGroup, addPricePoint, getTableData, getHeaderData, setFree, priceValidation, setPriceData, 
 		 setExtraDay, deleteGroup, deletePricePoint, updatePriceGroup, getSeasonsData, saveSeasonCell, deleteSeason, 
 		 getBrandsData, saveBrandCell, deleteBrand, getPriceTablesData, savePriceTableCell, deletePriceTable,
 		 getPriceLogicData, createPriceLogic, deletePriceLogic } from '../controllers/price.js';
@@ -23,6 +23,7 @@ router.post('/price/creategroup', createPriceGroup);
 router.post('/price/updategroup', updatePriceGroup);
 router.post('/price/addpricepoint', addPricePoint);
 router.post('/price/setfree', setFree);
+router.post('/price/validation', priceValidation);
 router.post('/price/setpricedata', setPriceData);
 router.post('/price/setextraday', setExtraDay);
 router.post('/price/deletegroup', deleteGroup);
