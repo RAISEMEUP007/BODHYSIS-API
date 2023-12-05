@@ -13,6 +13,10 @@ const PriceGroup = sequelize.define('price_groups', {
       type: Sequelize.STRING,
       allowNull: false,
    },
+   table_id: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+   },
    is_free: {
       type: Sequelize.BOOLEAN,
    },

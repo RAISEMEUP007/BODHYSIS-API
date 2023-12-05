@@ -18,6 +18,7 @@ dotenv.config();
 export const createPriceGroup = (req, res, next) => {
 	PriceGroup.findOne({ where : {
 		price_group: req.body.group,
+		table_id: req.body.tableId,
 	}})
 	.then(price_group => {
 		if (price_group) {
@@ -25,6 +26,7 @@ export const createPriceGroup = (req, res, next) => {
 		} else if (req.body.group) {
 			return PriceGroup.create(({
 				price_group: req.body.group,
+				table_id: req.body.tableId,
 			}))
 			.then(() => {
 				res.status(200).json({message: "Added Successfully"});
@@ -41,12 +43,21 @@ export const createPriceGroup = (req, res, next) => {
 };
 
 export const updatePriceGroup = (req, res, next) => {
-  PriceGroup.findOne({ where: { price_group: req.body.oldName } })
+  PriceGroup.findOne({ where: { 
+  	price_group: req.body.oldName,
+		table_id: req.body.tableId,
+  }})
   .then(result => {
     if (result) {
       return PriceGroup.update(
-        { price_group: req.body.newName },
-        { where: { price_group: req.body.oldName } }
+        { 
+        	price_group: req.body.newName,
+					table_id: req.body.tableId,
+        },
+        { where: { 
+        	price_group: req.body.oldName,
+					table_id: req.body.tableId,
+        }}
       )
       .then(() => {
         res.status(200).json({ message: "Updated Successfully" });
@@ -69,6 +80,7 @@ export const addPricePoint = (req, res, next) => {
 	PricePoints.findOne({ where : {
 		duration: req.body.duration,
 		duration_type: req.body.durationType,
+		table_id: req.body.tableId,
 	}})
 	.then(price_group => {
 		if (price_group) {
@@ -77,6 +89,7 @@ export const addPricePoint = (req, res, next) => {
 			return PricePoints.create(({
 				duration: req.body.duration,
 				duration_type: req.body.durationType,
+				table_id: req.body.tableId,
 			}))
 			.then((point) => {
 				console.log('point');
@@ -95,7 +108,11 @@ export const addPricePoint = (req, res, next) => {
 };
 
 export const getHeaderData = (req, res, next) => {
-	PricePoints.findAll()
+	let tableId = req.params.tableId;
+	if(tableId == 0) tableId = null;
+	PricePoints.findAll({where:{
+		table_id: tableId
+	}})
 	.then((points) => {
     let pointsJSON = [];
     for (let i = 0; i < points.length; i++) {
@@ -125,18 +142,21 @@ export const getTableData = (req, res, next) => {
   		price_groups AS t1
     		LEFT JOIN price_group_datas AS t2 
     			ON t1.id = t2.group_id
-    				AND ${tableId ? 'table_id = ' + tableId : 'table_id IS NULL'}
+  				AND ${tableId ? 't2.table_id = ' + tableId : 't2.table_id IS NULL'}
     		LEFT JOIN price_points AS t3 ON t2.point_id = t3.id
-  	  ORDER BY group_id, point_id
-	  `;
-	  console.log(query);
+    			AND ${tableId ? 't3.table_id = ' + tableId : 't3.table_id IS NULL'}
+  	WHERE ${tableId ? 't1.table_id = ' + tableId : 't1.table_id IS NULL'}
+	  ORDER BY group_id, point_id
+  `;
 	sequelize.query(
 	  query,
 	  { type: sequelize.QueryTypes.SELECT }
 	)
 	.then(datas => {
 		if(datas.length > 0){
-			PricePoints.findAll()
+			PricePoints.findAll({where:{
+				table_id:tableId,
+			}})
 			.then((pionts) => {
 				const pointsArr = [];
 				for (let i = 0; i < pionts.length; i++) {
@@ -227,7 +247,7 @@ export const setPriceData = (req, res, next) => {
 	  value: value
 	}}).then((result) => {
 		if(value && result){
-			return res.status(409).json({error: "Price already exists"});
+			//return res.status(409).json({error: "Price already exists"});
 		}
 	  PriceGroupDatas.findOrCreate({
 			where: { 
