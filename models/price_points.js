@@ -13,6 +13,10 @@ const PricePoints = sequelize.define('price_points', {
       type: Sequelize.INTEGER,
       allowNull: false,
    },
+   table_id: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+   },
    duration_type: {
       type: Sequelize.INTEGER,
       allowNull: false,

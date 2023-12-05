@@ -3,13 +3,16 @@ import sequelize from './utils/database.js';
 import router from './routes/routes.js';
 import dotenv from 'dotenv';
 import cors from "cors";
+import multer from 'multer';
 
 dotenv.config();
 
 const app = express();
 
 app.use(cors({
-  origin: process.env.CORS_ALLOW_ORIGIN
+  origin: process.env.CORS_ALLOW_ORIGIN,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 console.log(`Database host is ${process.env.DB_HOST}`);
@@ -27,6 +30,7 @@ app.use((_, res, next) => {
     next();
 });
 
+app.use('/uploads', express.static('uploads'));
 app.use(router);
 
 sequelize.sync();
