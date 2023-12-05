@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 
 import sequelize from '../../utils/database.js';
-import PriceCategories from './product_categories.js';
+import ProductCategories from './product_categories.js';
 
 const ProductFamilies = sequelize.define('product_families', {
    id: {
@@ -10,24 +10,30 @@ const ProductFamilies = sequelize.define('product_families', {
       allowNull: false,
       primaryKey: true,
    },
-   category_id: {
-      type: Sequelize.INTEGER,
-      allowNull: false,
-   },
    family: {
       type: Sequelize.STRING,
+      allowNull: false,
+   },
+   category_id: {
+      type: Sequelize.INTEGER,
       allowNull: false,
    },
    img_url: {
       type: Sequelize.STRING,
    },
+   summary: {
+       type: Sequelize.STRING,
+   },
+   price_group_id: {
+      type: Sequelize.INTEGER,
+   },
    description: {
       type: Sequelize.STRING,
    },
 }, {
-   timestamps: false  // Disable timestamps
+   timestamps: false
 });
 
-ProductFamilies.belongsTo(PriceCategories, { foreignKey: 'category_id', as: 'category' });
+ProductFamilies.belongsTo(ProductCategories, { foreignKey: 'category_id', as: 'category' });
 
 export default ProductFamilies;

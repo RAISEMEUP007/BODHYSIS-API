@@ -8,8 +8,8 @@ import { createPriceGroup, addPricePoint, getTableData, getHeaderData, setFree, 
 		 setExtraDay, deleteGroup, deletePricePoint, updatePriceGroup, getSeasonsData, saveSeasonCell, deleteSeason, 
 		 getBrandsData, saveBrandCell, deleteBrand, getPriceTablesData, savePriceTableCell, deletePriceTable,
 		 getPriceLogicData, createPriceLogic, deletePriceLogic} from '../controllers/price.js';
-import { getProductCategoriesData, createProductCategory, createProductFamily, updateProductCategory, saveProductCategory,
-		 deleteProductCategory, updateProductFamily, deleteProductFamily } from '../controllers/product.js';
+import { getProductCategoriesData, createProductCategory, updateProductCategory, saveProductCategory, deleteProductCategory, 
+		 getProductFamiliesData, createProductFamily, updateProductFamily, deleteProductFamily } from '../controllers/product.js';
 
 const router = express.Router();
 
@@ -75,6 +75,7 @@ router.post('/product/saveproductcategory', saveProductCategory);
 router.post('/product/deleteproductcategory', deleteProductCategory);
 
 // Product family
+router.get('/product/getproductfamiliesdata', getProductFamiliesData);
 router.post('/product/createproductfamily', upload.array('img', 3),  createProductFamily);
 router.post('/product/updateproductfamily', upload.array('img', 3),  updateProductFamily);
 router.post('/product/deleteproductfamily', deleteProductFamily);

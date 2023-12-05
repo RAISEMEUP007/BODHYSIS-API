@@ -25,15 +25,7 @@ export const getProductCategoriesData = (req, res, next) => {
 	ProductCategories.hasMany(ProductFamilies, { foreignKey: 'category_id' });
 	ProductFamilies.belongsTo(ProductCategories, { foreignKey: 'category_id' });
 
-	ProductCategories.findAll({
-	  include: {
-	    model: ProductFamilies,
-	    required: false,
-	    where: {
-	      category_id: sequelize.col('product_categories.id')
-	    }
-	  }
-	})
+	ProductCategories.findAll()
 	.then((productCategories) => {
     let productCategoriesJSON = [];
     for (let i = 0; i < productCategories.length; i++) {
@@ -69,13 +61,16 @@ export const updateProductCategory = (req, res, next) => {
   const { id, category, description } = req.body;
   const imgUrl = generateFileUrl(req.files);
 
-  ProductCategories.update({
+  const updateFields = {
     category: category,
-    img_url: imgUrl,
     description: description
-  }, {where:{
-    id: id
-  }})
+  };
+
+  if (imgUrl) {
+    updateFields.img_url = imgUrl;
+  }
+
+  ProductCategories.update(updateFields, { where: { id: id } })
   .then(newCategory => {
     res.status(201).json({ message: 'Product category created successfully', category: newCategory });
   })
@@ -131,14 +126,40 @@ export const deleteProductCategory = (req, res, next) => {
     });
 };
 
+export const getProductFamiliesData = (req, res, next) => {
+  ProductFamilies.findAll({
+    include: {
+      model: ProductCategories,
+      as: 'category',
+      attributes: ['category'],
+    },
+    order: [
+      [{ model: ProductCategories, as: 'category' }, 'category'],
+      'family',
+    ],
+  })
+  .then((productFamilies) => {
+    let productFamiliesJSON = [];
+    for (let i = 0; i < productFamilies.length; i++) {
+      productFamiliesJSON.push(productFamilies[i].dataValues);
+    }   
+    res.status(200).json(productFamiliesJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
 export const createProductFamily = (req, res, next) => {
-  const { family, category_id } = req.body;
+  const { family, category_id, summary } = req.body;
   const imgUrl = generateFileUrl(req.files);
 
   ProductFamilies.create({
     family: family,
     category_id: category_id,
-    img_url: imgUrl
+    img_url: imgUrl,
+    summary: summary
   })
   .then(newfamily => {
     res.status(201).json({ message: 'Product family created successfully', family: newfamily });
@@ -150,20 +171,22 @@ export const createProductFamily = (req, res, next) => {
 }
 
 export const updateProductFamily = (req, res, next) => {
-  const { id, family, category_id, description } = req.body;
-  console.log("-----------------------------------------------req.body");
-  console.log(req.body);
+  const { id, family, category_id, summary, description } = req.body;
 
   const imgUrl = generateFileUrl(req.files);
 
-  ProductFamilies.update({
+  const updateFields = {
     family: family,
-    img_url: imgUrl,
     category_id: category_id,
+    summary: summary,
     description: description
-  }, {where:{
-    id: id
-  }})
+  };
+
+  if (imgUrl) {
+    updateFields.img_url = imgUrl;
+  }
+
+  ProductFamilies.update(updateFields, { where: { id: id } })
   .then(newfamily => {
     res.status(201).json({ message: 'Product family created successfully', family: newfamily });
   })
