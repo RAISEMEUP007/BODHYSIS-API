@@ -25,7 +25,8 @@ services:
   - redis:latest
 
 variables:
-  MYSQL_ALLOW_EMPTY_PASSWORD:true
+  MYSQL_ALLOW_EMPTY_PASSWORD: Yes
+
 
 # This folder is cached between builds
 # https://docs.gitlab.com/ee/ci/yaml/index.html#cache
