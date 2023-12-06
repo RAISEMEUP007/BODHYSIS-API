@@ -10,7 +10,8 @@ import { createPriceGroup, addPricePoint, getTableData, getPriceGroupsData, getH
 		 getPriceLogicData, createPriceLogic, deletePriceLogic} from '../controllers/price.js';
 import { getProductCategoriesData, createProductCategory, updateProductCategory, saveProductCategory, deleteProductCategory, 
 		 getProductFamiliesData, createProductFamily, updateProductFamily, deleteProductFamily,
-		 getProductLinesData, createProductLine, updateProductLine, deleteProductLine} from '../controllers/product.js';
+		 getProductLinesData, createProductLine, updateProductLine, deleteProductLine,
+		 getProductsData, createProduct, updateProduct, deleteProduct} from '../controllers/product.js';
 
 const router = express.Router();
 
@@ -83,10 +84,16 @@ router.post('/product/updateproductfamily', upload.array('img', 3),  updateProdu
 router.post('/product/deleteproductfamily', deleteProductFamily);
 
 // Product Line
-router.get('/product/getproductlinesdata/', getProductLinesData);
+router.get('/product/getproductlinesdata/:familyId', getProductLinesData);
 router.post('/product/createproductline',  createProductLine);
 router.post('/product/updateproductline', updateProductLine);
 router.post('/product/deleteproductline', deleteProductLine);
+
+// Product Line
+router.get('/product/getproductsdata/', getProductsData);
+router.post('/product/createproduct', createProduct);
+router.post('/product/updateproduct', updateProduct);
+router.post('/product/deleteproduct', deleteProduct);
 
 /* ----- product ----- */
 

@@ -8,6 +8,7 @@ import sequelize from '../utils/database.js';
 import ProductCategories from '../models/product/product_categories.js';
 import ProductFamilies from '../models/product/product_families.js';
 import ProductLines from '../models/product/product_lines.js';
+import ProductProducts from '../models/product/product_products.js';
 
 dotenv.config();
 
@@ -268,6 +269,8 @@ export const updateProductLine = (req, res, next) => {
 }
 
 export const getProductLinesData = (req, res, next) => {
+  let familyId = req.params.familyId;
+
   let queryOptions = {
     include: [
       {
@@ -287,6 +290,12 @@ export const getProductLinesData = (req, res, next) => {
       'line',
     ],
   };
+
+  if (familyId > 0) {
+    queryOptions.where = {
+      family_id: familyId,
+    };
+  }
   ProductLines.findAll(queryOptions)
   .then((productLines) => {
     let productLinesJSON = [];
@@ -308,6 +317,84 @@ export const deleteProductLine = (req, res, next) => {
         res.status(200).json({ message: "Product cateogry deleted successfully" });
       } else {
         res.status(404).json({ error: "Product cateogry not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const createProduct = (req, res, next) => {
+  ProductProducts.create(req.body)
+  .then(newfamily => {
+    res.status(201).json({ message: 'Product family created successfully', family: newfamily });
+  })
+  .catch(error => {
+    console.error('Error creating product family:', error);
+    res.status(500).json({ error: 'Failed to create product family' });
+  });
+}
+
+export const updateProduct = (req, res, next) => {
+  const updateFields = req.body;
+
+  ProductProducts.update(updateFields, { where: { id: id } })
+  .then(newfamily => {
+    res.status(201).json({ message: 'Product family created successfully', family: newfamily });
+  })
+  .catch(error => {
+    console.error('Error creating product family:', error);
+    res.status(500).json({ error: 'Failed to create product family' });
+  });
+}
+
+export const getProductsData = (req, res, next) => {
+  let queryOptions = {
+    include: [
+      {
+        model: ProductCategories,
+        as: 'category',
+        attributes: ['category'],
+      },
+      {
+        model: ProductFamilies,
+        as: 'family',
+        attributes: ['family'],
+      },
+      {
+        model: ProductLines,
+        as: 'line',
+        attributes: ['line'],
+      },
+    ],
+    order: [
+      [{ model: ProductCategories, as: 'category' }, 'category'],
+      [{ model: ProductFamilies, as: 'family' }, 'family'],
+      [{ model: ProductLines, as: 'line' }, 'line'],
+      'product',
+    ],
+  };
+  ProductProducts.findAll(queryOptions)
+  .then((products) => {
+    let productsJSON = [];
+    for (let i = 0; i < products.length; i++) {
+      productsJSON.push(products[i].dataValues);
+    }   
+    res.status(200).json(productsJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteProduct = (req, res, next) => {
+  ProductProducts.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Product deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Product not found" });
       }
     })
     .catch((error) => {
