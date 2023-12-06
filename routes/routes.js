@@ -4,12 +4,13 @@ import multer from 'multer';
 import path from 'path';
 
 import { signup, login, isAuth, resetPass, verifyChangePass, newPass } from '../controllers/auth.js';
-import { createPriceGroup, addPricePoint, getTableData, getHeaderData, setFree, priceValidation, setPriceData, 
+import { createPriceGroup, addPricePoint, getTableData, getPriceGroupsData, getHeaderData, setFree, priceValidation, setPriceData, 
 		 setExtraDay, deleteGroup, deletePricePoint, updatePriceGroup, getSeasonsData, saveSeasonCell, deleteSeason, 
 		 getBrandsData, saveBrandCell, deleteBrand, getPriceTablesData, savePriceTableCell, deletePriceTable,
 		 getPriceLogicData, createPriceLogic, deletePriceLogic} from '../controllers/price.js';
 import { getProductCategoriesData, createProductCategory, updateProductCategory, saveProductCategory, deleteProductCategory, 
-		 getProductFamiliesData, createProductFamily, updateProductFamily, deleteProductFamily } from '../controllers/product.js';
+		 getProductFamiliesData, createProductFamily, updateProductFamily, deleteProductFamily,
+		 getProductLinesData, createProductLine, updateProductLine, deleteProductLine} from '../controllers/product.js';
 
 const router = express.Router();
 
@@ -35,6 +36,7 @@ router.get('/private', isAuth);
 // price group
 router.get('/price/getheaderdata/:tableId', getHeaderData);
 router.get('/price/gettabledata/:tableId', getTableData);
+router.get('/price/getpricegroupsdata', getPriceGroupsData);
 router.post('/price/creategroup', createPriceGroup);
 router.post('/price/updategroup', updatePriceGroup);
 router.post('/price/addpricepoint', addPricePoint);
@@ -75,10 +77,16 @@ router.post('/product/saveproductcategory', saveProductCategory);
 router.post('/product/deleteproductcategory', deleteProductCategory);
 
 // Product family
-router.get('/product/getproductfamiliesdata', getProductFamiliesData);
+router.get('/product/getproductfamiliesdata/:categoryId', getProductFamiliesData);
 router.post('/product/createproductfamily', upload.array('img', 3),  createProductFamily);
 router.post('/product/updateproductfamily', upload.array('img', 3),  updateProductFamily);
 router.post('/product/deleteproductfamily', deleteProductFamily);
+
+// Product Line
+router.get('/product/getproductlinesdata/', getProductLinesData);
+router.post('/product/createproductline',  createProductLine);
+router.post('/product/updateproductline', updateProductLine);
+router.post('/product/deleteproductline', deleteProductLine);
 
 /* ----- product ----- */
 

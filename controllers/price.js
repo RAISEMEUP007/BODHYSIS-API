@@ -204,6 +204,23 @@ export const getTableData = (req, res, next) => {
 	});
 };
 
+export const getPriceGroupsData = (req, res, next) => {
+	PriceGroup.findAll()
+	.then((PriceGroup) => {
+		console.log(PriceGroup);
+    let PriceGroupJSON = [];
+    for (let i = 0; i < PriceGroup.length; i++) {
+      PriceGroupJSON.push(PriceGroup[i].dataValues);
+    }		
+    res.status(200).json(PriceGroupJSON);
+	})
+	.catch(err => {
+		console.log(err);
+		res.status(502).json({error: "An error occurred"});
+	});
+};
+
+
 export const setFree = (req, res, next) => {
 	PriceGroup.update(
 	  { is_free: req.body.isFree },
@@ -406,7 +423,6 @@ export const saveBrandCell = (req, res, next) => {
 	defaults: {
 	  [column]: value,
 	}}).then(([result, created]) => {
-		console.log(result);
 		if (!created) {
 		  PriceBrands.update(
 				{ [column]: value },
@@ -516,7 +532,6 @@ export const getPriceLogicData = (req, res, next) => {
 	    { model: PriceTables, as: 'priceTable'}
 	  ]
 	}).then((results) => {
-		console.log(results);
     let priceLogicJSON = [];
     for (let i = 0; i < results.length; i++) {
       priceLogicJSON.push(results[i].dataValues);
