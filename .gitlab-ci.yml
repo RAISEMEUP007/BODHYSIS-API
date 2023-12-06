@@ -26,6 +26,12 @@ services:
 
 variables:
   MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+  DATABASE_HOST: "localhost"
+  DATABASE_PASSWORD: ""
+  DATABASE_USERNAME: "root"
+  DATABASE_NAME: "bohdisys"
+
+
 
 
 # This folder is cached between builds
