@@ -25,7 +25,7 @@ services:
   - redis:latest
 
 variables:
-  MYSQL_ALLOW_EMPTY_PASSWORD: Yes
+  MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
 
 
 # This folder is cached between builds
