@@ -12,6 +12,7 @@ import { getProductCategoriesData, createProductCategory, updateProductCategory,
 		 getProductFamiliesData, createProductFamily, updateProductFamily, deleteProductFamily,
 		 getProductLinesData, createProductLine, updateProductLine, deleteProductLine,
 		 getProductsData, createProduct, updateProduct, deleteProduct} from '../controllers/product.js';
+import { getManufacturesData, createManufacture, updateManufacture, deleteManufacture} from '../controllers/settings.js';
 
 const router = express.Router();
 
@@ -94,6 +95,12 @@ router.get('/product/getproductsdata/', getProductsData);
 router.post('/product/createproduct', createProduct);
 router.post('/product/updateproduct', updateProduct);
 router.post('/product/deleteproduct', deleteProduct);
+
+// Settings/Manufactures
+router.get('/settings/getmanufacturesdata/', getManufacturesData);
+router.post('/settings/createmanufacture', createManufacture);
+router.post('/settings/updatemanufacture', updateManufacture);
+router.post('/settings/deletemanufacture', deleteManufacture);
 
 /* ----- product ----- */
 

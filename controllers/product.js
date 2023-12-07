@@ -36,7 +36,6 @@ export const getProductCategoriesData = (req, res, next) => {
     res.status(200).json(productCategoriesJSON);
 	})
 	.catch(err => {
-		console.log(err);
 		res.status(502).json({error: "An error occurred"});
 	});
 };
@@ -54,8 +53,11 @@ export const createProductCategory = (req, res, next) => {
     res.status(201).json({ message: 'Product category created successfully', category: newCategory });
   })
   .catch(error => {
-    console.error('Error creating product category:', error);
-    res.status(500).json({ error: 'Failed to create product category' });
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
   });
 }
 
@@ -77,8 +79,11 @@ export const updateProductCategory = (req, res, next) => {
     res.status(201).json({ message: 'Product category created successfully', category: newCategory });
   })
   .catch(error => {
-    console.error('Error creating product category:', error);
-    res.status(500).json({ error: 'Failed to create product category' });
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
   });
 }
 
@@ -96,7 +101,7 @@ export const saveProductCategory = (req, res, next) => {
 		  ).then(() => {
 				res.status(200).json({ message: "Updated price Successfully" });
 		  }).catch((error) => {
-				if(error.errors[0].validatorKey == 'not_unique'){
+				if(error.errors && error.errors[0].validatorKey == 'not_unique'){
 					const message = error.errors[0].message;
 					const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
 					res.status(409).json({ error: capitalizedMessage});
@@ -106,7 +111,7 @@ export const saveProductCategory = (req, res, next) => {
 		  res.status(200).json({ message: "Set Product Category Successfully" });
 		}
   }).catch((error) => {
-		if(error.errors[0].validatorKey == 'not_unique'){
+		if(error.errors && error.errors[0].validatorKey == 'not_unique'){
 			const message = error.errors[0].message;
 			const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
 			res.status(409).json({ error: capitalizedMessage});
@@ -116,16 +121,18 @@ export const saveProductCategory = (req, res, next) => {
 
 export const deleteProductCategory = (req, res, next) => {
   ProductCategories.destroy({ where: { id: req.body.id } })
-    .then((result) => {
-      if (result === 1) {
-        res.status(200).json({ message: "Product cateogry deleted successfully" });
-      } else {
-        res.status(404).json({ error: "Product cateogry not found" });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Internal server error" });
-    });
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "Product cateogry deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Product cateogry not found" });
+    }
+  })
+  .catch((error) => {
+    if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+      res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
 };
 
 export const getProductFamiliesData = (req, res, next) => {
@@ -157,18 +164,18 @@ export const getProductFamiliesData = (req, res, next) => {
     res.status(200).json(productFamiliesJSON);
   })
   .catch(err => {
-    console.log(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
 
 export const createProductFamily = (req, res, next) => {
-  const { family, category_id, summary } = req.body;
+  const { family, category_id, summary, price_group_id } = req.body;
   const imgUrl = generateFileUrl(req.files);
 
   ProductFamilies.create({
     family: family,
     category_id: category_id,
+    price_group_id: price_group_id,
     img_url: imgUrl,
     summary: summary
   })
@@ -176,13 +183,17 @@ export const createProductFamily = (req, res, next) => {
     res.status(201).json({ message: 'Product family created successfully', family: newfamily });
   })
   .catch(error => {
-    console.error('Error creating product family:', error);
-    res.status(500).json({ error: 'Failed to create product family' });
+    console.log(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
   });
 }
 
 export const updateProductFamily = (req, res, next) => {
-  const { id, family, category_id, summary, description } = req.body;
+  const { id, family, category_id, summary, price_group_id } = req.body;
 
   const imgUrl = generateFileUrl(req.files);
 
@@ -190,7 +201,7 @@ export const updateProductFamily = (req, res, next) => {
     family: family,
     category_id: category_id,
     summary: summary,
-    description: description
+    price_group_id: price_group_id
   };
 
   if (imgUrl) {
@@ -199,72 +210,58 @@ export const updateProductFamily = (req, res, next) => {
 
   ProductFamilies.update(updateFields, { where: { id: id } })
   .then(newfamily => {
-    res.status(201).json({ message: 'Product family created successfully', family: newfamily });
+    res.status(201).json({ message: 'Product family updated successfully', family: newfamily });
   })
   .catch(error => {
-    console.error('Error creating product family:', error);
-    res.status(500).json({ error: 'Failed to create product family' });
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
   });
 }
 
 export const deleteProductFamily = (req, res, next) => {
   ProductFamilies.destroy({ where: { id: req.body.id } })
-    .then((result) => {
-      if (result === 1) {
-        res.status(200).json({ message: "Product cateogry deleted successfully" });
-      } else {
-        res.status(404).json({ error: "Product cateogry not found" });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Internal server error" });
-    });
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "Product cateogry deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Product cateogry not found" });
+    }
+  })
+  .catch((error) => {
+    if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+      res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
 };
 
-
 export const createProductLine = (req, res, next) => {
-  const { line, category_id, family_id, size, suitability, holdback, shortcode, price_group_id } = req.body;
-
-  ProductLines.create({
-    line: line,
-    category_id: category_id,
-    family_id: family_id,
-    size: size,
-    suitability: suitability,
-    holdback: holdback,
-    shortcode: shortcode,
-    price_group_id: price_group_id,
-  })
+  ProductLines.create(req.body)
   .then(newfamily => {
     res.status(201).json({ message: 'Product family created successfully', family: newfamily });
   })
   .catch(error => {
-    console.error('Error creating product family:', error);
-    res.status(500).json({ error: 'Failed to create product family' });
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
   });
 }
 
 export const updateProductLine = (req, res, next) => {
-  const { id, line, category_id, family_id, size, suitability, holdback, shortcode, price_group_id } = req.body;
-
-  const updateFields = {
-    line: line,
-    category_id: category_id,
-    family_id: family_id,
-    size: size,
-    suitability: suitability,
-    holdback: holdback,
-    shortcode: shortcode,
-    price_group_id: price_group_id,
-  };
-
-  ProductLines.update(updateFields, { where: { id: id } })
+  ProductLines.update(req.body, { where: { id: req.body.id } })
   .then(newfamily => {
     res.status(201).json({ message: 'Product family created successfully', family: newfamily });
   })
   .catch(error => {
-    console.error('Error creating product family:', error);
-    res.status(500).json({ error: 'Failed to create product family' });
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
   });
 }
 
@@ -305,23 +302,24 @@ export const getProductLinesData = (req, res, next) => {
     res.status(200).json(productLinesJSON);
   })
   .catch(err => {
-    console.log(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
 
 export const deleteProductLine = (req, res, next) => {
   ProductLines.destroy({ where: { id: req.body.id } })
-    .then((result) => {
-      if (result === 1) {
-        res.status(200).json({ message: "Product cateogry deleted successfully" });
-      } else {
-        res.status(404).json({ error: "Product cateogry not found" });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Internal server error" });
-    });
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "Product cateogry deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Product cateogry not found" });
+    }
+  })
+  .catch((error) => {
+    if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+      res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
 };
 
 export const createProduct = (req, res, next) => {
@@ -338,7 +336,7 @@ export const createProduct = (req, res, next) => {
 export const updateProduct = (req, res, next) => {
   const updateFields = req.body;
 
-  ProductProducts.update(updateFields, { where: { id: id } })
+  ProductProducts.update(updateFields, { where: { id: req.body.id } })
   .then(newfamily => {
     res.status(201).json({ message: 'Product family created successfully', family: newfamily });
   })
@@ -383,7 +381,6 @@ export const getProductsData = (req, res, next) => {
     res.status(200).json(productsJSON);
   })
   .catch(err => {
-    console.log(err);
     res.status(502).json({error: "An error occurred"});
   });
 };

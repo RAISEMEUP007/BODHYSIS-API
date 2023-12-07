@@ -92,8 +92,6 @@ export const addPricePoint = (req, res, next) => {
 				table_id: req.body.tableId,
 			}))
 			.then((point) => {
-				console.log('point');
-				console.log(point);
 				return res.status(200).json({message: "Added Successfully"});
 			})
 			.catch(err => {
@@ -207,7 +205,6 @@ export const getTableData = (req, res, next) => {
 export const getPriceGroupsData = (req, res, next) => {
 	PriceGroup.findAll()
 	.then((PriceGroup) => {
-		console.log(PriceGroup);
     let PriceGroupJSON = [];
     for (let i = 0; i < PriceGroup.length; i++) {
       PriceGroupJSON.push(PriceGroup[i].dataValues);
@@ -369,7 +366,7 @@ export const saveSeasonCell = (req, res, next) => {
 		  ).then(() => {
 				res.status(200).json({ message: "Updated price Successfully" });
 		  }).catch((error) => {
-				if(error.errors[0].validatorKey == 'not_unique'){
+				if(error.errors && error.errors[0].validatorKey == 'not_unique'){
 					const message = error.errors[0].message;
 					const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
 					res.status(409).json({ error: capitalizedMessage});
@@ -379,7 +376,7 @@ export const saveSeasonCell = (req, res, next) => {
 		  res.status(200).json({ message: "SetSeason Successfully" });
 		}
   }).catch((error) => {
-		if(error.errors[0].validatorKey == 'not_unique'){
+		if(error.errors && error.errors[0].validatorKey == 'not_unique'){
 			const message = error.errors[0].message;
 			const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
 			res.status(409).json({ error: capitalizedMessage});
@@ -397,7 +394,9 @@ export const deleteSeason = (req, res, next) => {
       }
     })
     .catch((error) => {
-      res.status(500).json({ error: "Internal server error" });
+			if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+				res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+			}else	res.status(500).json({ error: "Internal server error" });
     });
 };
 
@@ -430,7 +429,7 @@ export const saveBrandCell = (req, res, next) => {
 		  ).then(() => {
 				res.status(200).json({ message: "Updated price Successfully" });
 		  }).catch((error) => {
-				if(error.errors[0].validatorKey == 'not_unique'){
+				if(error.errors && error.errors[0].validatorKey == 'not_unique'){
 					const message = error.errors[0].message;
 					const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
 					res.status(409).json({ error: capitalizedMessage});
@@ -440,7 +439,7 @@ export const saveBrandCell = (req, res, next) => {
 		  res.status(200).json({ message: "SetBrand Successfully" });
 		}
   }).catch((error) => {
-		if(error.errors[0].validatorKey == 'not_unique'){
+		if(error.errors && error.errors[0].validatorKey == 'not_unique'){
 			const message = error.errors[0].message;
 			const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
 			res.status(409).json({ error: capitalizedMessage});
@@ -458,7 +457,9 @@ export const deleteBrand = (req, res, next) => {
       }
     })
     .catch((error) => {
-      res.status(500).json({ error: "Internal server error" });
+			if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+				res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+			}else	res.status(500).json({ error: "Internal server error" });
     });
 };
 
@@ -491,7 +492,7 @@ export const savePriceTableCell = (req, res, next) => {
 		  ).then(() => {
 				res.status(200).json({ message: "Updated price Successfully" });
 		  }).catch((error) => {
-				if(error.errors[0].validatorKey == 'not_unique'){
+				if(error.errors && error.errors[0].validatorKey == 'not_unique'){
 					const message = error.errors[0].message;
 					const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
 					res.status(409).json({ error: capitalizedMessage});
@@ -501,7 +502,7 @@ export const savePriceTableCell = (req, res, next) => {
 		  res.status(200).json({ message: "SetBrand Successfully" });
 		}
   }).catch((error) => {
-		if(error.errors[0].validatorKey == 'not_unique'){
+		if(error.errors && error.errors[0].validatorKey == 'not_unique'){
 			let originalString = error.errors[0].message;
 			let formattedString = originalString.replace(/_/g, " ");
 			formattedString = formattedString.charAt(0).toUpperCase() + formattedString.slice(1);
@@ -520,7 +521,9 @@ export const deletePriceTable = (req, res, next) => {
     }
   })
   .catch((error) => {
-    res.status(500).json({ error: "Internal server error" });
+		if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+			res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+		}else	res.status(500).json({ error: "Internal server error" });
   });
 };
 
@@ -587,7 +590,7 @@ export const savePriceLogicCell = (req, res, next) => {
 		  ).then(() => {
 				res.status(200).json({ message: "Updated price Successfully" });
 		  }).catch((error) => {
-				if(error.errors[0].validatorKey == 'not_unique'){
+				if(error.errors && error.errors[0].validatorKey == 'not_unique'){
 					const message = error.errors[0].message;
 					const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
 					res.status(409).json({ error: capitalizedMessage});
@@ -597,7 +600,7 @@ export const savePriceLogicCell = (req, res, next) => {
 		  res.status(200).json({ message: "SetBrand Successfully" });
 		}
   }).catch((error) => {
-		if(error.errors[0].validatorKey == 'not_unique'){
+		if(error.errors && error.errors[0].validatorKey == 'not_unique'){
 			let originalString = error.errors[0].message;
 			let formattedString = originalString.replace(/_/g, " ");
 			formattedString = formattedString.charAt(0).toUpperCase() + formattedString.slice(1);
@@ -616,7 +619,9 @@ export const deletePriceLogic = (req, res, next) => {
     }
   })
   .catch((error) => {
-    res.status(500).json({ error: "Internal server error" });
+		if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+			res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+		}else	res.status(500).json({ error: "Internal server error" });
   });
 };
 
