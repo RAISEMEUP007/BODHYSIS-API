@@ -22,7 +22,7 @@ const ProductLines = sequelize.define('product_lines', {
       type: Sequelize.INTEGER,
    },
    size: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
    },
    suitability: {
        type: Sequelize.STRING,
