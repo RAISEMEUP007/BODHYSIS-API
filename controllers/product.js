@@ -398,3 +398,56 @@ export const deleteProduct = (req, res, next) => {
       res.status(500).json({ error: "Internal server error" });
     });
 };
+
+export const getProductQuantitiesByLine = (req, res, next) => {
+  ProductProducts.findAll({
+    attributes: ['line_id', [sequelize.fn('SUM', sequelize.col('quantity')), 'quantity']],
+    group: ['line_id'],
+  })
+  .then(results => {
+    // Transforming results to [family_id:value] format
+    const transformedResults = results.reduce((acc, curr) => {
+      acc[curr.line_id] = curr.dataValues.quantity;
+      return acc;
+    }, {});
+
+    res.status(200).json(transformedResults);
+  })
+  .catch(error => {
+    res.status(500).json({ error: error.message });
+  });
+};
+
+export const getProductQuantitiesByFamily = (req, res, next) => {
+  ProductProducts.findAll({
+    attributes: ['family_id', [sequelize.fn('SUM', sequelize.col('quantity')), 'quantity']],
+    group: ['family_id'],
+  })
+  .then(results => {
+    const transformedResults = results.reduce((acc, curr) => {
+      acc[curr.family_id] = curr.dataValues.quantity;
+      return acc;
+    }, {});
+    res.status(200).json(transformedResults);
+  })
+  .catch(error => {
+    res.status(500).json({ error: error.message });
+  });
+};
+
+export const getProductQuantitiesByCategory = (req, res, next) => {
+  ProductProducts.findAll({
+    attributes: ['category_id', [sequelize.fn('SUM', sequelize.col('quantity')), 'quantity']],
+    group: ['category_id'],
+  })
+  .then(results => {
+    const transformedResults = results.reduce((acc, curr) => {
+      acc[curr.category_id] = curr.dataValues.quantity;
+      return acc;
+    }, {});
+    res.status(200).json(transformedResults);
+  })
+  .catch(error => {
+    res.status(500).json({ error: error.message });
+  });
+};
