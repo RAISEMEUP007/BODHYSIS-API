@@ -1,4 +1,3 @@
-
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
@@ -13,7 +12,8 @@ import { getProductCategoriesData, createProductCategory, updateProductCategory,
 		 getProductLinesData, createProductLine, updateProductLine, deleteProductLine,
 		 getProductsData, createProduct, updateProduct, deleteProduct,
 		 getProductQuantitiesByLine, getProductQuantitiesByFamily, getProductQuantitiesByCategory} from '../controllers/product.js';
-import { getManufacturesData, createManufacture, updateManufacture, deleteManufacture} from '../controllers/settings.js';
+import { getManufacturesData, createManufacture, updateManufacture, deleteManufacture, 
+		 getTagsData, createTag, updateTag, deleteTag} from '../controllers/settings.js';
 
 const router = express.Router();
 
@@ -107,6 +107,12 @@ router.get('/settings/getmanufacturesdata/', getManufacturesData);
 router.post('/settings/createmanufacture', createManufacture);
 router.post('/settings/updatemanufacture', updateManufacture);
 router.post('/settings/deletemanufacture', deleteManufacture);
+
+// Settings/Tags
+router.get('/settings/gettagsdata/', getTagsData);
+router.post('/settings/createtag', createTag);
+router.post('/settings/updatetag', updateTag);
+router.post('/settings/deletetag', deleteTag);
 
 router.get('/public', (req, res, next) => {
 	res.status(200).json({ message: "here is your public resource" });

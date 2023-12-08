@@ -6,6 +6,7 @@ import sgMail from '@sendgrid/mail';
 import sequelize from '../utils/database.js';
 
 import SettingsManufactures from '../models/settings/settings_manufactures.js';
+import SettingsTags from '../models/settings/settings_tags.js';
 
 dotenv.config();
 
@@ -55,6 +56,59 @@ export const deleteManufacture = (req, res, next) => {
         res.status(200).json({ message: "Manufacture deleted successfully" });
       } else {
         res.status(404).json({ error: "Manufacture not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const createTag = (req, res, next) => {
+  SettingsTags.create(req.body)
+  .then(newfamily => {
+    res.status(201).json({ message: 'Tag family created successfully', family: newfamily });
+  })
+  .catch(error => {
+    console.error('Error creating tag family:', error);
+    res.status(500).json({ error: 'Failed to create tag family' });
+  });
+}
+
+export const updateTag = (req, res, next) => {
+  const updateFields = req.body;
+
+  SettingsTags.update(updateFields, { where: { id: req.body.id } })
+  .then(newfamily => {
+    res.status(201).json({ message: 'Tag family created successfully', family: newfamily });
+  })
+  .catch(error => {
+    console.error('Error creating tag family:', error);
+    res.status(500).json({ error: 'Failed to create tag family' });
+  });
+}
+
+export const getTagsData = (req, res, next) => {
+  SettingsTags.findAll()
+  .then((tags) => {
+    let tagsJSON = [];
+    for (let i = 0; i < tags.length; i++) {
+      tagsJSON.push(tags[i].dataValues);
+    }   
+    res.status(200).json(tagsJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteTag = (req, res, next) => {
+  SettingsTags.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Tag deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Tag not found" });
       }
     })
     .catch((error) => {
