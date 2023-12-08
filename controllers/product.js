@@ -41,13 +41,14 @@ export const getProductCategoriesData = (req, res, next) => {
 };
 
 export const createProductCategory = (req, res, next) => {
-  const { category, description } = req.body;
+  const { category, description, tag_id } = req.body;
   const imgUrl = generateFileUrl(req.files);
 
   ProductCategories.create({
     category: category,
     img_url: imgUrl,
-    description: description
+    description: description,
+    tag_id: tag_id,
   })
   .then(newCategory => {
     res.status(201).json({ message: 'Product category created successfully', category: newCategory });
@@ -62,12 +63,13 @@ export const createProductCategory = (req, res, next) => {
 }
 
 export const updateProductCategory = (req, res, next) => {
-  const { id, category, description } = req.body;
+  const { id, category, description, tag_id } = req.body;
   const imgUrl = generateFileUrl(req.files);
 
   const updateFields = {
     category: category,
-    description: description
+    description: description,
+    tag_id: tag_id,
   };
 
   if (imgUrl) {
