@@ -1,4 +1,3 @@
-
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
@@ -11,8 +10,10 @@ import { createPriceGroup, addPricePoint, getTableData, getPriceGroupsData, getH
 import { getProductCategoriesData, createProductCategory, updateProductCategory, saveProductCategory, deleteProductCategory, 
 		 getProductFamiliesData, createProductFamily, updateProductFamily, deleteProductFamily,
 		 getProductLinesData, createProductLine, updateProductLine, deleteProductLine,
-		 getProductsData, createProduct, updateProduct, deleteProduct} from '../controllers/product.js';
-import { getManufacturesData, createManufacture, updateManufacture, deleteManufacture} from '../controllers/settings.js';
+		 getProductsData, createProduct, updateProduct, deleteProduct,
+		 getProductQuantitiesByLine, getProductQuantitiesByFamily, getProductQuantitiesByCategory} from '../controllers/product.js';
+import { getManufacturesData, createManufacture, updateManufacture, deleteManufacture, 
+		 getTagsData, createTag, updateTag, deleteTag} from '../controllers/settings.js';
 
 const router = express.Router();
 
@@ -90,11 +91,16 @@ router.post('/product/createproductline',  createProductLine);
 router.post('/product/updateproductline', updateProductLine);
 router.post('/product/deleteproductline', deleteProductLine);
 
-// Product Line
+// Products
 router.get('/product/getproductsdata/', getProductsData);
 router.post('/product/createproduct', createProduct);
 router.post('/product/updateproduct', updateProduct);
 router.post('/product/deleteproduct', deleteProduct);
+router.get('/product/getquantitiesbyline', getProductQuantitiesByLine);
+router.get('/product/getquantitiesbyfamily', getProductQuantitiesByFamily);
+router.get('/product/getquantitiesbycategory', getProductQuantitiesByCategory);
+
+/* ----- product ----- */
 
 // Settings/Manufactures
 router.get('/settings/getmanufacturesdata/', getManufacturesData);
@@ -102,7 +108,11 @@ router.post('/settings/createmanufacture', createManufacture);
 router.post('/settings/updatemanufacture', updateManufacture);
 router.post('/settings/deletemanufacture', deleteManufacture);
 
-/* ----- product ----- */
+// Settings/Tags
+router.get('/settings/gettagsdata/', getTagsData);
+router.post('/settings/createtag', createTag);
+router.post('/settings/updatetag', updateTag);
+router.post('/settings/deletetag', deleteTag);
 
 router.get('/public', (req, res, next) => {
 	res.status(200).json({ message: "here is your public resource" });

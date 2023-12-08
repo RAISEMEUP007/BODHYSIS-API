@@ -28,6 +28,9 @@ const ProductProducts = sequelize.define('product_products', {
    size: {
       type: Sequelize.STRING,
    },
+   quantity: {
+      type: Sequelize.STRING, 
+   }, 
    description: {
       type: Sequelize.STRING,
    },

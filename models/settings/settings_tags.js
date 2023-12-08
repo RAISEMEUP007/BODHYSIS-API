@@ -2,29 +2,20 @@ import { Sequelize } from 'sequelize';
 
 import sequelize from '../../utils/database.js';
 
-const ProductCategories = sequelize.define('product_categories', {
+const SettingsTags = sequelize.define('settings_tags', {
    id: {
       type: Sequelize.INTEGER,
       autoIncrement: true,
       allowNull: false,
       primaryKey: true,
    },
-   category: {
+   tag: {
       type: Sequelize.STRING,
       allowNull: false,
    },
-   img_url: {
-      type: Sequelize.STRING,
-   },
-   description: {
-      type: Sequelize.STRING,
-   },
-   tag_id: {
-      type: Sequelize.INTEGER,
-   }
 }, {
    timestamps: false  // Disable timestamps
 });
 
 
-export default ProductCategories;
+export default SettingsTags;

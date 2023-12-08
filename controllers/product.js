@@ -41,13 +41,14 @@ export const getProductCategoriesData = (req, res, next) => {
 };
 
 export const createProductCategory = (req, res, next) => {
-  const { category, description } = req.body;
+  const { category, description, tag_id } = req.body;
   const imgUrl = generateFileUrl(req.files);
 
   ProductCategories.create({
     category: category,
     img_url: imgUrl,
-    description: description
+    description: description,
+    tag_id: tag_id,
   })
   .then(newCategory => {
     res.status(201).json({ message: 'Product category created successfully', category: newCategory });
@@ -62,12 +63,13 @@ export const createProductCategory = (req, res, next) => {
 }
 
 export const updateProductCategory = (req, res, next) => {
-  const { id, category, description } = req.body;
+  const { id, category, description, tag_id } = req.body;
   const imgUrl = generateFileUrl(req.files);
 
   const updateFields = {
     category: category,
-    description: description
+    description: description,
+    tag_id: tag_id,
   };
 
   if (imgUrl) {
@@ -397,4 +399,57 @@ export const deleteProduct = (req, res, next) => {
     .catch((error) => {
       res.status(500).json({ error: "Internal server error" });
     });
+};
+
+export const getProductQuantitiesByLine = (req, res, next) => {
+  ProductProducts.findAll({
+    attributes: ['line_id', [sequelize.fn('SUM', sequelize.col('quantity')), 'quantity']],
+    group: ['line_id'],
+  })
+  .then(results => {
+    // Transforming results to [family_id:value] format
+    const transformedResults = results.reduce((acc, curr) => {
+      acc[curr.line_id] = curr.dataValues.quantity;
+      return acc;
+    }, {});
+
+    res.status(200).json(transformedResults);
+  })
+  .catch(error => {
+    res.status(500).json({ error: error.message });
+  });
+};
+
+export const getProductQuantitiesByFamily = (req, res, next) => {
+  ProductProducts.findAll({
+    attributes: ['family_id', [sequelize.fn('SUM', sequelize.col('quantity')), 'quantity']],
+    group: ['family_id'],
+  })
+  .then(results => {
+    const transformedResults = results.reduce((acc, curr) => {
+      acc[curr.family_id] = curr.dataValues.quantity;
+      return acc;
+    }, {});
+    res.status(200).json(transformedResults);
+  })
+  .catch(error => {
+    res.status(500).json({ error: error.message });
+  });
+};
+
+export const getProductQuantitiesByCategory = (req, res, next) => {
+  ProductProducts.findAll({
+    attributes: ['category_id', [sequelize.fn('SUM', sequelize.col('quantity')), 'quantity']],
+    group: ['category_id'],
+  })
+  .then(results => {
+    const transformedResults = results.reduce((acc, curr) => {
+      acc[curr.category_id] = curr.dataValues.quantity;
+      return acc;
+    }, {});
+    res.status(200).json(transformedResults);
+  })
+  .catch(error => {
+    res.status(500).json({ error: error.message });
+  });
 };
