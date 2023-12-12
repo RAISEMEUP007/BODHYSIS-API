@@ -326,12 +326,12 @@ export const deleteProductLine = (req, res, next) => {
 
 export const createProduct = (req, res, next) => {
   ProductProducts.create(req.body)
-  .then(newfamily => {
-    res.status(201).json({ message: 'Product family created successfully', family: newfamily });
+  .then(newproduct => {
+    res.status(201).json({ message: 'Product created successfully', product: newproduct });
   })
   .catch(error => {
-    console.error('Error creating product family:', error);
-    res.status(500).json({ error: 'Failed to create product family' });
+    console.error('Error creating product:', error);
+    res.status(500).json({ error: 'Failed to create product' });
   });
 }
 
@@ -339,12 +339,12 @@ export const updateProduct = (req, res, next) => {
   const updateFields = req.body;
 
   ProductProducts.update(updateFields, { where: { id: req.body.id } })
-  .then(newfamily => {
-    res.status(201).json({ message: 'Product family created successfully', family: newfamily });
+  .then(newproduct => {
+    res.status(201).json({ message: 'Product created successfully', product: newproduct });
   })
   .catch(error => {
-    console.error('Error creating product family:', error);
-    res.status(500).json({ error: 'Failed to create product family' });
+    console.error('Error creating product:', error);
+    res.status(500).json({ error: 'Failed to create product' });
   });
 }
 
@@ -400,6 +400,27 @@ export const deleteProduct = (req, res, next) => {
       res.status(500).json({ error: "Internal server error" });
     });
 };
+
+export const quickAddProduct = (req, res, next) => {
+  const { rowcounts, ...productData } = req.body;
+  const rows = [];
+
+  for (let i = 0; i < rowcounts; i++) {
+    let newRow = productData;
+    newRow.serial_number = `${newRow.line}${i.toString().padStart(3, '0')}`;
+    newRow.barcode = `${newRow.line}${newRow.serial_number}`;
+    rows.push(ProductProducts.create(productData));
+  }
+
+  Promise.all(rows)
+    .then(newProduts => {
+      res.status(201).json({ message: 'Products created successfully', products: newProduts });
+    })
+    .catch(error => {
+      console.error('Error creating products:', error);
+      res.status(500).json({ error: 'Failed to create products' });
+    });
+}
 
 export const getProductQuantitiesByLine = (req, res, next) => {
   ProductProducts.findAll({

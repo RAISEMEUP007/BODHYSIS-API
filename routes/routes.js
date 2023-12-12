@@ -11,7 +11,7 @@ import { getProductCategoriesData, createProductCategory, updateProductCategory,
 		 getProductFamiliesData, createProductFamily, updateProductFamily, deleteProductFamily,
 		 getProductLinesData, createProductLine, updateProductLine, deleteProductLine,
 		 getProductsData, createProduct, updateProduct, deleteProduct,
-		 getProductQuantitiesByLine, getProductQuantitiesByFamily, getProductQuantitiesByCategory} from '../controllers/product.js';
+		 getProductQuantitiesByLine, getProductQuantitiesByFamily, getProductQuantitiesByCategory, quickAddProduct} from '../controllers/product.js';
 import { getManufacturesData, createManufacture, updateManufacture, deleteManufacture, 
 		 getTagsData, createTag, updateTag, deleteTag} from '../controllers/settings.js';
 
@@ -78,6 +78,8 @@ router.post('/product/createproductcategory', upload.array('img', 3),  createPro
 router.post('/product/updateproductcategory', upload.array('img', 3),  updateProductCategory);
 router.post('/product/saveproductcategory', saveProductCategory);
 router.post('/product/deleteproductcategory', deleteProductCategory);
+router.post('/product/quickaddproduct', quickAddProduct);
+
 
 // Product family
 router.get('/product/getproductfamiliesdata/:categoryId', getProductFamiliesData);
