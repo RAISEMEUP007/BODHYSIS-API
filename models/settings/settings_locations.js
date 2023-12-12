@@ -1,0 +1,21 @@
+import { Sequelize } from 'sequelize';
+
+import sequelize from '../../utils/database.js';
+
+const SettingsLocations = sequelize.define('settings_locations', {
+   id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      allowNull: false,
+      primaryKey: true,
+   },
+   location: {
+      type: Sequelize.STRING,
+      allowNull: false,
+   },
+}, {
+   timestamps: false  // Disable timestamps
+});
+
+
+export default SettingsLocations;

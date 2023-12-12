@@ -7,6 +7,7 @@ import sequelize from '../utils/database.js';
 
 import SettingsManufactures from '../models/settings/settings_manufactures.js';
 import SettingsTags from '../models/settings/settings_tags.js';
+import SettingsLocations from '../models/settings/settings_locations.js';
 
 dotenv.config();
 
@@ -16,8 +17,11 @@ export const createManufacture = (req, res, next) => {
     res.status(201).json({ message: 'Manufacture family created successfully', family: newfamily });
   })
   .catch(error => {
-    console.error('Error creating manufacture family:', error);
-    res.status(500).json({ error: 'Failed to create manufacture family' });
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
   });
 }
 
@@ -29,8 +33,11 @@ export const updateManufacture = (req, res, next) => {
     res.status(201).json({ message: 'Manufacture family created successfully', family: newfamily });
   })
   .catch(error => {
-    console.error('Error creating manufacture family:', error);
-    res.status(500).json({ error: 'Failed to create manufacture family' });
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
   });
 }
 
@@ -69,8 +76,11 @@ export const createTag = (req, res, next) => {
     res.status(201).json({ message: 'Tag family created successfully', family: newfamily });
   })
   .catch(error => {
-    console.error('Error creating tag family:', error);
-    res.status(500).json({ error: 'Failed to create tag family' });
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
   });
 }
 
@@ -82,8 +92,11 @@ export const updateTag = (req, res, next) => {
     res.status(201).json({ message: 'Tag family created successfully', family: newfamily });
   })
   .catch(error => {
-    console.error('Error creating tag family:', error);
-    res.status(500).json({ error: 'Failed to create tag family' });
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
   });
 }
 
@@ -109,6 +122,65 @@ export const deleteTag = (req, res, next) => {
         res.status(200).json({ message: "Tag deleted successfully" });
       } else {
         res.status(404).json({ error: "Tag not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const createLocation = (req, res, next) => {
+  SettingsLocations.create(req.body)
+  .then(newfamily => {
+    res.status(201).json({ message: 'Location family created successfully', family: newfamily });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateLocation = (req, res, next) => {
+  const updateFields = req.body;
+
+  SettingsLocations.update(updateFields, { where: { id: req.body.id } })
+  .then(newfamily => {
+    res.status(201).json({ message: 'Location family created successfully', family: newfamily });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getLocationsData = (req, res, next) => {
+  SettingsLocations.findAll()
+  .then((locations) => {
+    let locationsJSON = [];
+    for (let i = 0; i < locations.length; i++) {
+      locationsJSON.push(locations[i].dataValues);
+    }   
+    res.status(200).json(locationsJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteLocation = (req, res, next) => {
+  SettingsLocations.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Location deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Location not found" });
       }
     })
     .catch((error) => {
