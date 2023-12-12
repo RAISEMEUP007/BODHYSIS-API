@@ -364,7 +364,7 @@ export const getProductsData = (req, res, next) => {
       {
         model: ProductLines,
         as: 'line',
-        attributes: ['line'],
+        attributes: ['line', 'size'],
       },
     ],
     order: [
@@ -424,7 +424,7 @@ export const quickAddProduct = (req, res, next) => {
 
 export const getProductQuantitiesByLine = (req, res, next) => {
   ProductProducts.findAll({
-    attributes: ['line_id', [sequelize.fn('SUM', sequelize.col('quantity')), 'quantity']],
+    attributes: ['line_id', [sequelize.fn('COUNT', sequelize.col('id')), 'quantity']],
     group: ['line_id'],
   })
   .then(results => {
@@ -443,7 +443,7 @@ export const getProductQuantitiesByLine = (req, res, next) => {
 
 export const getProductQuantitiesByFamily = (req, res, next) => {
   ProductProducts.findAll({
-    attributes: ['family_id', [sequelize.fn('SUM', sequelize.col('quantity')), 'quantity']],
+    attributes: ['family_id', [sequelize.fn('COUNT', sequelize.col('id')), 'quantity']],
     group: ['family_id'],
   })
   .then(results => {
@@ -460,7 +460,7 @@ export const getProductQuantitiesByFamily = (req, res, next) => {
 
 export const getProductQuantitiesByCategory = (req, res, next) => {
   ProductProducts.findAll({
-    attributes: ['category_id', [sequelize.fn('SUM', sequelize.col('quantity')), 'quantity']],
+    attributes: ['category_id', [sequelize.fn('COUNT', sequelize.col('id')), 'quantity']],
     group: ['category_id'],
   })
   .then(results => {
