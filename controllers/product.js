@@ -9,6 +9,7 @@ import ProductCategories from '../models/product/product_categories.js';
 import ProductFamilies from '../models/product/product_families.js';
 import ProductLines from '../models/product/product_lines.js';
 import ProductProducts from '../models/product/product_products.js';
+import SettingsLocations from '../models/settings/settings_locations.js';
 
 dotenv.config();
 
@@ -365,6 +366,16 @@ export const getProductsData = (req, res, next) => {
         model: ProductLines,
         as: 'line',
         attributes: ['line', 'size'],
+      },
+      {
+        model: SettingsLocations,
+        as: 'home_location_tbl',
+        attributes: ['location'],
+      },
+      {
+        model: SettingsLocations,
+        as: 'current_location_tbl',
+        attributes: ['location'],
       },
     ],
     order: [

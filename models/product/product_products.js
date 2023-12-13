@@ -4,6 +4,7 @@ import sequelize from '../../utils/database.js';
 import ProductCategories from './product_categories.js';
 import ProductFamilies from './product_families.js';
 import ProductLines from './product_lines.js';
+import SettingsLocations from '../settings/settings_locations.js';
 
 const ProductProducts = sequelize.define('product_products', {
    id: {
@@ -44,10 +45,10 @@ const ProductProducts = sequelize.define('product_products', {
       type: Sequelize.STRING,
    },
    home_location: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
    },
    current_location: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
    },
    price_group_id: {
       type: Sequelize.INTEGER,
@@ -62,6 +63,8 @@ const ProductProducts = sequelize.define('product_products', {
 ProductProducts.belongsTo(ProductCategories, { foreignKey: 'category_id', as: 'category' });
 ProductProducts.belongsTo(ProductFamilies, { foreignKey: 'family_id', as: 'family' });
 ProductProducts.belongsTo(ProductLines, { foreignKey: 'line_id', as: 'line' });
+ProductProducts.belongsTo(SettingsLocations, { foreignKey: 'home_location', as: 'home_location_tbl' });
+ProductProducts.belongsTo(SettingsLocations, { foreignKey: 'current_location', as: 'current_location_tbl' });
 
 
 export default ProductProducts;
