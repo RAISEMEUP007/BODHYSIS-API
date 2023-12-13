@@ -13,7 +13,8 @@ import { getProductCategoriesData, createProductCategory, updateProductCategory,
 		 getProductsData, createProduct, updateProduct, deleteProduct,
 		 getProductQuantitiesByLine, getProductQuantitiesByFamily, getProductQuantitiesByCategory, quickAddProduct} from '../controllers/product.js';
 import { getManufacturesData, createManufacture, updateManufacture, deleteManufacture, 
-		 getTagsData, createTag, updateTag, deleteTag} from '../controllers/settings.js';
+		 getTagsData, createTag, updateTag, deleteTag,
+		 getLocationsData, createLocation, updateLocation, deleteLocation, } from '../controllers/settings.js';
 
 const router = express.Router();
 
@@ -115,6 +116,12 @@ router.get('/settings/gettagsdata/', getTagsData);
 router.post('/settings/createtag', createTag);
 router.post('/settings/updatetag', updateTag);
 router.post('/settings/deletetag', deleteTag);
+
+// Settings/Locations
+router.get('/settings/getlocationsdata/', getLocationsData);
+router.post('/settings/createlocation', createLocation);
+router.post('/settings/updatelocation', updateLocation);
+router.post('/settings/deletelocation', deleteLocation);
 
 router.get('/public', (req, res, next) => {
 	res.status(200).json({ message: "here is your public resource" });
