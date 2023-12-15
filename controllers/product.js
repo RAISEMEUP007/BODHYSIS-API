@@ -172,7 +172,7 @@ export const getProductFamiliesData = (req, res, next) => {
 };
 
 export const createProductFamily = (req, res, next) => {
-  const { family, category_id, summary, price_group_id } = req.body;
+  const { family, category_id, summary, notes, price_group_id } = req.body;
   const imgUrl = generateFileUrl(req.files);
 
   ProductFamilies.create({
@@ -180,7 +180,8 @@ export const createProductFamily = (req, res, next) => {
     category_id: category_id,
     price_group_id: price_group_id,
     img_url: imgUrl,
-    summary: summary
+    summary: summary,
+    notes: notes
   })
   .then(newfamily => {
     res.status(201).json({ message: 'Product family created successfully', family: newfamily });
@@ -196,7 +197,7 @@ export const createProductFamily = (req, res, next) => {
 }
 
 export const updateProductFamily = (req, res, next) => {
-  const { id, family, category_id, summary, price_group_id } = req.body;
+  const { id, family, category_id, summary, notes, price_group_id } = req.body;
 
   const imgUrl = generateFileUrl(req.files);
 
@@ -204,6 +205,7 @@ export const updateProductFamily = (req, res, next) => {
     family: family,
     category_id: category_id,
     summary: summary,
+    notes: notes,
     price_group_id: price_group_id
   };
 

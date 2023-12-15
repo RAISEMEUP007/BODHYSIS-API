@@ -20,6 +20,9 @@ const ProductFamilies = sequelize.define('product_families', {
    img_url: {
       type: Sequelize.STRING,
    },
+   notes: {
+       type: Sequelize.STRING,
+   },
    summary: {
        type: Sequelize.STRING,
    },

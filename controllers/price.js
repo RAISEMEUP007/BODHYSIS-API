@@ -527,6 +527,62 @@ export const deletePriceTable = (req, res, next) => {
   });
 };
 
+export const clonePriceTableCell = (req, res, next) => {
+  const { sourceId, tblName } = req.body;
+  let newTableId;
+
+  sequelize.transaction(t => {
+    return PriceTables.create({
+      table_name: tblName,
+    }, { transaction: t })
+      .then(table => {
+        newTableId = table.dataValues.id;
+        return Promise.all([
+          PriceGroup.sequelize.query(
+            `INSERT INTO price_groups (price_group, table_id, is_free, extra_day, cloned_id) 
+            SELECT price_group, ${newTableId}, is_free, extra_day, id FROM price_groups WHERE table_id = ${sourceId};`,
+            { transaction: t }
+          ),
+          PricePoints.sequelize.query(
+            `INSERT INTO price_points (duration, table_id, duration_type, cloned_id) 
+            SELECT duration, ${newTableId}, duration_type, id FROM price_points WHERE table_id = ${sourceId};`,
+            { transaction: t }
+          ),
+          PriceGroupDatas.sequelize.query(
+            `INSERT INTO price_group_datas (
+							  group_id,
+							  table_id,
+							  point_id,
+							  VALUE
+							)
+							SELECT
+							  (SELECT id FROM price_groups AS t2 WHERE t2.cloned_id = group_id AND t2.table_id = ${newTableId}),
+							  ${newTableId},
+							  (SELECT id FROM price_points AS t3 WHERE t3.cloned_id = point_id AND t3.table_id = ${newTableId}),
+							  VALUE
+							FROM
+							  price_group_datas
+							WHERE table_id = ${sourceId};`,
+            { transaction: t }
+        	)
+        ]);
+      });
+  })
+  .then(() => {
+    return res.status(200).json({ message: "Cloned Successfully" });
+  })
+  .catch(error => {
+    if (error.errors && error.errors[0].validatorKey === 'not_unique') {
+      originalString = error.errors[0].message;
+      let formattedString = originalString.replace(/_/g, " ");
+      formattedString = formattedString.charAt(0).toUpperCase() + formattedString.slice(1);
+      return res.status(409).json({ error: formattedString });
+    } else {
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+};
+
 export const getPriceLogicData = (req, res, next) => {
 	PriceLogic.findAll({
 	  include: [

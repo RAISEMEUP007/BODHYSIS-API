@@ -5,7 +5,7 @@ import path from 'path';
 import { signup, login, isAuth, resetPass, verifyChangePass, newPass } from '../controllers/auth.js';
 import { createPriceGroup, addPricePoint, getTableData, getPriceGroupsData, getHeaderData, setFree, priceValidation, setPriceData, 
 		 setExtraDay, deleteGroup, deletePricePoint, updatePriceGroup, getSeasonsData, saveSeasonCell, deleteSeason, 
-		 getBrandsData, saveBrandCell, deleteBrand, getPriceTablesData, savePriceTableCell, deletePriceTable,
+		 getBrandsData, saveBrandCell, deleteBrand, getPriceTablesData, savePriceTableCell, deletePriceTable, clonePriceTableCell,
 		 getPriceLogicData, createPriceLogic, deletePriceLogic} from '../controllers/price.js';
 import { getProductCategoriesData, createProductCategory, updateProductCategory, saveProductCategory, deleteProductCategory, 
 		 getProductFamiliesData, createProductFamily, updateProductFamily, deleteProductFamily,
@@ -65,6 +65,7 @@ router.post('/price/deletebrand', deleteBrand);
 router.get('/price/getpricetablesdata', getPriceTablesData);
 router.post('/price/savepricetablecell', savePriceTableCell);
 router.post('/price/deletepricetable', deletePriceTable);
+router.post('/price/clonepricetablecell', clonePriceTableCell);
 
 // PriceLogic management
 router.get('/price/getpricelogicdata', getPriceLogicData);
