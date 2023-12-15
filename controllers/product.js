@@ -244,8 +244,8 @@ export const deleteProductFamily = (req, res, next) => {
 
 export const createProductLine = (req, res, next) => {
   ProductLines.create(req.body)
-  .then(newfamily => {
-    res.status(201).json({ message: 'Product family created successfully', family: newfamily });
+  .then(newline => {
+    res.status(201).json({ message: 'Product line created successfully', line: newline });
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
@@ -258,8 +258,8 @@ export const createProductLine = (req, res, next) => {
 
 export const updateProductLine = (req, res, next) => {
   ProductLines.update(req.body, { where: { id: req.body.id } })
-  .then(newfamily => {
-    res.status(201).json({ message: 'Product family created successfully', family: newfamily });
+  .then(newline => {
+    res.status(201).json({ message: 'Product line created successfully', line: newline });
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
@@ -315,9 +315,9 @@ export const deleteProductLine = (req, res, next) => {
   ProductLines.destroy({ where: { id: req.body.id } })
   .then((result) => {
     if (result === 1) {
-      res.status(200).json({ message: "Product cateogry deleted successfully" });
+      res.status(200).json({ message: "Product line deleted successfully" });
     } else {
-      res.status(404).json({ error: "Product cateogry not found" });
+      res.status(404).json({ error: "Product line not found" });
     }
   })
   .catch((error) => {
