@@ -352,6 +352,17 @@ export const updateProduct = (req, res, next) => {
 }
 
 export const getProductsData = (req, res, next) => {
+  let whereCondition = {};
+  if (req.body.category_id != 0) {
+    whereCondition.category_id = req.body.category_id;
+  }
+  if (req.body.family_id != 0) {
+    whereCondition.family_id = req.body.family_id;
+  }
+  if (req.body.line_id != 0) {
+    whereCondition.line_id = req.body.line_id;
+  }
+
   let queryOptions = {
     include: [
       {
@@ -386,6 +397,7 @@ export const getProductsData = (req, res, next) => {
       [{ model: ProductLines, as: 'line' }, 'line'],
       'product',
     ],
+    where: whereCondition,
   };
   ProductProducts.findAll(queryOptions)
   .then((products) => {
