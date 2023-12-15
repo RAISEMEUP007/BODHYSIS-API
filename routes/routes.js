@@ -96,7 +96,7 @@ router.post('/product/updateproductline', updateProductLine);
 router.post('/product/deleteproductline', deleteProductLine);
 
 // Products
-router.get('/product/getproductsdata/', getProductsData);
+router.post('/product/getproductsdata/', getProductsData);
 router.post('/product/createproduct', createProduct);
 router.post('/product/updateproduct', updateProduct);
 router.post('/product/deleteproduct', deleteProduct);
