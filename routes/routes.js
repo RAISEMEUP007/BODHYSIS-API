@@ -15,9 +15,9 @@ import { getProductCategoriesData, createProductCategory, updateProductCategory,
 import { getManufacturesData, createManufacture, updateManufacture, deleteManufacture, 
 		 getTagsData, createTag, updateTag, deleteTag,
 		 getLocationsData, createLocation, updateLocation, deleteLocation, 
-		 getCustomersData, createCustomer, updateCustomer, deleteCustomer,
 		 getCountriesData, createCountry, updateCountry, deleteCountry,
 		 getLanguagesData, createLanguage, updateLanguage, deleteLanguage,} from '../controllers/settings.js';
+import { getCustomersData, createCustomer, updateCustomer, deleteCustomer,} from '../controllers/customer.js';
 
 const router = express.Router();
 
@@ -74,7 +74,6 @@ router.post('/price/clonepricetablecell', clonePriceTableCell);
 router.get('/price/getpricelogicdata', getPriceLogicData);
 router.post('/price/createpricelogic', createPriceLogic);
 router.post('/price/deletepricelogic', deletePriceLogic);
-/* ----- price ----- */
 
 /* ----- product ----- */
 // Product category
@@ -107,8 +106,7 @@ router.get('/product/getquantitiesbyline', getProductQuantitiesByLine);
 router.get('/product/getquantitiesbyfamily', getProductQuantitiesByFamily);
 router.get('/product/getquantitiesbycategory', getProductQuantitiesByCategory);
 
-/* ----- product ----- */
-
+/* ----- settings ----- */
 // Settings/Manufactures
 router.get('/settings/getmanufacturesdata/', getManufacturesData);
 router.post('/settings/createmanufacture', createManufacture);
@@ -127,12 +125,6 @@ router.post('/settings/createlocation', createLocation);
 router.post('/settings/updatelocation', updateLocation);
 router.post('/settings/deletelocation', deleteLocation);
 
-// Settings/customers
-router.get('/settings/getcustomersdata', getCustomersData);
-router.post('/settings/createcustomer',  createCustomer);
-router.post('/settings/updatecustomer', updateCustomer);
-router.post('/settings/deletecustomer', deleteCustomer);
-
 // Settings/Countries
 router.get('/settings/getcountriesdata/', getCountriesData);
 router.post('/settings/createcountry', createCountry);
@@ -144,6 +136,13 @@ router.get('/settings/getlanguagesdata/', getLanguagesData);
 router.post('/settings/createlanguage', createLanguage);
 router.post('/settings/updatelanguage', updateLanguage);
 router.post('/settings/deletelanguage', deleteLanguage);
+
+/* ----- customer ----- */
+// Customer/Customers
+router.get('/customer/getcustomersdata', getCustomersData);
+router.post('/customer/createcustomer',  createCustomer);
+router.post('/customer/updatecustomer', updateCustomer);
+router.post('/customer/deletecustomer', deleteCustomer);
 
 router.get('/public', (req, res, next) => {
 	res.status(200).json({ message: "here is your public resource" });
