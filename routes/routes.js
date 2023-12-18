@@ -17,7 +17,8 @@ import { getManufacturesData, createManufacture, updateManufacture, deleteManufa
 		 getLocationsData, createLocation, updateLocation, deleteLocation, 
 		 getCountriesData, createCountry, updateCountry, deleteCountry,
 		 getLanguagesData, createLanguage, updateLanguage, deleteLanguage,} from '../controllers/settings.js';
-import { getCustomersData, createCustomer, updateCustomer, deleteCustomer,} from '../controllers/customer.js';
+import { getCustomersData, createCustomer, updateCustomer, deleteCustomer,
+		 getDeliveryAddressData, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, deleteDeliveryAddressByCustomerId } from '../controllers/customer.js';
 
 const router = express.Router();
 
@@ -143,6 +144,13 @@ router.get('/customer/getcustomersdata', getCustomersData);
 router.post('/customer/createcustomer',  createCustomer);
 router.post('/customer/updatecustomer', updateCustomer);
 router.post('/customer/deletecustomer', deleteCustomer);
+
+// Customer/Customers
+router.post('/customer/getdeliveryaddressesdata', getDeliveryAddressData);
+router.post('/customer/createdeliverydddress',  createDeliveryAddress);
+router.post('/customer/updatedeliverydddress', updateDeliveryAddress);
+router.post('/customer/deletedeliverydddress', deleteDeliveryAddress);
+router.post('/customer/deletedeliveryaddressbycid', deleteDeliveryAddressByCustomerId);
 
 router.get('/public', (req, res, next) => {
 	res.status(200).json({ message: "here is your public resource" });
