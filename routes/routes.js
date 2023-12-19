@@ -16,7 +16,8 @@ import { getManufacturesData, createManufacture, updateManufacture, deleteManufa
 		 getTagsData, createTag, updateTag, deleteTag,
 		 getLocationsData, createLocation, updateLocation, deleteLocation, 
 		 getCountriesData, createCountry, updateCountry, deleteCountry,
-		 getLanguagesData, createLanguage, updateLanguage, deleteLanguage,} from '../controllers/settings.js';
+		 getLanguagesData, createLanguage, updateLanguage, deleteLanguage,
+		 getDocumentsData, createDocument, updateDocument, deleteDocument} from '../controllers/settings.js';
 import { getCustomersData, createCustomer, updateCustomer, deleteCustomer,
 		 getDeliveryAddressData, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, deleteDeliveryAddressByCustomerId } from '../controllers/customer.js';
 
@@ -137,6 +138,12 @@ router.get('/settings/getlanguagesdata/', getLanguagesData);
 router.post('/settings/createlanguage', createLanguage);
 router.post('/settings/updatelanguage', updateLanguage);
 router.post('/settings/deletelanguage', deleteLanguage);
+
+// Settings/Document
+router.get('/settings/getdocumentsdata', getDocumentsData);
+router.post('/settings/createdocument', upload.array('img', 3),  createDocument);
+router.post('/settings/updatedocument', upload.array('img', 3),  updateDocument);
+router.post('/settings/deletedocument', deleteDocument);
 
 /* ----- customer ----- */
 // Customer/Customers
