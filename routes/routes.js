@@ -18,7 +18,8 @@ import { getManufacturesData, createManufacture, updateManufacture, deleteManufa
 		 getCountriesData, createCountry, updateCountry, deleteCountry,
 		 getLanguagesData, createLanguage, updateLanguage, deleteLanguage,
 		 getDocumentsData, createDocument, updateDocument, deleteDocument,
-		 getReservationTypesData, createReservationType, updateReservationType, deleteReservationType} from '../controllers/settings.js';
+		 getReservationTypesData, createReservationType, updateReservationType, deleteReservationType,
+		 getTrucksData, createTruck, updateTruck, deleteTruck,} from '../controllers/settings.js';
 import { getCustomersData, createCustomer, updateCustomer, deleteCustomer,
 		 getDeliveryAddressData, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, deleteDeliveryAddressByCustomerId } from '../controllers/customer.js';
 
@@ -151,6 +152,12 @@ router.get('/settings/getreservationtypesdata', getReservationTypesData);
 router.post('/settings/createreservationtype', upload.array('img', 3),  createReservationType);
 router.post('/settings/updatereservationtype', upload.array('img', 3),  updateReservationType);
 router.post('/settings/deletereservationtype', deleteReservationType);
+
+// Settings/Trucks
+router.get('/settings/gettrucksdata/', getTrucksData);
+router.post('/settings/createtruck', createTruck);
+router.post('/settings/updatetruck', updateTruck);
+router.post('/settings/deletetruck', deleteTruck);
 
 /* ----- customer ----- */
 // Customer/Customers
