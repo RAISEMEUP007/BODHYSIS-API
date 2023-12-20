@@ -11,6 +11,7 @@ import SettingsLocations from '../models/settings/settings_locations.js';
 import SettingsCountries from '../models/settings/settings_countries.js';
 import SettingsLanguages from '../models/settings/settings_languages.js';
 import SettingsDocuments from '../models/settings/settings_documents.js';
+import SettingsReservationTypes from '../models/settings/settings_reservation_types.js';
 
 dotenv.config();
 
@@ -341,8 +342,6 @@ export const createDocument = (req, res, next) => {
     document_type: document_type,
     document_content: document_content,
   };
-  console.log(req.files);
-  console.log(imgUrl);
 
   if (imgUrl) {
     fields.document_file = imgUrl;
@@ -396,6 +395,91 @@ export const deleteDocument = (req, res, next) => {
       res.status(200).json({ message: "Document deleted successfully" });
     } else {
       res.status(404).json({ error: "Document not found" });
+    }
+  })
+  .catch((error) => {
+    if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+      res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const getReservationTypesData = (req, res, next) => {
+  SettingsReservationTypes.findAll()
+  .then((reservationTypes) => {
+    let reservationTypesJSON = [];
+    for (let i = 0; i < reservationTypes.length; i++) {
+      reservationTypesJSON.push(reservationTypes[i].dataValues);
+    }   
+    res.status(200).json(reservationTypesJSON);
+  })
+  .catch(err => {
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const createReservationType = (req, res, next) => {
+  const { name, start_stage, print_size } = req.body;
+  const imgUrl = generateFileUrl(req.files);
+
+  const fields = {
+    name: name,
+    start_stage: start_stage,
+    print_size: print_size,
+  };
+
+  if (imgUrl) {
+    fields.img_url = imgUrl;
+  }
+
+  SettingsReservationTypes.create(fields)
+  .then(newreservationType => {
+    res.status(201).json({ message: 'ReservationType created successfully', reservationType: newreservationType });
+  })
+  .catch(error => {
+    console.log(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateReservationType = (req, res, next) => {
+  const { id, name, start_stage, print_size } = req.body;
+  const imgUrl = generateFileUrl(req.files);
+
+  const updateFields = {
+    name:name,
+    start_stage:start_stage,
+    print_size:print_size,
+  }
+
+  if (imgUrl) {
+    updateFields.img_url = imgUrl;
+  }
+
+  SettingsReservationTypes.update(updateFields, { where: { id: id } })
+  .then(newfamily => {
+    res.status(201).json({ message: 'ReservationType updated successfully', family: newfamily });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const deleteReservationType = (req, res, next) => {
+  SettingsReservationTypes.destroy({ where: { id: req.body.id } })
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "ReservationType deleted successfully" });
+    } else {
+      res.status(404).json({ error: "ReservationType not found" });
     }
   })
   .catch((error) => {
