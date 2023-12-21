@@ -1,11 +1,11 @@
 import { Sequelize } from 'sequelize';
 
 import sequelize from '../../utils/database.js';
-import SettingsLocations from './settings_locations.js';
-import SettingsCountries from './settings_countries.js';
-import SettingsLanguages from './settings_languages.js';
+import SettingsLocations from '../settings/settings_locations.js';
+import SettingsCountries from '../settings/settings_countries.js';
+import SettingsLanguages from '../settings/settings_languages.js';
 
-const SettingsCustomers = sequelize.define('settings_customers', {
+const CustomerCustomers = sequelize.define('customer_customers', {
    id: {
       type: Sequelize.INTEGER,
       autoIncrement: true,
@@ -78,8 +78,8 @@ const SettingsCustomers = sequelize.define('settings_customers', {
    },
 },);
 
-SettingsCustomers.belongsTo(SettingsCountries, { foreignKey: 'country_id', as: 'country' });
-SettingsCustomers.belongsTo(SettingsLanguages, { foreignKey: 'language_id', as: 'language' });
-SettingsCustomers.belongsTo(SettingsLocations, { foreignKey: 'home_location', as: 'home_location_tbl' });
+CustomerCustomers.belongsTo(SettingsCountries, { foreignKey: 'country_id', as: 'country' });
+CustomerCustomers.belongsTo(SettingsLanguages, { foreignKey: 'language_id', as: 'language' });
+CustomerCustomers.belongsTo(SettingsLocations, { foreignKey: 'home_location', as: 'home_location_tbl' });
 
-export default SettingsCustomers;
+export default CustomerCustomers;

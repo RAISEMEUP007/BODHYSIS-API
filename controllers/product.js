@@ -230,9 +230,9 @@ export const deleteProductFamily = (req, res, next) => {
   ProductFamilies.destroy({ where: { id: req.body.id } })
   .then((result) => {
     if (result === 1) {
-      res.status(200).json({ message: "Product cateogry deleted successfully" });
+      res.status(200).json({ message: "Document deleted successfully" });
     } else {
-      res.status(404).json({ error: "Product cateogry not found" });
+      res.status(404).json({ error: "Document not found" });
     }
   })
   .catch((error) => {

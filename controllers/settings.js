@@ -8,11 +8,21 @@ import sequelize from '../utils/database.js';
 import SettingsManufactures from '../models/settings/settings_manufactures.js';
 import SettingsTags from '../models/settings/settings_tags.js';
 import SettingsLocations from '../models/settings/settings_locations.js';
-import SettingsCustomers from '../models/settings/settings_customers.js';
 import SettingsCountries from '../models/settings/settings_countries.js';
 import SettingsLanguages from '../models/settings/settings_languages.js';
+import SettingsDocuments from '../models/settings/settings_documents.js';
 
 dotenv.config();
+
+const generateFileUrl = (files) => {
+  if (files && files.length > 0) {
+    const file = files[0];
+
+    return `/${file.path.replace(/\\/g, "/")}`;
+  } else {
+    return null;
+  }
+};
 
 export const createManufacture = (req, res, next) => {
   SettingsManufactures.create(req.body)
@@ -191,83 +201,6 @@ export const deleteLocation = (req, res, next) => {
     });
 };
 
-export const createCustomer = (req, res, next) => {
-  SettingsCustomers.create(req.body)
-  .then(newcustomer => {
-    res.status(201).json({ message: 'Customer created successfully', customer: newcustomer });
-  })
-  .catch(error => {
-    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
-      const message = error.errors[0].message;
-      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
-      res.status(409).json({ error: capitalizedMessage});
-    }else res.status(500).json({ error: "Internal server error" });
-  });
-}
-
-export const updateCustomer = (req, res, next) => {
-  SettingsCustomers.update(req.body, { where: { id: req.body.id } })
-  .then(newcustomer => {
-    res.status(201).json({ message: 'Customer created successfully', customer: newcustomer });
-  })
-  .catch(error => {
-    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
-      const message = error.errors[0].message;
-      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
-      res.status(409).json({ error: capitalizedMessage});
-    }else res.status(500).json({ error: "Internal server error" });
-  });
-}
-
-export const getCustomersData = (req, res, next) => {
-  let queryOptions = {
-    include: [
-      {
-        model: SettingsCountries,
-        as: 'country',
-        attributes: ['country'],
-      },
-      {
-        model: SettingsLanguages,
-        as: 'language',
-        attributes: ['language'],
-      },
-      {
-        model: SettingsLocations,
-        as: 'home_location_tbl',
-        attributes: ['location'],
-      },
-    ],
-  };
-  SettingsCustomers.findAll(queryOptions)
-  .then((customers) => {
-    let customersJSON = [];
-    for (let i = 0; i < customers.length; i++) {
-      customersJSON.push(customers[i].dataValues);
-    }   
-    res.status(200).json(customersJSON);
-  })
-  .catch(err => {
-    res.status(502).json({error: "An error occurred"});
-  });
-};
-
-export const deleteCustomer = (req, res, next) => {
-  SettingsCustomers.destroy({ where: { id: req.body.id } })
-  .then((result) => {
-    if (result === 1) {
-      res.status(200).json({ message: "Customer deleted successfully" });
-    } else {
-      res.status(404).json({ error: "Customer not found" });
-    }
-  })
-  .catch((error) => {
-    if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
-      res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
-    }else res.status(500).json({ error: "Internal server error" });
-  });
-};
-
 export const createCountry = (req, res, next) => {
   SettingsCountries.create(req.body)
   .then(newfamily => {
@@ -383,4 +316,91 @@ export const deleteLanguage = (req, res, next) => {
     .catch((error) => {
       res.status(500).json({ error: "Internal server error" });
     });
+};
+
+export const getDocumentsData = (req, res, next) => {
+  SettingsDocuments.findAll()
+  .then((documents) => {
+    let documentsJSON = [];
+    for (let i = 0; i < documents.length; i++) {
+      documentsJSON.push(documents[i].dataValues);
+    }   
+    res.status(200).json(documentsJSON);
+  })
+  .catch(err => {
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const createDocument = (req, res, next) => {
+  const { document_name, document_type, document_content } = req.body;
+  const imgUrl = generateFileUrl(req.files);
+
+  const fields = {
+    document_name: document_name,
+    document_type: document_type,
+    document_content: document_content,
+  };
+  console.log(req.files);
+  console.log(imgUrl);
+
+  if (imgUrl) {
+    fields.document_file = imgUrl;
+  }
+
+  SettingsDocuments.create(fields)
+  .then(newdocument => {
+    res.status(201).json({ message: 'Document created successfully', document: newdocument });
+  })
+  .catch(error => {
+    console.log(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateDocument = (req, res, next) => {
+  const { id, document_name, document_type, document_content } = req.body;
+  const imgUrl = generateFileUrl(req.files);
+
+  const updateFields = {
+    document_name:document_name,
+    document_type:document_type,
+    document_content:document_content,
+  }
+
+  if (imgUrl) {
+    updateFields.document_file = imgUrl;
+  }
+
+  SettingsDocuments.update(updateFields, { where: { id: id } })
+  .then(newfamily => {
+    res.status(201).json({ message: 'Document updated successfully', family: newfamily });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const deleteDocument = (req, res, next) => {
+  SettingsDocuments.destroy({ where: { id: req.body.id } })
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "Document deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Document not found" });
+    }
+  })
+  .catch((error) => {
+    if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+      res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
 };
