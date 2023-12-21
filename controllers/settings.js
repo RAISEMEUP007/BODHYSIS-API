@@ -11,6 +11,8 @@ import SettingsLocations from '../models/settings/settings_locations.js';
 import SettingsCountries from '../models/settings/settings_countries.js';
 import SettingsLanguages from '../models/settings/settings_languages.js';
 import SettingsDocuments from '../models/settings/settings_documents.js';
+import SettingsReservationTypes from '../models/settings/settings_reservation_types.js';
+import SettingsTrucks from '../models/settings/settings_trucks.js';
 
 dotenv.config();
 
@@ -26,8 +28,8 @@ const generateFileUrl = (files) => {
 
 export const createManufacture = (req, res, next) => {
   SettingsManufactures.create(req.body)
-  .then(newfamily => {
-    res.status(201).json({ message: 'Manufacture family created successfully', family: newfamily });
+  .then(newManufacture => {
+    res.status(201).json({ message: 'Manufacture created successfully', manufacture: newManufacture });
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
@@ -42,8 +44,8 @@ export const updateManufacture = (req, res, next) => {
   const updateFields = req.body;
 
   SettingsManufactures.update(updateFields, { where: { id: req.body.id } })
-  .then(newfamily => {
-    res.status(201).json({ message: 'Manufacture family created successfully', family: newfamily });
+  .then(newManufacture => {
+    res.status(201).json({ message: 'Manufacture updated successfully', manufacture: newManufacture });
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
@@ -85,8 +87,8 @@ export const deleteManufacture = (req, res, next) => {
 
 export const createTag = (req, res, next) => {
   SettingsTags.create(req.body)
-  .then(newfamily => {
-    res.status(201).json({ message: 'Tag family created successfully', family: newfamily });
+  .then(newTag => {
+    res.status(201).json({ message: 'Tag created successfully', tag: newTag });
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
@@ -101,8 +103,8 @@ export const updateTag = (req, res, next) => {
   const updateFields = req.body;
 
   SettingsTags.update(updateFields, { where: { id: req.body.id } })
-  .then(newfamily => {
-    res.status(201).json({ message: 'Tag family created successfully', family: newfamily });
+  .then(newTag => {
+    res.status(201).json({ message: 'Tag updated successfully', tag: newTag });
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
@@ -144,8 +146,8 @@ export const deleteTag = (req, res, next) => {
 
 export const createLocation = (req, res, next) => {
   SettingsLocations.create(req.body)
-  .then(newfamily => {
-    res.status(201).json({ message: 'Location family created successfully', family: newfamily });
+  .then(newLocation => {
+    res.status(201).json({ message: 'Location created successfully', location: newLocation });
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
@@ -160,8 +162,8 @@ export const updateLocation = (req, res, next) => {
   const updateFields = req.body;
 
   SettingsLocations.update(updateFields, { where: { id: req.body.id } })
-  .then(newfamily => {
-    res.status(201).json({ message: 'Location family created successfully', family: newfamily });
+  .then(newLocation => {
+    res.status(201).json({ message: 'Location updated successfully', location: newLocation });
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
@@ -203,8 +205,8 @@ export const deleteLocation = (req, res, next) => {
 
 export const createCountry = (req, res, next) => {
   SettingsCountries.create(req.body)
-  .then(newfamily => {
-    res.status(201).json({ message: 'Country family created successfully', family: newfamily });
+  .then(newCountry => {
+    res.status(201).json({ message: 'Country created successfully', country: newCountry });
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
@@ -219,8 +221,8 @@ export const updateCountry = (req, res, next) => {
   const updateFields = req.body;
 
   SettingsCountries.update(updateFields, { where: { id: req.body.id } })
-  .then(newfamily => {
-    res.status(201).json({ message: 'Country family created successfully', family: newfamily });
+  .then(newCountry => {
+    res.status(201).json({ message: 'Country updated successfully', country: newCountry });
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
@@ -261,8 +263,8 @@ export const deleteCountry = (req, res, next) => {
 
 export const createLanguage = (req, res, next) => {
   SettingsLanguages.create(req.body)
-  .then(newfamily => {
-    res.status(201).json({ message: 'Language family created successfully', family: newfamily });
+  .then(newLanguage => {
+    res.status(201).json({ message: 'Language created successfully', language: newLanguage });
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
@@ -277,8 +279,8 @@ export const updateLanguage = (req, res, next) => {
   const updateFields = req.body;
 
   SettingsLanguages.update(updateFields, { where: { id: req.body.id } })
-  .then(newfamily => {
-    res.status(201).json({ message: 'Language family created successfully', family: newfamily });
+  .then(newLanguage => {
+    res.status(201).json({ message: 'Language updated successfully', language: newLanguage });
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
@@ -341,8 +343,6 @@ export const createDocument = (req, res, next) => {
     document_type: document_type,
     document_content: document_content,
   };
-  console.log(req.files);
-  console.log(imgUrl);
 
   if (imgUrl) {
     fields.document_file = imgUrl;
@@ -403,4 +403,148 @@ export const deleteDocument = (req, res, next) => {
       res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
     }else res.status(500).json({ error: "Internal server error" });
   });
+};
+
+export const getReservationTypesData = (req, res, next) => {
+  SettingsReservationTypes.findAll()
+  .then((reservationTypes) => {
+    let reservationTypesJSON = [];
+    for (let i = 0; i < reservationTypes.length; i++) {
+      reservationTypesJSON.push(reservationTypes[i].dataValues);
+    }   
+    res.status(200).json(reservationTypesJSON);
+  })
+  .catch(err => {
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const createReservationType = (req, res, next) => {
+  const { name, start_stage, print_size } = req.body;
+  const imgUrl = generateFileUrl(req.files);
+
+  const fields = {
+    name: name,
+    start_stage: start_stage,
+    print_size: print_size,
+  };
+
+  if (imgUrl) {
+    fields.img_url = imgUrl;
+  }
+
+  SettingsReservationTypes.create(fields)
+  .then(newreservationType => {
+    res.status(201).json({ message: 'ReservationType created successfully', reservationType: newreservationType });
+  })
+  .catch(error => {
+    console.log(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateReservationType = (req, res, next) => {
+  const { id, name, start_stage, print_size } = req.body;
+  const imgUrl = generateFileUrl(req.files);
+
+  const updateFields = {
+    name:name,
+    start_stage:start_stage,
+    print_size:print_size,
+  }
+
+  if (imgUrl) {
+    updateFields.img_url = imgUrl;
+  }
+
+  SettingsReservationTypes.update(updateFields, { where: { id: id } })
+  .then(newfamily => {
+    res.status(201).json({ message: 'ReservationType updated successfully', family: newfamily });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const deleteReservationType = (req, res, next) => {
+  SettingsReservationTypes.destroy({ where: { id: req.body.id } })
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "ReservationType deleted successfully" });
+    } else {
+      res.status(404).json({ error: "ReservationType not found" });
+    }
+  })
+  .catch((error) => {
+    if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+      res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const createTruck = (req, res, next) => {
+  SettingsTrucks.create(req.body)
+  .then(newTruck => {
+    res.status(201).json({ message: 'Truck created successfully', truck: newTruck });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateTruck = (req, res, next) => {
+  const updateFields = req.body;
+
+  SettingsTrucks.update(updateFields, { where: { id: req.body.id } })
+  .then(newTruck => {
+    res.status(201).json({ message: 'Truck updated successfully', truck: newTruck });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getTrucksData = (req, res, next) => {
+  SettingsTrucks.findAll()
+  .then((trucks) => {
+    let trucksJSON = [];
+    for (let i = 0; i < trucks.length; i++) {
+      trucksJSON.push(trucks[i].dataValues);
+    }   
+    res.status(200).json(trucksJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteTruck = (req, res, next) => {
+  SettingsTrucks.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Truck deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Truck not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
 };
