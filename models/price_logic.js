@@ -24,6 +24,12 @@ const PriceLogic = sequelize.define('price_logic', {
       type: Sequelize.INTEGER,
       allowNull: false,
    },
+   start_date: {
+      type: Sequelize.DATE,
+   },
+   end_date: {
+      type: Sequelize.DATE,
+   },
 }, {
    timestamps: false,
    tableName: 'price_logic' 
