@@ -217,7 +217,6 @@ export const getPriceGroupsData = (req, res, next) => {
 	});
 };
 
-
 export const setFree = (req, res, next) => {
 	PriceGroup.update(
 	  { is_free: req.body.isFree },
@@ -617,6 +616,8 @@ export const createPriceLogic = (req, res, next) => {
 				brand_id: req.body.brandId,
 				season_id: req.body.seasonId,
 				table_id: req.body.tableId,
+				start_date: req.body.startDate,
+				end_date: req.body.endDate,
 			}))
 			.then(() => {
 				res.status(200).json({message: "Added Successfully"});
