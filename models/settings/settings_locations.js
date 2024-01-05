@@ -14,7 +14,7 @@ const SettingsLocations = sequelize.define('settings_locations', {
       allowNull: false,
    },
 }, {
-   timestamps: false  // Disable timestamps
+   timestamps: false
 });
 
 

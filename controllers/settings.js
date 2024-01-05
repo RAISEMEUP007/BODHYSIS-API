@@ -13,6 +13,11 @@ import SettingsLanguages from '../models/settings/settings_languages.js';
 import SettingsDocuments from '../models/settings/settings_documents.js';
 import SettingsReservationTypes from '../models/settings/settings_reservation_types.js';
 import SettingsTrucks from '../models/settings/settings_trucks.js';
+import SettingsTimezones from '../models/settings/settings_timezones.js';
+import SettingsCurrencies from '../models/settings/settings_currencies.js';
+import SettingsDateformats from '../models/settings/settings_dateformats.js';
+import SettingsTimeformats from '../models/settings/settings_timeformats.js';
+import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
 
 dotenv.config();
 
@@ -548,3 +553,294 @@ export const deleteTruck = (req, res, next) => {
       res.status(500).json({ error: "Internal server error" });
     });
 };
+
+export const createTimezone = (req, res, next) => {
+  SettingsTimezones.create(req.body)
+  .then(newTimezone => {
+    res.status(201).json({ message: 'Timezone created successfully', timezone: newTimezone });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateTimezone = (req, res, next) => {
+  const updateFields = req.body;
+
+  SettingsTimezones.update(updateFields, { where: { id: req.body.id } })
+  .then(newTimezone => {
+    res.status(201).json({ message: 'Timezone updated successfully', timezone: newTimezone });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getTimezonesData = (req, res, next) => {
+  SettingsTimezones.findAll()
+  .then((timezones) => {
+    let timezonesJSON = [];
+    for (let i = 0; i < timezones.length; i++) {
+      timezonesJSON.push(timezones[i].dataValues);
+    }   
+    res.status(200).json(timezonesJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteTimezone = (req, res, next) => {
+  SettingsTimezones.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Timezone deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Timezone not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const createCurrency = (req, res, next) => {
+  SettingsCurrencies.create(req.body)
+  .then(newCurrency => {
+    res.status(201).json({ message: 'Currency created successfully', currency: newCurrency });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateCurrency = (req, res, next) => {
+  const updateFields = req.body;
+
+  SettingsCurrencies.update(updateFields, { where: { id: req.body.id } })
+  .then(newCurrency => {
+    res.status(201).json({ message: 'Currency updated successfully', currency: newCurrency });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getCurrenciesData = (req, res, next) => {
+  SettingsCurrencies.findAll()
+  .then((currencies) => {
+    let currenciesJSON = [];
+    for (let i = 0; i < currencies.length; i++) {
+      currenciesJSON.push(currencies[i].dataValues);
+    }   
+    res.status(200).json(currenciesJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteCurrency = (req, res, next) => {
+  SettingsCurrencies.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Currency deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Currency not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const createDateformat = (req, res, next) => {
+  SettingsDateformats.create(req.body)
+  .then(newDateformat => {
+    res.status(201).json({ message: 'Dateformat created successfully', dateformat: newDateformat });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateDateformat = (req, res, next) => {
+  const updateFields = req.body;
+
+  SettingsDateformats.update(updateFields, { where: { id: req.body.id } })
+  .then(newDateformat => {
+    res.status(201).json({ message: 'Dateformat updated successfully', dateformat: newDateformat });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getDateformatsData = (req, res, next) => {
+  SettingsDateformats.findAll()
+  .then((dateformats) => {
+    let dateformatsJSON = [];
+    for (let i = 0; i < dateformats.length; i++) {
+      dateformatsJSON.push(dateformats[i].dataValues);
+    }   
+    res.status(200).json(dateformatsJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteDateformat = (req, res, next) => {
+  SettingsDateformats.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Dateformat deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Dateformat not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const createTimeformat = (req, res, next) => {
+  SettingsTimeformats.create(req.body)
+  .then(newTimeformat => {
+    res.status(201).json({ message: 'Timeformat created successfully', timeformat: newTimeformat });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateTimeformat = (req, res, next) => {
+  const updateFields = req.body;
+
+  SettingsTimeformats.update(updateFields, { where: { id: req.body.id } })
+  .then(newTimeformat => {
+    res.status(201).json({ message: 'Timeformat updated successfully', timeformat: newTimeformat });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getTimeformatsData = (req, res, next) => {
+  SettingsTimeformats.findAll()
+  .then((timeformats) => {
+    let timeformatsJSON = [];
+    for (let i = 0; i < timeformats.length; i++) {
+      timeformatsJSON.push(timeformats[i].dataValues);
+    }   
+    res.status(200).json(timeformatsJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteTimeformat = (req, res, next) => {
+  SettingsTimeformats.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Timeformat deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Timeformat not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const getStoreDetail = (req, res, next) => {
+  SettingsStoreDetails.findOne({
+    where: {
+      id: 1
+    }
+  })
+  .then((storeDetails) => {
+    if (storeDetails) {
+      res.status(200).json(storeDetails);
+    } else {
+      res.status(404).json({ error: "Store details not found" });
+    }
+  })
+  .catch(err => {
+    res.status(502).json({ error: "An error occurred" });
+  });
+};
+
+
+export const updateStoreDetail = (req, res, next) => {
+  const imgUrl = generateFileUrl(req.files);
+  const updateFields = req.body;
+
+  if (imgUrl) {
+    updateFields.logo_url = imgUrl;
+  }
+
+  SettingsStoreDetails.findOrCreate({ 
+    where: { id: 1 },
+    defaults: updateFields
+  })
+  .then(([storeDetail, created]) => {
+    if (created) {
+      res.status(201).json({ message: 'New store detail created successfully', storeDetail });
+    } else {
+      storeDetail.update(updateFields)
+      .then(updatedStoreDetail => {
+        res.status(200).json({ message: 'Store detail updated successfully', storeDetail: updatedStoreDetail });
+      })
+      .catch(error => {
+        res.status(500).json({ error: "Internal server error" });
+      });
+    }
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+}

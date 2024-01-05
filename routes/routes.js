@@ -19,7 +19,12 @@ import { getManufacturesData, createManufacture, updateManufacture, deleteManufa
 		 getLanguagesData, createLanguage, updateLanguage, deleteLanguage,
 		 getDocumentsData, createDocument, updateDocument, deleteDocument,
 		 getReservationTypesData, createReservationType, updateReservationType, deleteReservationType,
-		 getTrucksData, createTruck, updateTruck, deleteTruck,} from '../controllers/settings.js';
+		 getTrucksData, createTruck, updateTruck, deleteTruck,
+		 getTimezonesData, createTimezone, updateTimezone, deleteTimezone,
+		 getCurrenciesData, createCurrency, updateCurrency, deleteCurrency,
+		 getDateformatsData, createDateformat, updateDateformat, deleteDateformat,
+		 getTimeformatsData, createTimeformat, updateTimeformat, deleteTimeformat, 
+		 getStoreDetail, updateStoreDetail} from '../controllers/settings.js';
 import { getCustomersData, createCustomer, updateCustomer, deleteCustomer,
 		 getDeliveryAddressData, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, deleteDeliveryAddressByCustomerId } from '../controllers/customer.js';
 
@@ -158,6 +163,34 @@ router.get('/settings/gettrucksdata/', getTrucksData);
 router.post('/settings/createtruck', createTruck);
 router.post('/settings/updatetruck', updateTruck);
 router.post('/settings/deletetruck', deleteTruck);
+
+// Settings/Timezones
+router.get('/settings/gettimezonesdata/', getTimezonesData);
+router.post('/settings/createtimezone', createTimezone);
+router.post('/settings/updatetimezone', updateTimezone);
+router.post('/settings/deletetimezone', deleteTimezone);
+
+// Settings/Currencies
+router.get('/settings/getcurrenciesdata/', getCurrenciesData);
+router.post('/settings/createcurrency', createCurrency);
+router.post('/settings/updatecurrency', updateCurrency);
+router.post('/settings/deletecurrency', deleteCurrency);
+
+// Settings/Dateformats
+router.get('/settings/getdateformatsdata/', getDateformatsData);
+router.post('/settings/createdateformat', createDateformat);
+router.post('/settings/updatedateformat', updateDateformat);
+router.post('/settings/deletedateformat', deleteDateformat);
+
+// Settings/Timeformats
+router.get('/settings/gettimeformatsdata/', getTimeformatsData);
+router.post('/settings/createtimeformat', createTimeformat);
+router.post('/settings/updatetimeformat', updateTimeformat);
+router.post('/settings/deletetimeformat', deleteTimeformat);
+
+// Settings store detail
+router.get('/settings/getstoredetail/', getStoreDetail);
+router.post('/settings/updatestoredetail', upload.array('img', 3),  updateStoreDetail);
 
 /* ----- customer ----- */
 // Customer/Customers
