@@ -18,6 +18,7 @@ import SettingsCurrencies from '../models/settings/settings_currencies.js';
 import SettingsDateformats from '../models/settings/settings_dateformats.js';
 import SettingsTimeformats from '../models/settings/settings_timeformats.js';
 import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
+import SettingsDiscountCodes from '../models/settings/settings_discountcodes.js';
 
 dotenv.config();
 
@@ -808,7 +809,6 @@ export const getStoreDetail = (req, res, next) => {
   });
 };
 
-
 export const updateStoreDetail = (req, res, next) => {
   const imgUrl = generateFileUrl(req.files);
   const updateFields = req.body;
@@ -844,3 +844,62 @@ export const updateStoreDetail = (req, res, next) => {
     }
   });
 }
+
+export const createDiscountCode = (req, res, next) => {
+  SettingsDiscountCodes.create(req.body)
+  .then(newDiscountCode => {
+    res.status(201).json({ message: 'DiscountCode created successfully', discountCode: newDiscountCode });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateDiscountCode = (req, res, next) => {
+  const updateFields = req.body;
+
+  SettingsDiscountCodes.update(updateFields, { where: { id: req.body.id } })
+  .then(newDiscountCode => {
+    res.status(201).json({ message: 'DiscountCode updated successfully', discountCode: newDiscountCode });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getDiscountCodesData = (req, res, next) => {
+  SettingsDiscountCodes.findAll()
+  .then((discountCodes) => {
+    let discountCodesJSON = [];
+    for (let i = 0; i < discountCodes.length; i++) {
+      discountCodesJSON.push(discountCodes[i].dataValues);
+    }   
+    res.status(200).json(discountCodesJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteDiscountCode = (req, res, next) => {
+  SettingsDiscountCodes.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "DiscountCode deleted successfully" });
+      } else {
+        res.status(404).json({ error: "DiscountCode not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};

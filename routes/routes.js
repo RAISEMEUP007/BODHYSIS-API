@@ -24,7 +24,8 @@ import { getManufacturesData, createManufacture, updateManufacture, deleteManufa
 		 getCurrenciesData, createCurrency, updateCurrency, deleteCurrency,
 		 getDateformatsData, createDateformat, updateDateformat, deleteDateformat,
 		 getTimeformatsData, createTimeformat, updateTimeformat, deleteTimeformat, 
-		 getStoreDetail, updateStoreDetail} from '../controllers/settings.js';
+		 getStoreDetail, updateStoreDetail,
+		 getDiscountCodesData, createDiscountCode, updateDiscountCode, deleteDiscountCode,} from '../controllers/settings.js';
 import { getCustomersData, createCustomer, updateCustomer, deleteCustomer,
 		 getDeliveryAddressData, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, deleteDeliveryAddressByCustomerId } from '../controllers/customer.js';
 
@@ -92,7 +93,6 @@ router.post('/product/updateproductcategory', upload.array('img', 3),  updatePro
 router.post('/product/saveproductcategory', saveProductCategory);
 router.post('/product/deleteproductcategory', deleteProductCategory);
 router.post('/product/quickaddproduct', quickAddProduct);
-
 
 // Product family
 router.get('/product/getproductfamiliesdata/:categoryId', getProductFamiliesData);
@@ -191,6 +191,12 @@ router.post('/settings/deletetimeformat', deleteTimeformat);
 // Settings store detail
 router.get('/settings/getstoredetail/', getStoreDetail);
 router.post('/settings/updatestoredetail', upload.array('img', 3),  updateStoreDetail);
+
+// Settings/DiscountCodes
+router.get('/settings/getdiscountcodesdata/', getDiscountCodesData);
+router.post('/settings/creatediscountcode', createDiscountCode);
+router.post('/settings/updatediscountcode', updateDiscountCode);
+router.post('/settings/deletediscountcode', deleteDiscountCode);
 
 /* ----- customer ----- */
 // Customer/Customers
