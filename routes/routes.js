@@ -25,7 +25,8 @@ import { getManufacturesData, createManufacture, updateManufacture, deleteManufa
 		 getDateformatsData, createDateformat, updateDateformat, deleteDateformat,
 		 getTimeformatsData, createTimeformat, updateTimeformat, deleteTimeformat, 
 		 getStoreDetail, updateStoreDetail,
-		 getDiscountCodesData, createDiscountCode, updateDiscountCode, deleteDiscountCode,} from '../controllers/settings.js';
+		 getDiscountCodesData, createDiscountCode, updateDiscountCode, deleteDiscountCode,
+		 getExclusionsData, createExclusion, updateExclusion, deleteExclusion, deleteExclusionByDCId} from '../controllers/settings.js';
 import { getCustomersData, createCustomer, updateCustomer, deleteCustomer,
 		 getDeliveryAddressData, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, deleteDeliveryAddressByCustomerId } from '../controllers/customer.js';
 
@@ -197,6 +198,13 @@ router.get('/settings/getdiscountcodesdata/', getDiscountCodesData);
 router.post('/settings/creatediscountcode', createDiscountCode);
 router.post('/settings/updatediscountcode', updateDiscountCode);
 router.post('/settings/deletediscountcode', deleteDiscountCode);
+
+// Settings/Exclusion
+router.post('/settings/getexclusionsdata', getExclusionsData);
+router.post('/settings/createexclusion',  createExclusion);
+router.post('/settings/updateexclusion', updateExclusion);
+router.post('/settings/deleteexclusion', deleteExclusion);
+router.post('/settings/deleteexclusionbydcid', deleteExclusionByDCId);
 
 /* ----- customer ----- */
 // Customer/Customers

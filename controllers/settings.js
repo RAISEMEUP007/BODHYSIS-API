@@ -19,6 +19,7 @@ import SettingsDateformats from '../models/settings/settings_dateformats.js';
 import SettingsTimeformats from '../models/settings/settings_timeformats.js';
 import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
 import SettingsDiscountCodes from '../models/settings/settings_discountcodes.js';
+import SettingsExclusions from '../models/settings/settings_exclusions.js';
 
 dotenv.config();
 
@@ -849,13 +850,20 @@ export const createDiscountCode = (req, res, next) => {
   SettingsDiscountCodes.create(req.body)
   .then(newDiscountCode => {
     res.status(201).json({ message: 'DiscountCode created successfully', discountCode: newDiscountCode });
+    SettingsExclusions.update(
+      { discountcode_id: newcustomer.id },
+      { where: { discountcode_id: req.body.tmpId }}
+    );
   })
   .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
       res.status(409).json({ error: capitalizedMessage});
-    }else res.status(500).json({ error: "Internal server error" });
+    }else{
+     res.status(500).json({ error: "Internal server error" });
+     SettingsExclusions.destroy({ where: { discountcode_id: req.body.tmpId }});
+    }
   });
 }
 
@@ -902,4 +910,86 @@ export const deleteDiscountCode = (req, res, next) => {
     .catch((error) => {
       res.status(500).json({ error: "Internal server error" });
     });
+};
+
+export const createExclusion = (req, res, next) => {
+  console.log(req.body);
+  
+  SettingsExclusions.create(req.body)
+  .then(newExclusion => {
+    res.status(201).json({ message: 'Exclusion created successfully', exclusion: newExclusion });
+  })
+  .catch(error => {
+    console.log(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateExclusion = (req, res, next) => {
+  console.log(req.body);
+  SettingsExclusions.update(req.body, { where: { id: req.body.id } })
+  .then(newExclusion => {
+    res.status(201).json({ message: 'Exclusion created successfully', exclusion: newExclusion });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getExclusionsData = (req, res, next) => {
+  let queryOptions = {
+    where: {}
+  };
+  if(req.body.discountcode_id) queryOptions.where.discountcode_id = req.body.discountcode_id;
+  console.log(queryOptions);
+  SettingsExclusions.findAll(queryOptions)
+  .then((Exclusions) => {
+    let ExclusionsJSON = [];
+    for (let i = 0; i < Exclusions.length; i++) {
+      ExclusionsJSON.push(Exclusions[i].dataValues);
+    }   
+    res.status(200).json(ExclusionsJSON);
+  })
+  .catch(err => {
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteExclusion = (req, res, next) => {
+  SettingsExclusions.destroy({ where: { id: req.body.id } })
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "Exclusion deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Exclusion not found" });
+    }
+  })
+  .catch((error) => {
+    if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+      res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const deleteExclusionByDCId = (req, res, next) => {
+  SettingsExclusions.destroy({ where: { discountcode_id: req.body.DiscountCodeId } })
+  .then((result) => {
+    console.log(result);
+    if (result > 0 ) {
+      res.status(200).json({ message: "Tmp exclusion deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Tmp exclusion not found" });
+    }
+  })
+  .catch((error) => {
+    res.status(500).json({ error: "Internal server error" });
+  });
 };
