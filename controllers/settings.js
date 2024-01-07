@@ -851,7 +851,7 @@ export const createDiscountCode = (req, res, next) => {
   .then(newDiscountCode => {
     res.status(201).json({ message: 'DiscountCode created successfully', discountCode: newDiscountCode });
     SettingsExclusions.update(
-      { discountcode_id: newcustomer.id },
+      { discountcode_id: newDiscountCode.id },
       { where: { discountcode_id: req.body.tmpId }}
     );
   })
