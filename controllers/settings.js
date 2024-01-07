@@ -867,6 +867,28 @@ export const createDiscountCode = (req, res, next) => {
   });
 }
 
+export const quickAddDiscountCodesData = (req, res, next) => {
+  const { rowcounts, ...discountCodesData } = req.body;
+  const rows = [];
+
+  for (let i = 0; i < rowcounts; i++) {
+    let newRow = discountCodesData;
+    newRow.code = `${newRow.code_prefix}${i.toString().padStart(3, '0')}`;
+    newRow.type = 1;
+    newRow.amount = 1;
+    rows.push(SettingsDiscountCodes.create(discountCodesData));
+  }
+
+  Promise.all(rows)
+    .then(newProduts => {
+      res.status(201).json({ message: 'Products created successfully', products: newProduts });
+    })
+    .catch(error => {
+      console.error('Error creating products:', error);
+      res.status(500).json({ error: 'Failed to create products' });
+    });
+}
+
 export const updateDiscountCode = (req, res, next) => {
   const updateFields = req.body;
 
@@ -913,8 +935,6 @@ export const deleteDiscountCode = (req, res, next) => {
 };
 
 export const createExclusion = (req, res, next) => {
-  console.log(req.body);
-  
   SettingsExclusions.create(req.body)
   .then(newExclusion => {
     res.status(201).json({ message: 'Exclusion created successfully', exclusion: newExclusion });
@@ -930,7 +950,6 @@ export const createExclusion = (req, res, next) => {
 }
 
 export const updateExclusion = (req, res, next) => {
-  console.log(req.body);
   SettingsExclusions.update(req.body, { where: { id: req.body.id } })
   .then(newExclusion => {
     res.status(201).json({ message: 'Exclusion created successfully', exclusion: newExclusion });
@@ -949,7 +968,6 @@ export const getExclusionsData = (req, res, next) => {
     where: {}
   };
   if(req.body.discountcode_id) queryOptions.where.discountcode_id = req.body.discountcode_id;
-  console.log(queryOptions);
   SettingsExclusions.findAll(queryOptions)
   .then((Exclusions) => {
     let ExclusionsJSON = [];
@@ -982,7 +1000,6 @@ export const deleteExclusion = (req, res, next) => {
 export const deleteExclusionByDCId = (req, res, next) => {
   SettingsExclusions.destroy({ where: { discountcode_id: req.body.DiscountCodeId } })
   .then((result) => {
-    console.log(result);
     if (result > 0 ) {
       res.status(200).json({ message: "Tmp exclusion deleted successfully" });
     } else {

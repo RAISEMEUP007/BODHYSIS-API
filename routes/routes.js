@@ -25,7 +25,7 @@ import { getManufacturesData, createManufacture, updateManufacture, deleteManufa
 		 getDateformatsData, createDateformat, updateDateformat, deleteDateformat,
 		 getTimeformatsData, createTimeformat, updateTimeformat, deleteTimeformat, 
 		 getStoreDetail, updateStoreDetail,
-		 getDiscountCodesData, createDiscountCode, updateDiscountCode, deleteDiscountCode,
+		 getDiscountCodesData, createDiscountCode, quickAddDiscountCodesData, updateDiscountCode, deleteDiscountCode,
 		 getExclusionsData, createExclusion, updateExclusion, deleteExclusion, deleteExclusionByDCId} from '../controllers/settings.js';
 import { getCustomersData, createCustomer, updateCustomer, deleteCustomer,
 		 getDeliveryAddressData, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, deleteDeliveryAddressByCustomerId } from '../controllers/customer.js';
@@ -194,8 +194,9 @@ router.get('/settings/getstoredetail/', getStoreDetail);
 router.post('/settings/updatestoredetail', upload.array('img', 3),  updateStoreDetail);
 
 // Settings/DiscountCodes
-router.get('/settings/getdiscountcodesdata/', getDiscountCodesData);
+router.get('/settings/getdiscountcodesdata', getDiscountCodesData);
 router.post('/settings/creatediscountcode', createDiscountCode);
+router.post('/settings/quickadddiscountcode', quickAddDiscountCodesData);
 router.post('/settings/updatediscountcode', updateDiscountCode);
 router.post('/settings/deletediscountcode', deleteDiscountCode);
 
