@@ -19,7 +19,14 @@ import { getManufacturesData, createManufacture, updateManufacture, deleteManufa
 		 getLanguagesData, createLanguage, updateLanguage, deleteLanguage,
 		 getDocumentsData, createDocument, updateDocument, deleteDocument,
 		 getReservationTypesData, createReservationType, updateReservationType, deleteReservationType,
-		 getTrucksData, createTruck, updateTruck, deleteTruck,} from '../controllers/settings.js';
+		 getTrucksData, createTruck, updateTruck, deleteTruck,
+		 getTimezonesData, createTimezone, updateTimezone, deleteTimezone,
+		 getCurrenciesData, createCurrency, updateCurrency, deleteCurrency,
+		 getDateformatsData, createDateformat, updateDateformat, deleteDateformat,
+		 getTimeformatsData, createTimeformat, updateTimeformat, deleteTimeformat, 
+		 getStoreDetail, updateStoreDetail,
+		 getDiscountCodesData, createDiscountCode, quickAddDiscountCodesData, updateDiscountCode, deleteDiscountCode,
+		 getExclusionsData, createExclusion, updateExclusion, deleteExclusion, deleteExclusionByDCId} from '../controllers/settings.js';
 import { getCustomersData, createCustomer, updateCustomer, deleteCustomer,
 		 getDeliveryAddressData, createDeliveryAddress, updateDeliveryAddress, deleteDeliveryAddress, deleteDeliveryAddressByCustomerId } from '../controllers/customer.js';
 
@@ -87,7 +94,6 @@ router.post('/product/updateproductcategory', upload.array('img', 3),  updatePro
 router.post('/product/saveproductcategory', saveProductCategory);
 router.post('/product/deleteproductcategory', deleteProductCategory);
 router.post('/product/quickaddproduct', quickAddProduct);
-
 
 // Product family
 router.get('/product/getproductfamiliesdata/:categoryId', getProductFamiliesData);
@@ -158,6 +164,48 @@ router.get('/settings/gettrucksdata/', getTrucksData);
 router.post('/settings/createtruck', createTruck);
 router.post('/settings/updatetruck', updateTruck);
 router.post('/settings/deletetruck', deleteTruck);
+
+// Settings/Timezones
+router.get('/settings/gettimezonesdata/', getTimezonesData);
+router.post('/settings/createtimezone', createTimezone);
+router.post('/settings/updatetimezone', updateTimezone);
+router.post('/settings/deletetimezone', deleteTimezone);
+
+// Settings/Currencies
+router.get('/settings/getcurrenciesdata/', getCurrenciesData);
+router.post('/settings/createcurrency', createCurrency);
+router.post('/settings/updatecurrency', updateCurrency);
+router.post('/settings/deletecurrency', deleteCurrency);
+
+// Settings/Dateformats
+router.get('/settings/getdateformatsdata/', getDateformatsData);
+router.post('/settings/createdateformat', createDateformat);
+router.post('/settings/updatedateformat', updateDateformat);
+router.post('/settings/deletedateformat', deleteDateformat);
+
+// Settings/Timeformats
+router.get('/settings/gettimeformatsdata/', getTimeformatsData);
+router.post('/settings/createtimeformat', createTimeformat);
+router.post('/settings/updatetimeformat', updateTimeformat);
+router.post('/settings/deletetimeformat', deleteTimeformat);
+
+// Settings store detail
+router.get('/settings/getstoredetail/', getStoreDetail);
+router.post('/settings/updatestoredetail', upload.array('img', 3),  updateStoreDetail);
+
+// Settings/DiscountCodes
+router.get('/settings/getdiscountcodesdata', getDiscountCodesData);
+router.post('/settings/creatediscountcode', createDiscountCode);
+router.post('/settings/quickadddiscountcode', quickAddDiscountCodesData);
+router.post('/settings/updatediscountcode', updateDiscountCode);
+router.post('/settings/deletediscountcode', deleteDiscountCode);
+
+// Settings/Exclusion
+router.post('/settings/getexclusionsdata', getExclusionsData);
+router.post('/settings/createexclusion',  createExclusion);
+router.post('/settings/updateexclusion', updateExclusion);
+router.post('/settings/deleteexclusion', deleteExclusion);
+router.post('/settings/deleteexclusionbydcid', deleteExclusionByDCId);
 
 /* ----- customer ----- */
 // Customer/Customers

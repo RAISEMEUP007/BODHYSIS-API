@@ -14,7 +14,7 @@ const SettingsTags = sequelize.define('settings_tags', {
       allowNull: false,
    },
 }, {
-   timestamps: false  // Disable timestamps
+   timestamps: false
 });
 
 

@@ -2,25 +2,19 @@ import { Sequelize } from 'sequelize';
 
 import sequelize from '../../utils/database.js';
 
-const SettingsTrucks = sequelize.define('settings_trucks', {
+const SettingsDateformats = sequelize.define('settings_dateformats', {
    id: {
       type: Sequelize.INTEGER,
       autoIncrement: true,
       allowNull: false,
       primaryKey: true,
    },
-   name: {
+   dateformat: {
       type: Sequelize.STRING,
-   },
-   short_name: {
-      type: Sequelize.STRING,
-   },
-   barcode: {
-      type: Sequelize.STRING,
+      allowNull: false,
    },
 }, {
    timestamps: false
 });
 
-
-export default SettingsTrucks;
+export default SettingsDateformats;

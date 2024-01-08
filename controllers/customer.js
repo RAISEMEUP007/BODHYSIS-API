@@ -131,23 +131,6 @@ export const updateDeliveryAddress = (req, res, next) => {
 
 export const getDeliveryAddressData = (req, res, next) => {
   let queryOptions = {
-    // include: [
-    //   {
-    //     model: SettingsCountries,
-    //     as: 'country',
-    //     attributes: ['country'],
-    //   },
-    //   {
-    //     model: SettingsLanguages,
-    //     as: 'language',
-    //     attributes: ['language'],
-    //   },
-    //   {
-    //     model: SettingsLocations,
-    //     as: 'home_location_tbl',
-    //     attributes: ['location'],
-    //   },
-    // ],
     where: {}
   };
   if(req.body.customer_id) queryOptions.where.customer_id = req.body.customer_id;
@@ -183,7 +166,7 @@ export const deleteDeliveryAddress = (req, res, next) => {
 export const deleteDeliveryAddressByCustomerId = (req, res, next) => {
   CustomerDeliveryAddress.destroy({ where: { customer_id: req.body.customerId } })
   .then((result) => {
-    if (result === 1) {
+    if (result > 0 ) {
       res.status(200).json({ message: "Tmp delivery address deleted successfully" });
     } else {
       res.status(404).json({ error: "Tmp delivery address not found" });

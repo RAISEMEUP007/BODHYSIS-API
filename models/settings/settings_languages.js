@@ -14,7 +14,7 @@ const SettingsLanguages = sequelize.define('settings_languages', {
       allowNull: false,
    },
 }, {
-   timestamps: false  // Disable timestamps
+   timestamps: false
 });
 
 

@@ -14,7 +14,7 @@ const SettingsCountries = sequelize.define('settings_countries', {
       allowNull: false,
    },
 }, {
-   timestamps: false  // Disable timestamps
+   timestamps: false
 });
 
 

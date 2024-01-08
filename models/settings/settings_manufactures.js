@@ -17,7 +17,7 @@ const SettingsManufactures = sequelize.define('settings_manufactures', {
       type: Sequelize.STRING,
    },
 }, {
-   timestamps: false  // Disable timestamps
+   timestamps: false
 });
 
 
