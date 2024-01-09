@@ -799,7 +799,6 @@ export const getStoreDetail = (req, res, next) => {
     }
   })
   .then((storeDetails) => {
-    console.log(storeDetails);
     if (storeDetails) {
       res.status(200).json(storeDetails);
     } else {
@@ -814,7 +813,6 @@ export const getStoreDetail = (req, res, next) => {
 export const updateStoreDetail = (req, res, next) => {
   const imgUrl = generateFileUrl(req.files);
   const updateFields = req.body;
-  console.log(updateFields);
 
   if (imgUrl) {
     updateFields.logo_url = imgUrl;

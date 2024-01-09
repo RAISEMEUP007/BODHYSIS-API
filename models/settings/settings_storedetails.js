@@ -72,6 +72,12 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
    store_wavier: {
       type: Sequelize.STRING,
    },
+   document_id: {
+      type: Sequelize.INTEGER,
+   },
+   is_document: {
+      type: Sequelize.INTEGER,
+   },
 }, {
    timestamps: false
 });
