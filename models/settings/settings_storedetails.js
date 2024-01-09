@@ -9,6 +9,9 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
       allowNull: false,
       primaryKey: true,
    },
+   brand_id: {
+      type: Sequelize.INTEGER,
+   },
    store_name: {
       type: Sequelize.STRING,
    },

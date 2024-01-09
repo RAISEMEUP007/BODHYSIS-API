@@ -795,10 +795,11 @@ export const deleteTimeformat = (req, res, next) => {
 export const getStoreDetail = (req, res, next) => {
   SettingsStoreDetails.findOne({
     where: {
-      id: 1
+      brand_id: req.params.brandId
     }
   })
   .then((storeDetails) => {
+    console.log(storeDetails);
     if (storeDetails) {
       res.status(200).json(storeDetails);
     } else {
@@ -813,13 +814,14 @@ export const getStoreDetail = (req, res, next) => {
 export const updateStoreDetail = (req, res, next) => {
   const imgUrl = generateFileUrl(req.files);
   const updateFields = req.body;
+  console.log(updateFields);
 
   if (imgUrl) {
     updateFields.logo_url = imgUrl;
   }
 
   SettingsStoreDetails.findOrCreate({ 
-    where: { id: 1 },
+    where: { brand_id: req.body.brand_id },
     defaults: updateFields
   })
   .then(([storeDetail, created]) => {

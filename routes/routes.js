@@ -190,7 +190,7 @@ router.post('/settings/updatetimeformat', updateTimeformat);
 router.post('/settings/deletetimeformat', deleteTimeformat);
 
 // Settings store detail
-router.get('/settings/getstoredetail/', getStoreDetail);
+router.get('/settings/getstoredetail/:brandId', getStoreDetail);
 router.post('/settings/updatestoredetail', upload.array('img', 3),  updateStoreDetail);
 
 // Settings/DiscountCodes
