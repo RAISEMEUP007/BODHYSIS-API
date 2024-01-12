@@ -9,6 +9,9 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
       allowNull: false,
       primaryKey: true,
    },
+   brand_id: {
+      type: Sequelize.INTEGER,
+   },
    store_name: {
       type: Sequelize.STRING,
    },
@@ -68,6 +71,12 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
    },
    store_wavier: {
       type: Sequelize.STRING,
+   },
+   document_id: {
+      type: Sequelize.INTEGER,
+   },
+   is_document: {
+      type: Sequelize.INTEGER,
    },
 }, {
    timestamps: false

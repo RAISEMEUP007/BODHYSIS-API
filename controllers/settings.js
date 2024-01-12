@@ -795,7 +795,7 @@ export const deleteTimeformat = (req, res, next) => {
 export const getStoreDetail = (req, res, next) => {
   SettingsStoreDetails.findOne({
     where: {
-      id: 1
+      brand_id: req.params.brandId
     }
   })
   .then((storeDetails) => {
@@ -819,7 +819,7 @@ export const updateStoreDetail = (req, res, next) => {
   }
 
   SettingsStoreDetails.findOrCreate({ 
-    where: { id: 1 },
+    where: { brand_id: req.body.brand_id },
     defaults: updateFields
   })
   .then(([storeDetail, created]) => {
