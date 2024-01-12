@@ -105,6 +105,38 @@ export const addPricePoint = (req, res, next) => {
 	});
 };
 
+const calculateMilliseconds = (duration, durationType) => {
+  switch (durationType) {
+    case 'Hour(s)':
+    case 'hour(s)':
+      return duration * 60 * 60 * 1000;
+    case 'Day(s)':
+    case 'day(s)':
+      return duration * 24 * 60 * 60 * 1000;
+    case 'Week(s)':
+    case 'week(s)':
+      return duration * 7 * 24 * 60 * 60 * 1000;
+    default:
+      return 0;
+  }
+}
+
+const calculateHours = (duration, durationType) => {
+  switch (durationType) {
+    case 'Hour(s)':
+    case 'hour(s)':
+      return duration;
+    case 'Day(s)':
+    case 'day(s)':
+      return duration * 24;
+    case 'Week(s)':
+    case 'week(s)':
+      return duration * 7 * 24;
+    default:
+      return 0;
+  }
+}
+
 export const getHeaderData = (req, res, next) => {
 	let tableId = req.params.tableId;
 	if(tableId == 0) tableId = null;
@@ -114,7 +146,14 @@ export const getHeaderData = (req, res, next) => {
 	.then((points) => {
     let pointsJSON = [];
     for (let i = 0; i < points.length; i++) {
-      pointsJSON.push({ id: points[i].id, header: points[i].dataValues.duration + " " + points[i].dataValues.duration_type });
+      pointsJSON.push({ 
+      	id: points[i].id, 
+      	header: points[i].dataValues.duration + " " + points[i].dataValues.duration_type,
+      	duration_type: points[i].dataValues.duration_type,
+      	duration: points[i].dataValues.duration,
+      	milliseconds: calculateMilliseconds(points[i].dataValues.duration, points[i].dataValues.duration_type),
+  			hours: calculateHours(points[i].dataValues.duration, points[i].dataValues.duration_type)
+      });
     }		
     res.status(200).json(pointsJSON);
 	})
