@@ -60,7 +60,7 @@ export const login = (req, res, next) => {
 					res.status(502).json({message: "error while checking user password"});
 				} else if (compareRes) {
 					const token = jwt.sign({ email: req.body.email }, 'secret', { expiresIn: '1h' });
-					res.status(200).json({message: "user logged in", "token": token});
+					res.status(200).json({message: "user logged in", "token": token, userName:dbUser.name, userId:dbUser.id, userEmail:dbUser.email});
 				} else {
 					res.status(401).json({message: "invalid credentials"});
 				};
