@@ -3,7 +3,8 @@ import sequelize from './utils/database.js';
 import router from './routes/routes.js';
 import dotenv from 'dotenv';
 import cors from "cors";
-import multer from 'multer';
+import http from 'http';
+import { initializeSocket } from './routes/sockets.js';
 
 dotenv.config();
 
@@ -22,17 +23,14 @@ console.log(`Database password is ${process.env.DB_PASSWORD}`);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-app.use((_, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-});
-
 app.use('/uploads', express.static('uploads'));
 app.use(router);
 
+const server = http.createServer(app);
+initializeSocket(server);
+
 sequelize.sync();
 
-app.listen(5000);
+server.listen(process.env.BASE_PORT, () => {
+  console.log(`Server is running on port ${process.env.BASE_PORT}`);
+});
