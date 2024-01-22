@@ -40,12 +40,16 @@ export const createReservation = (req, res, next) => {
         error:
           "Bad request. Products must contain both a product_id and quantity attribute.",
       });
+      return
     }
-
-    Reservations.create(req.body);
+    Reservations.create(req.body).then((result) => {
+      res.status(201).json({ message: 'Reservation created successfully', reservation: result })
+      return
+    })
   } catch (error) {
     res.status(409).json({
       error: JSON.stringify(error),
     });
+    return
   }
 };

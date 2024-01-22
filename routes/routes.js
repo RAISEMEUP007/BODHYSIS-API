@@ -361,7 +361,7 @@ router.post(
 
 /* ----- Reservations ----- */
 // Reservations
-router.post("/reservations/createReservation", createReservation);
+router.post("/reservations/createreservation/", createReservation);
 
 router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });
