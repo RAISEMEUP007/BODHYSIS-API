@@ -1,4 +1,4 @@
-import Reservations from "../models/reservations";
+import Reservations from "../models/reservations.js";
 
 export const createReservation = (req, res, next) => {
   try {
