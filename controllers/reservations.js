@@ -7,8 +7,8 @@ export const createReservation = (req, res, next) => {
       promo_code,
       start_location_id,
       end_location_id,
-      start_time,
-      end_time,
+      start_date,
+      end_date,
       customer_id,
     } = req.body;
 
@@ -17,13 +17,13 @@ export const createReservation = (req, res, next) => {
       !products.length ||
       !start_location_id ||
       !end_location_id ||
-      !start_time ||
-      !end_time ||
+      !start_date ||
+      !end_date||
       !customer_id
     ) {
       res.status(409).json({
         error:
-          "Bad request. Products, start_location_id, end_location_id, start_time, end_time, or customer_id was missing.",
+          "Bad request. Products, start_location_id, end_location_id, start_date, end_date, or customer_id was missing.",
       });
       return;
     }
