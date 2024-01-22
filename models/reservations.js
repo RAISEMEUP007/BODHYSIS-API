@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from "sequelize";
+import { DataTypes } from "sequelize";
 
 import sequelize from "../utils/database.js";
 
-const Reservation = sequelize.define(
+const Reservations = sequelize.define(
   "reservation",
   {
     id: {
@@ -29,10 +29,13 @@ const Reservation = sequelize.define(
     products: {
       type: DataTypes.JSON,
     },
+    customer_id: {
+      type: DataTypes.INTEGER,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-export default Reservation;
+export default Reservations;
