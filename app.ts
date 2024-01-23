@@ -1,7 +1,7 @@
 import express from "express";
-import sequelize from "./utils/database.js";
-import router from "./routes/routes.js";
-import dotenv from "dotenvåå";
+import sequelize from "./utils/database";
+import router from "./routes/routes";
+import dotenv from "dotenv";
 import cors from "cors";
 
 dotenv.config();
@@ -39,4 +39,4 @@ app.use(router);
 
 sequelize.sync();
 
-app.listen(5000);
+app.listen(5001);

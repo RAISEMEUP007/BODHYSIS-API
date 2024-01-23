@@ -1,10 +1,9 @@
-import Reservations from "../models/reservations";
+import Reservations, { ReservationProductType } from "../models/reservations";
 import { Request, Response} from 'express'
 
 export const createReservation = (req: Request, res: Response) => {
   try {
     const {
-      products,
       promo_code,
       start_location_id,
       end_location_id,
@@ -13,6 +12,7 @@ export const createReservation = (req: Request, res: Response) => {
       customer_id,
     } = req.body
     // Check required params
+    const products: Array<ReservationProductType> = req.body.products
     if (
       !products.length ||
       !start_location_id ||
@@ -31,14 +31,14 @@ export const createReservation = (req: Request, res: Response) => {
     let productsValid = true;
     for (let i = 0; i < products.length; ++i) {
       let p = products[i];
-      if (!p.product_id || !p.quantity) {
+      if (!p.product_id || !p.quantity || !p.product_name ||  isNaN(p.price)) {
         productsValid = false;
       }
     }
     if (!productsValid) {
       res.status(409).json({
         error:
-          "Bad request. Products must contain both a product_id and quantity attribute.",
+          "Bad request. Products must contain both a product_id, quantity, product_name and quantity attribute.",
       });
       return
     }

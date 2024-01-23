@@ -32,21 +32,32 @@ const Reservations = sequelize.define(
     customer_id: {
       type: DataTypes.INTEGER,
     },
+    price_index: {
+      type: DataTypes.INTEGER,
+    },
+    total_price: {
+      type: DataTypes.INTEGER,
+    },
   },
   {
     timestamps: true,
   }
 );
 
+export interface ReservationProductType{quantity: number, product_id: number, price: number, product_name: string}
+
 export interface ReservationType {
-  id: Number;
+  id: number
   start_date: String
   end_date: String
   promo_code?: string
-  start_location_id: number;
+  start_location_id: number
   end_location_id: number
-  products: Array<{quantity: number, product_id: number}>
+  price_index: number
+  duration: number,
+  products: Array<ReservationProductType>
   customer_id: number
+  total_price: number
 }
 
 export default Reservations;
