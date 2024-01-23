@@ -124,6 +124,10 @@ import {
   createTaxcode,
   updateTaxcode,
   deleteTaxcode,
+  getColorcombinationsData,
+  createColorcombination,
+  updateColorcombination,
+  deleteColorcombination,
 } from "../controllers/settings.js";
 import {
   getCustomersData,
@@ -351,6 +355,12 @@ router.get("/settings/gettaxcodesdata/", getTaxcodesData);
 router.post("/settings/createtaxcode", createTaxcode);
 router.post("/settings/updatetaxcode", updateTaxcode);
 router.post("/settings/deletetaxcode", deleteTaxcode);
+
+// Settings/Colorcombinations
+router.get("/settings/getcolorcombinationsdata/", getColorcombinationsData);
+router.post("/settings/createcolorcombination", createColorcombination);
+router.post("/settings/updatecolorcombination", updateColorcombination);
+router.post("/settings/deletecolorcombination", deleteColorcombination);
 
 /* ----- customer ----- */
 // Customer/Customers

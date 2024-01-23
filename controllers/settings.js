@@ -21,6 +21,7 @@ import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
 import SettingsDiscountCodes from '../models/settings/settings_discountcodes.js';
 import SettingsExclusions from '../models/settings/settings_exclusions.js';
 import SettingsTaxcodes from '../models/settings/settings_taxcodes.js';
+import SettingsColorcombinations from '../models/settings/settings_colorcombinations.js';
 
 dotenv.config();
 
@@ -1064,6 +1065,65 @@ export const deleteTaxcode = (req, res, next) => {
         res.status(200).json({ message: "Taxcode deleted successfully" });
       } else {
         res.status(404).json({ error: "Taxcode not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+export const createColorcombination = (req, res, next) => {
+  SettingsColorcombinations.create(req.body)
+  .then(newColorcombination => {
+    res.status(201).json({ message: 'Colorcombination created successfully', colorcombination: newColorcombination });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateColorcombination = (req, res, next) => {
+  const updateFields = req.body;
+
+  SettingsColorcombinations.update(updateFields, { where: { id: req.body.id } })
+  .then(newColorcombination => {
+    res.status(201).json({ message: 'Colorcombination updated successfully', colorcombination: newColorcombination });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getColorcombinationsData = (req, res, next) => {
+  SettingsColorcombinations.findAll()
+  .then((colorcombinations) => {
+    let colorcombinationsJSON = [];
+    for (let i = 0; i < colorcombinations.length; i++) {
+      colorcombinationsJSON.push(colorcombinations[i].dataValues);
+    }   
+    res.status(200).json(colorcombinationsJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteColorcombination = (req, res, next) => {
+  SettingsColorcombinations.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Colorcombination deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Colorcombination not found" });
       }
     })
     .catch((error) => {
