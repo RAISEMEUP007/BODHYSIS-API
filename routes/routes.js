@@ -132,7 +132,7 @@ import {
   deleteDeliveryAddress,
   deleteDeliveryAddressByCustomerId,
 } from "../controllers/customer.js";
-import { createReservation } from "../controllers/reservations.js";
+import { createReservation } from "../controllers/reservations";
 
 const router = express.Router();
 
