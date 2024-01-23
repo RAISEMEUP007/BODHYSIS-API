@@ -120,6 +120,10 @@ import {
   updateExclusion,
   deleteExclusion,
   deleteExclusionByDCId,
+  getTaxcodesData,
+  createTaxcode,
+  updateTaxcode,
+  deleteTaxcode,
 } from "../controllers/settings.js";
 import {
   getCustomersData,
@@ -341,6 +345,12 @@ router.post("/settings/createexclusion", createExclusion);
 router.post("/settings/updateexclusion", updateExclusion);
 router.post("/settings/deleteexclusion", deleteExclusion);
 router.post("/settings/deleteexclusionbydcid", deleteExclusionByDCId);
+
+// Settings/Taxcodes
+router.get("/settings/gettaxcodesdata/", getTaxcodesData);
+router.post("/settings/createtaxcode", createTaxcode);
+router.post("/settings/updatetaxcode", updateTaxcode);
+router.post("/settings/deletetaxcode", deleteTaxcode);
 
 /* ----- customer ----- */
 // Customer/Customers

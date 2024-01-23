@@ -20,6 +20,7 @@ import SettingsTimeformats from '../models/settings/settings_timeformats.js';
 import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
 import SettingsDiscountCodes from '../models/settings/settings_discountcodes.js';
 import SettingsExclusions from '../models/settings/settings_exclusions.js';
+import SettingsTaxcodes from '../models/settings/settings_taxcodes.js';
 
 dotenv.config();
 
@@ -1009,4 +1010,63 @@ export const deleteExclusionByDCId = (req, res, next) => {
   .catch((error) => {
     res.status(500).json({ error: "Internal server error" });
   });
+};
+
+export const createTaxcode = (req, res, next) => {
+  SettingsTaxcodes.create(req.body)
+  .then(newTaxcode => {
+    res.status(201).json({ message: 'Taxcode created successfully', taxcode: newTaxcode });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateTaxcode = (req, res, next) => {
+  const updateFields = req.body;
+
+  SettingsTaxcodes.update(updateFields, { where: { id: req.body.id } })
+  .then(newTaxcode => {
+    res.status(201).json({ message: 'Taxcode updated successfully', taxcode: newTaxcode });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getTaxcodesData = (req, res, next) => {
+  SettingsTaxcodes.findAll()
+  .then((taxcodes) => {
+    let taxcodesJSON = [];
+    for (let i = 0; i < taxcodes.length; i++) {
+      taxcodesJSON.push(taxcodes[i].dataValues);
+    }   
+    res.status(200).json(taxcodesJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteTaxcode = (req, res, next) => {
+  SettingsTaxcodes.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Taxcode deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Taxcode not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
 };
