@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 
-import sequelize from "../utils/database.js";
+import sequelize from "../utils/database";
 
 const Reservations = sequelize.define(
   "reservation",
@@ -37,5 +37,16 @@ const Reservations = sequelize.define(
     timestamps: true,
   }
 );
+
+export interface ReservationType {
+  id: Number;
+  start_date: String
+  end_date: String
+  promo_code?: string
+  start_location_id: number;
+  end_location_id: number
+  products: Array<{quantity: number, product_id: number}>
+  customer_id: number
+}
 
 export default Reservations;

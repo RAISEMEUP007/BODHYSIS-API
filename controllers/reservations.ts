@@ -1,6 +1,7 @@
-import Reservations from "../models/reservations.js";
+import Reservations from "../models/reservations";
+import { Request, Response} from 'express'
 
-export const createReservation = (req, res, next) => {
+export const createReservation = (req: Request, res: Response) => {
   try {
     const {
       products,
@@ -10,8 +11,7 @@ export const createReservation = (req, res, next) => {
       start_date,
       end_date,
       customer_id,
-    } = req.body;
-
+    } = req.body
     // Check required params
     if (
       !products.length ||
@@ -42,14 +42,12 @@ export const createReservation = (req, res, next) => {
       });
       return
     }
-    Reservations.create(req.body).then((result) => {
-      res.status(201).json({ message: 'Reservation created successfully', reservation: result })
-      return
+    Reservations.create(req.body).then((result: any) => {
+      return res.status(201).json({ message: 'Reservation created successfully', reservation: result })
     })
   } catch (error) {
-    res.status(409).json({
+    return res.status(409).json({
       error: JSON.stringify(error),
     });
-    return
   }
 };
