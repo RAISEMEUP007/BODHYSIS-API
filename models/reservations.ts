@@ -32,12 +32,6 @@ const Reservations = sequelize.define(
     customer_id: {
       type: DataTypes.INTEGER,
     },
-    price_index: {
-      type: DataTypes.INTEGER,
-    },
-    total_price: {
-      type: DataTypes.INTEGER,
-    },
   },
   {
     timestamps: true,

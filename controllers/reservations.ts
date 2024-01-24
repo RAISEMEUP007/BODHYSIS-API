@@ -51,3 +51,18 @@ export const createReservation = (req: Request, res: Response) => {
     });
   }
 };
+
+export const getReservationsList = (_: Request, res: Response) => {
+  try {
+    Reservations.findAll({
+      order: [['createdAt', 'DESC']]
+    }).then((result: any) => {
+      console.log("result", result)
+      return res.status(201).json({ reservations: result })
+    })
+  } catch (error) {
+    return res.status(409).json({
+      error: JSON.stringify(error),
+    });
+  }
+};
