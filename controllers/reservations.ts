@@ -1,5 +1,12 @@
-import Reservations, { ReservationProductType } from "../models/reservations";
+import Reservations, {
+  ReservationProductType,
+  ReservationType,
+} from "../models/reservations";
 import { Request, Response } from "express";
+import SettingsLocations, {
+  SettingsLocationType,
+} from "../models/settings/settings_locations";
+import ProductProducts from "../models/product/product_products";
 
 export const createReservation = (req: Request, res: Response) => {
   try {
@@ -69,3 +76,74 @@ export const getReservationsList = (_: Request, res: Response) => {
     });
   }
 };
+
+export const getReservationDetails = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  try {
+    const reservationModel = await Reservations.findOne({
+      where: {
+        id,
+      },
+    });
+    const reservation: ReservationType = reservationModel?.toJSON();
+
+    console.log("reservation", reservation);
+
+    const locationModel = await SettingsLocations.findOne({
+      where: {
+        id: reservation.start_location_id,
+      },
+    });
+
+    const location = await locationModel?.toJSON();
+
+    const productsResult = [];
+
+    for (let i = 0; i < reservation.products.length; ++i) {
+      if (reservation.products[i].product_id) {
+        const product = await ProductProducts.findOne({
+          where: {
+            id: reservation.products[i].product_id,
+          },
+        });
+        console.log("product", product?.toJSON());
+
+        const json = product.toJSON();
+        if (product) {
+          productsResult.push({
+            ...json,
+            quantity: reservation.products[i].quantity ?? 0,
+            price: reservation.products[i].price ?? 0,
+          });
+        }
+      }
+    }
+    const result = {
+      ...reservation,
+      start_location_name: location.location,
+      end_location_name: location.location,
+      products: productsResult,
+    };
+    return res.status(201).json(result);
+  } catch (error) {
+    return res.status(409).json({
+      error: JSON.stringify(error),
+    });
+  }
+};
+
+/*
+export interface ReservationType {
+  id: number
+  start_date: String
+  end_date: String
+  promo_code?: string
+  start_location_id: number
+  end_location_id: number
+  price_index: number
+  duration: number,
+  products: Array<ReservationProductType>
+  customer_id: number
+  total_price: number
+}
+*/

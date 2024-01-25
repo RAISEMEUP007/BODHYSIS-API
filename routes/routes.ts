@@ -132,7 +132,11 @@ import {
   deleteDeliveryAddress,
   deleteDeliveryAddressByCustomerId,
 } from "../controllers/customer.js";
-import { createReservation, getReservationsList } from "../controllers/reservations.js";
+import {
+  createReservation,
+  getReservationDetails,
+  getReservationsList,
+} from "../controllers/reservations.js";
 
 const router = express.Router();
 
@@ -363,7 +367,7 @@ router.post(
 // Reservations
 router.post("/reservations/createreservation/", createReservation);
 router.get("/reservations/getreservationslist/", getReservationsList);
-
+router.get("/reservations/getreservationdetails/:id", getReservationDetails);
 
 router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });

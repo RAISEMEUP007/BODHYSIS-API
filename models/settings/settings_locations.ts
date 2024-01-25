@@ -1,21 +1,29 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from "sequelize";
 
-import sequelize from '../../utils/database';
+import sequelize from "../../utils/database";
 
-const SettingsLocations = sequelize.define('settings_locations', {
-   id: {
-      type: Sequelize.INTEGER,
+const SettingsLocations = sequelize.define(
+  "settings_locations",
+  {
+    id: {
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       allowNull: false,
       primaryKey: true,
-   },
-   location: {
-      type: Sequelize.STRING,
+    },
+    location: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-   },
-}, {
-   timestamps: false
-});
+    },
+  },
+  {
+    timestamps: false,
+  }
+);
 
+export type SettingsLocationType = {
+  id: number;
+  location: string;
+};
 
 export default SettingsLocations;
