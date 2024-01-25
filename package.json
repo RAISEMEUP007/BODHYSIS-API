@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "start": "tsx app.ts"
   },
   "author": "",
   "license": "ISC",
@@ -23,5 +23,12 @@
     "nodemon": "^3.0.1",
     "sequelize": "^6.35.0",
     "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.5",
+    "tsc": "^2.0.4",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
   }
 }
