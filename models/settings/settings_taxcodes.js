@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 
-import sequelize from '../../utils/database.js';
+import sequelize from '../../utils/database';
 
 const SettingsTaxcodes = sequelize.define('settings_taxcodes', {
    id: {

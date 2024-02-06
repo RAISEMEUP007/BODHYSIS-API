@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 
-import sequelize from '../../utils/database.js';
+import sequelize from '../../utils/database';
 
 const SettingsColorcombinations = sequelize.define('settings_colorcombinations', {
    id: {

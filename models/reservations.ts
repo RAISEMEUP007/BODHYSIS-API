@@ -11,27 +11,36 @@ const Reservations = sequelize.define(
       allowNull: false,
       primaryKey: true,
     },
-    start_date: {
-      type: DataTypes.STRING,
+    customer_id: {
+      type: DataTypes.INTEGER,
     },
-    end_date: {
-      type: DataTypes.STRING,
-    },
-    promo_code: {
-      type: DataTypes.STRING,
+    brand_id: {
+      type: DataTypes.INTEGER,
     },
     start_location_id: {
       type: DataTypes.INTEGER,
     },
     end_location_id: {
       type: DataTypes.INTEGER,
+    },    
+    start_date: {
+      type: DataTypes.STRING,
     },
-    products: {
+    end_date: {
+      type: DataTypes.STRING,
+    },
+    items: {
       type: DataTypes.JSON,
     },
-    customer_id: {
+    promo_code: {
+      type: DataTypes.STRING,
+    },
+    stage: {
       type: DataTypes.INTEGER,
     },
+    note: {
+      type: DataTypes.STRING,   
+    }
   },
   {
     timestamps: true,
