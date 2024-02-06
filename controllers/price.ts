@@ -155,6 +155,9 @@ export const getHeaderData = (req, res, next) => {
   			hours: calculateHours(points[i].dataValues.duration, points[i].dataValues.duration_type)
       });
     }		
+
+    pointsJSON.sort((a, b) => a.milliseconds - b.milliseconds);
+
     res.status(200).json(pointsJSON);
 	})
 	.catch(err => {
@@ -194,10 +197,16 @@ export const getTableData = (req, res, next) => {
 			PricePoints.findAll({where:{
 				table_id:tableId,
 			}})
-			.then((pionts) => {
+			.then((points) => {
+				points.sort((a, b) => {
+				  const millisecondsA = calculateMilliseconds(a.dataValues.duration, a.dataValues.duration_type);
+				  const millisecondsB = calculateMilliseconds(b.dataValues.duration, b.dataValues.duration_type);
+				  return millisecondsA - millisecondsB;
+				});
+
 				const pointsArr = [];
-				for (let i = 0; i < pionts.length; i++) {
-				  pointsArr.push(pionts[i].dataValues);
+				for (let i = 0; i < points.length; i++) {
+				  pointsArr.push(points[i].dataValues);
 				}
 				
 				var doubleArraiedDatas = {};

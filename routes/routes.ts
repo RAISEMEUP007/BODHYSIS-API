@@ -120,6 +120,14 @@ import {
   updateExclusion,
   deleteExclusion,
   deleteExclusionByDCId,
+  getTaxcodesData,
+  createTaxcode,
+  updateTaxcode,
+  deleteTaxcode,
+  getColorcombinationsData,
+  createColorcombination,
+  updateColorcombination,
+  deleteColorcombination,
 } from "../controllers/settings.js";
 import {
   getCustomersData,
@@ -133,6 +141,7 @@ import {
   deleteDeliveryAddressByCustomerId,
 } from "../controllers/customer.js";
 import {
+  getReservationsData,
   createReservation,
   getReservationDetails,
   getReservationsList,
@@ -346,6 +355,18 @@ router.post("/settings/updateexclusion", updateExclusion);
 router.post("/settings/deleteexclusion", deleteExclusion);
 router.post("/settings/deleteexclusionbydcid", deleteExclusionByDCId);
 
+// Settings/Taxcodes
+router.get("/settings/gettaxcodesdata/", getTaxcodesData);
+router.post("/settings/createtaxcode", createTaxcode);
+router.post("/settings/updatetaxcode", updateTaxcode);
+router.post("/settings/deletetaxcode", deleteTaxcode);
+
+// Settings/Colorcombinations
+router.get("/settings/getcolorcombinationsdata/", getColorcombinationsData);
+router.post("/settings/createcolorcombination", createColorcombination);
+router.post("/settings/updatecolorcombination", updateColorcombination);
+router.post("/settings/deletecolorcombination", deleteColorcombination);
+
 /* ----- customer ----- */
 // Customer/Customers
 router.get("/customer/getcustomersdata", getCustomersData);
@@ -365,6 +386,7 @@ router.post(
 
 /* ----- Reservations ----- */
 // Reservations
+router.get("/reservations/getreservationsdata/", getReservationsData);
 router.post("/reservations/createreservation/", createReservation);
 router.get("/reservations/getreservationslist/", getReservationsList);
 router.get("/reservations/getreservationdetails/:id", getReservationDetails);
