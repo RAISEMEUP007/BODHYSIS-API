@@ -141,6 +141,7 @@ import {
   deleteDeliveryAddressByCustomerId,
 } from "../controllers/customer.js";
 import {
+  getReservationsData,
   createReservation,
   getReservationDetails,
   getReservationsList,
@@ -385,6 +386,7 @@ router.post(
 
 /* ----- Reservations ----- */
 // Reservations
+router.get("/reservations/getreservationsdata/", getReservationsData);
 router.post("/reservations/createreservation/", createReservation);
 router.get("/reservations/getreservationslist/", getReservationsList);
 router.get("/reservations/getreservationdetails/:id", getReservationDetails);

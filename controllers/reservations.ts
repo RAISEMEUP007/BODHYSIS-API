@@ -7,6 +7,7 @@ import SettingsLocations, {
   SettingsLocationType,
 } from "../models/settings/settings_locations";
 import ProductProducts from "../models/product/product_products";
+import sequelize from '../utils/database';
 
 // export const createReservation = (req: Request, res: Response) => {
 //   try {
@@ -75,6 +76,56 @@ export const createReservation = (req, res, next) => {
     }else res.status(500).json({ error: "Internal server error" });
   });
 }
+
+export const getReservationsData = (req, res, next) => {
+  const query = `
+    SELECT
+    t1.id,
+    t1.customer_id,
+    t2.first_name,
+    t2.last_name,
+    CONCAT(t2.first_name, ' ', t2.last_name) AS full_name,
+    t1.brand_id,
+    t3.brand,
+    t1.start_location_id,
+    t4.location AS start_location,
+    t1.end_location_id,
+    t4.location AS end_location,
+    t1.start_date,
+    t1.end_date,
+    t1.promo_code,
+    t1.stage,
+    t1.note
+  FROM
+    reservations AS t1
+    LEFT JOIN customer_customers AS t2
+    ON t1.customer_id = t2.id
+    LEFT JOIN price_brands AS t3
+    ON t1.brand_id = t3.id
+    LEFT JOIN settings_locations AS t4
+    ON t1.start_location_id = t4.id
+    LEFT JOIN settings_locations AS t5
+    ON t1.end_location_id = t5.id
+  LIMIT 200
+  `;
+
+  sequelize.query(
+    query,
+    { type: sequelize.QueryTypes.SELECT }
+  )
+  .then((reservations) => {
+    // console.log(reservations);
+    // let reservationsJSON = [];
+    // for (let i = 0; i < reservations.length; i++) {
+    //   reservationsJSON.push(reservations[i].dataValues);
+    // }
+    res.status(200).json(reservations);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
 
 export const getReservationsList = (_: Request, res: Response) => {
   try {
