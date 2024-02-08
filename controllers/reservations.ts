@@ -142,59 +142,76 @@ export const getReservationsList = (_: Request, res: Response) => {
   }
 };
 
+// export const getReservationDetails = async (req: Request, res: Response) => {
+//   const id = req.params.id;
+//   try {
+//     const reservationModel = await Reservations.findOne({
+//       where: {
+//         id,
+//       },
+//     });
+//     const reservation: ReservationType = reservationModel?.toJSON();
+
+//     console.log("reservation", reservation);
+
+//     const locationModel = await SettingsLocations.findOne({
+//       where: {
+//         id: reservation.start_location_id,
+//       },
+//     });
+
+//     const location = await locationModel?.toJSON();
+
+//     const productsResult = [];
+
+//     for (let i = 0; i < reservation.products.length; ++i) {
+//       if (reservation.products[i].product_id) {
+//         const product = await ProductProducts.findOne({
+//           where: {
+//             id: reservation.products[i].product_id,
+//           },
+//         });
+//         console.log("product", product?.toJSON());
+
+//         const json = product.toJSON();
+//         if (product) {
+//           productsResult.push({
+//             ...json,
+//             quantity: reservation.products[i].quantity ?? 0,
+//             price: reservation.products[i].price ?? 0,
+//           });
+//         }
+//       }
+//     }
+//     const result = {
+//       ...reservation,
+//       start_location_name: location.location,
+//       end_location_name: location.location,
+//       products: productsResult,
+//     };
+//     return res.status(201).json(result);
+//   } catch (error) {
+//     return res.status(409).json({
+//       error: JSON.stringify(error),
+//     });
+//   }
+// };
+
 export const getReservationDetails = async (req: Request, res: Response) => {
   const id = req.params.id;
-  try {
-    const reservationModel = await Reservations.findOne({
-      where: {
-        id,
-      },
-    });
-    const reservation: ReservationType = reservationModel?.toJSON();
-
-    console.log("reservation", reservation);
-
-    const locationModel = await SettingsLocations.findOne({
-      where: {
-        id: reservation.start_location_id,
-      },
-    });
-
-    const location = await locationModel?.toJSON();
-
-    const productsResult = [];
-
-    for (let i = 0; i < reservation.products.length; ++i) {
-      if (reservation.products[i].product_id) {
-        const product = await ProductProducts.findOne({
-          where: {
-            id: reservation.products[i].product_id,
-          },
-        });
-        console.log("product", product?.toJSON());
-
-        const json = product.toJSON();
-        if (product) {
-          productsResult.push({
-            ...json,
-            quantity: reservation.products[i].quantity ?? 0,
-            price: reservation.products[i].price ?? 0,
-          });
-        }
-      }
+  let queryOptions = {
+    where: {
+      id: id
     }
-    const result = {
-      ...reservation,
-      start_location_name: location.location,
-      end_location_name: location.location,
-      products: productsResult,
-    };
-    return res.status(201).json(result);
-  } catch (error) {
-    return res.status(409).json({
-      error: JSON.stringify(error),
-    });
-  }
+  };
+  
+  Reservations.findOne(queryOptions)
+  .then((reservation) => {
+    res.status(200).json(reservation);
+  })
+  .catch(err => {
+    res.status(502).json({error: "An error occurred"});
+  });
 };
 
 /*
@@ -212,3 +229,22 @@ export interface ReservationType {
   total_price: number
 }
 */
+
+export const updateReservation = (req, res, next) => {
+  const updateFields = req.body;
+
+  console.log(updateFields);
+
+  Reservations.update(updateFields, { where: { id: req.body.id } })
+  .then(newReservation => {
+    res.status(201).json({ message: 'Reservation updated successfully', reservation: newReservation });
+  })
+  .catch(error => {
+    console.log(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}

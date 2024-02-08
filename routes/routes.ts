@@ -145,6 +145,7 @@ import {
   createReservation,
   getReservationDetails,
   getReservationsList,
+  updateReservation,
 } from "../controllers/reservations.js";
 
 const router = express.Router();
@@ -390,6 +391,7 @@ router.get("/reservations/getreservationsdata/", getReservationsData);
 router.post("/reservations/createreservation/", createReservation);
 router.get("/reservations/getreservationslist/", getReservationsList);
 router.get("/reservations/getreservationdetails/:id", getReservationDetails);
+router.post("/reservations/updatereservation", updateReservation);
 
 router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });
