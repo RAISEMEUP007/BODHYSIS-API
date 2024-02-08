@@ -8,6 +8,7 @@ import SettingsLocations, {
 } from "../models/settings/settings_locations";
 import ProductProducts from "../models/product/product_products";
 import sequelize from '../utils/database';
+import ReservationPayments from '../models/reservation/reservation_payments.js';
 
 // export const createReservation = (req: Request, res: Response) => {
 //   try {
@@ -241,6 +242,20 @@ export const updateReservation = (req, res, next) => {
   })
   .catch(error => {
     console.log(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const createTransaction = (req, res, next) => {
+  ReservationPayments.create(req.body)
+  .then(newPayment => {
+    res.status(201).json({ message: 'Transaction created successfully', transaction: newPayment });
+  })
+  .catch(error => {
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
