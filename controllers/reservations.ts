@@ -95,6 +95,7 @@ export const getReservationsData = (req, res, next) => {
     t1.start_date,
     t1.end_date,
     t1.promo_code,
+    t6.code AS discount_code,
     t1.stage,
     t1.note
   FROM
@@ -107,6 +108,8 @@ export const getReservationsData = (req, res, next) => {
     ON t1.start_location_id = t4.id
     LEFT JOIN settings_locations AS t5
     ON t1.end_location_id = t5.id
+    LEFT JOIN settings_discountcodes AS t6
+    ON t1.promo_code = t6.id
   LIMIT 200
   `;
 
