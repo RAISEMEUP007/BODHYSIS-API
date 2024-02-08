@@ -263,3 +263,18 @@ export const createTransaction = (req, res, next) => {
     }else res.status(500).json({ error: "Internal server error" });
   });
 }
+
+export const getTransactionsData = (req, res, next) => {
+  ReservationPayments.findAll({where:{reservation_id:req.body.reservation_id}})
+  .then((payments) => {
+    let paymentsJSON = [];
+    for (let i = 0; i < payments.length; i++) {
+      paymentsJSON.push(payments[i].dataValues);
+    }   
+    res.status(200).json(paymentsJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
