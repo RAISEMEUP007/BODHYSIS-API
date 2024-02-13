@@ -14,6 +14,9 @@ const ProductFamilies = sequelize.define('product_families', {
       type: Sequelize.STRING,
       allowNull: false,
    },
+   display_name: {
+      type: Sequelize.STRING,
+   },
    category_id: {
       type: Sequelize.INTEGER,
    },
