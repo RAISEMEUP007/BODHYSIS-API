@@ -10,6 +10,20 @@ import ProductProducts from "../models/product/product_products";
 import sequelize from '../utils/database';
 import ReservationPayments from '../models/reservation/reservation_payments.js';
 
+import Stripe from 'stripe';
+const stripe = new Stripe('sk_test_4eC39HqLyjWDarjtT1zdp7dc');
+
+// const createCustomer = async () => {
+//   const params: Stripe.CustomerCreateParams = {
+//     description: 'test customer',
+//   };
+
+//   const customer: Stripe.Customer = await stripe.customers.create(params);
+
+//   console.log(customer.id);
+// };
+// createCustomer();
+
 // export const createReservation = (req: Request, res: Response) => {
 //   try {
 //     const {
@@ -273,7 +287,7 @@ export const getTransactionsData = (req, res, next) => {
     let paymentsJSON = [];
     for (let i = 0; i < payments.length; i++) {
       paymentsJSON.push(payments[i].dataValues);
-    }   
+    }
     res.status(200).json(paymentsJSON);
   })
   .catch(err => {
