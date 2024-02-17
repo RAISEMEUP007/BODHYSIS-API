@@ -270,9 +270,27 @@ export const updateReservation = (req, res, next) => {
 export const createTransaction = (req, res, next) => {
   ReservationPayments.create(req.body)
   .then(newPayment => {
+    // res.status(201).json({ message: 'Transaction created successfully', transaction: newPayment });
+    return ReservationPayments.findAll({ 
+      attributes: [[sequelize.fn('SUM', sequelize.col('amount')), 'totalPaid']], 
+      where: { reservation_id: req.body.reservation_id }, 
+      raw: true 
+    });
+  })
+  .then(totalPaid => {
+    return Reservations.update({ 
+      paid: totalPaid[0].totalPaid 
+    }, { 
+      where: { id: req.body.reservation_id } 
+    });
+  })
+  .then((newPayment) => {
+    console.log('-----dwwwwww----------------------------');
     res.status(201).json({ message: 'Transaction created successfully', transaction: newPayment });
   })
   .catch(error => {
+    console.log('---------------------------------error');
+    console.log(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);

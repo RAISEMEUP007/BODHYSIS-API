@@ -22,7 +22,7 @@ const Reservations = sequelize.define(
     },
     end_location_id: {
       type: DataTypes.INTEGER,
-    },    
+    }, 
     start_date: {
       type: DataTypes.STRING,
     },
@@ -39,8 +39,14 @@ const Reservations = sequelize.define(
       type: DataTypes.INTEGER,
     },
     note: {
-      type: DataTypes.STRING,   
-    }
+      type: DataTypes.STRING,
+    },
+    price: {
+      type: DataTypes.FLOAT,
+    },
+    paid: {
+      type: DataTypes.FLOAT,
+    },
   },
   {
     timestamps: true,

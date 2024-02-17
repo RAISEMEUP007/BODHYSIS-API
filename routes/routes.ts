@@ -410,7 +410,7 @@ router.post("/reservation/gettransactionsdata/", getTransactionsData);
 
 /* ----- Stripe ----- */
 router.post("/createcustomerstripe/", createCustomerStripe);
-router.get("/retrivecustomerstripe/", retriveCustomerStripe);
+router.post("/retrivecustomerstripe/", retriveCustomerStripe);
 router.post("/createcardtocustomer/", createCardToCustomer);
 router.post("/addandsavecard/", addAndSaveCard);
 router.post("/addpaymentmethodtocustomer/", addPaymentMethodToCustomer);

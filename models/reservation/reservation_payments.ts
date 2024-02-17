@@ -12,6 +12,9 @@ const ReservationPayments = sequelize.define('reservation_payments', {
    reservation_id: {
       type: Sequelize.INTEGER,
    },
+   customer_id: {
+      type: Sequelize.INTEGER,
+   },
    method: {
       type: Sequelize.STRING,
    },
