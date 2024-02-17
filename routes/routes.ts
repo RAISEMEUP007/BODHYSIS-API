@@ -150,6 +150,16 @@ import {
   getTransactionsData,
 } from "../controllers/reservations.js";
 
+import {
+  createCustomerStripe,
+  retriveCustomerStripe,
+  createCardToCustomer,
+  addAndSaveCard,
+  addPaymentMethodToCustomer,
+  listPaymentMethods,
+} from "../controllers/stripe.js";
+
+
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -397,6 +407,14 @@ router.post("/reservations/updatereservation", updateReservation);
 
 router.post("/reservation/createtransaction/", createTransaction);
 router.post("/reservation/gettransactionsdata/", getTransactionsData);
+
+/* ----- Stripe ----- */
+router.post("/createcustomerstripe/", createCustomerStripe);
+router.post("/retrivecustomerstripe/", retriveCustomerStripe);
+router.post("/createcardtocustomer/", createCardToCustomer);
+router.post("/addandsavecard/", addAndSaveCard);
+router.post("/addpaymentmethodtocustomer/", addPaymentMethodToCustomer);
+router.post("/stripe/listpaymentmethods/", listPaymentMethods);
 
 router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });

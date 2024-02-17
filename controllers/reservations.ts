@@ -10,6 +10,20 @@ import ProductProducts from "../models/product/product_products";
 import sequelize from '../utils/database';
 import ReservationPayments from '../models/reservation/reservation_payments.js';
 
+import Stripe from 'stripe';
+const stripe = new Stripe('sk_test_4eC39HqLyjWDarjtT1zdp7dc');
+
+// const createCustomer = async () => {
+//   const params: Stripe.CustomerCreateParams = {
+//     description: 'test customer',
+//   };
+
+//   const customer: Stripe.Customer = await stripe.customers.create(params);
+
+//   console.log(customer.id);
+// };
+// createCustomer();
+
 // export const createReservation = (req: Request, res: Response) => {
 //   try {
 //     const {
@@ -256,9 +270,27 @@ export const updateReservation = (req, res, next) => {
 export const createTransaction = (req, res, next) => {
   ReservationPayments.create(req.body)
   .then(newPayment => {
+    // res.status(201).json({ message: 'Transaction created successfully', transaction: newPayment });
+    return ReservationPayments.findAll({ 
+      attributes: [[sequelize.fn('SUM', sequelize.col('amount')), 'totalPaid']], 
+      where: { reservation_id: req.body.reservation_id }, 
+      raw: true 
+    });
+  })
+  .then(totalPaid => {
+    return Reservations.update({ 
+      paid: totalPaid[0].totalPaid 
+    }, { 
+      where: { id: req.body.reservation_id } 
+    });
+  })
+  .then((newPayment) => {
+    console.log('-----dwwwwww----------------------------');
     res.status(201).json({ message: 'Transaction created successfully', transaction: newPayment });
   })
   .catch(error => {
+    console.log('---------------------------------error');
+    console.log(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -273,7 +305,7 @@ export const getTransactionsData = (req, res, next) => {
     let paymentsJSON = [];
     for (let i = 0; i < payments.length; i++) {
       paymentsJSON.push(payments[i].dataValues);
-    }   
+    }
     res.status(200).json(paymentsJSON);
   })
   .catch(err => {
