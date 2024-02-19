@@ -155,6 +155,8 @@ import {
   retriveCustomerStripe,
   createCardToCustomer,
   addAndSaveCard,
+  addCardTokenToCustomer,
+  detachCardTokenToCustomer,
   addPaymentMethodToCustomer,
   listPaymentMethods,
 } from "../controllers/stripe.js";
@@ -414,6 +416,8 @@ router.post("/retrivecustomerstripe/", retriveCustomerStripe);
 router.post("/createcardtocustomer/", createCardToCustomer);
 router.post("/addandsavecard/", addAndSaveCard);
 router.post("/addpaymentmethodtocustomer/", addPaymentMethodToCustomer);
+router.post("/stripe/addcardtokentocustomer/", addCardTokenToCustomer);
+router.post("/stripe/detachcardtokentocustomer/", detachCardTokenToCustomer);
 router.post("/stripe/listpaymentmethods/", listPaymentMethods);
 
 router.get("/public", (req, res, next) => {

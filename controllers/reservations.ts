@@ -285,12 +285,9 @@ export const createTransaction = (req, res, next) => {
     });
   })
   .then((newPayment) => {
-    console.log('-----dwwwwww----------------------------');
     res.status(201).json({ message: 'Transaction created successfully', transaction: newPayment });
   })
   .catch(error => {
-    console.log('---------------------------------error');
-    console.log(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);

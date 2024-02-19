@@ -103,6 +103,35 @@ export const addAndSaveCard = async (req, res, next) => {
   }
 }
 
+export const addCardTokenToCustomer = async (req, res, next) => {
+  try {
+    const customerId = req.body.customerId;
+
+    const card = await stripe.customers.createSource(customerId, {
+      source: req.body.cardToken
+    })
+
+    res.json(card);
+  } catch (error) {
+    res.status(500).json({error: error.message});
+  }
+}
+
+export const detachCardTokenToCustomer = async (req, res, next) => {
+  try {
+    const customerId = req.body.customerId;
+
+    const customerSource = await stripe.customers.deleteSource(
+      customerId,
+      req.body.cardToken
+    );
+
+    res.json(customerSource);
+  } catch (error) {
+    res.status(500).json({error: error.message});
+  }
+}
+
 export const addPaymentMethodToCustomer = async (req, res, next) => {
   try {
     const result = await stripe.paymentMethods.attach(req.body.paymentId, {
