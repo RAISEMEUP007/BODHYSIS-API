@@ -117,6 +117,28 @@ export const addCardTokenToCustomer = async (req, res, next) => {
   }
 }
 
+export const makePayment = async (req, res, next) => {
+  console.log(req.body);
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: req.body.amount,
+      currency: req.body.currency,
+      payment_method: req.body.paymentMethod,
+      confirm: true,
+      customer: req.body.customer,
+      automatic_payment_methods:{
+        enabled: true,
+        allow_redirects: 'never'
+      },
+      return_url: "http://localhost:300/success"
+    });
+
+    res.json(paymentIntent)
+  } catch (error) {
+    res.status(500).json({error: error.message});
+  }
+}
+
 export const detachCardTokenToCustomer = async (req, res, next) => {
   try {
     const customerId = req.body.customerId;
