@@ -285,7 +285,7 @@ export const getProductLinesData = (req, res, next) => {
       {
         model: ProductFamilies,
         as: 'family',
-        attributes: ['family', 'display_name'],
+        attributes: ['family', 'display_name', 'price_group_id'],
       },
     ],
     order: [
@@ -375,7 +375,7 @@ export const getProductsData = (req, res, next) => {
       {
         model: ProductFamilies,
         as: 'family',
-        attributes: ['family', 'display_name'],
+        attributes: ['family', 'display_name', 'price_group_id'],
       },
       {
         model: ProductLines,
