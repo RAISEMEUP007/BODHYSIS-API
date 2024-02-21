@@ -14,6 +14,8 @@ import {
   addPricePoint,
   getTableData,
   getPriceGroupsData,
+  getPriceGroupValue,
+  getPriceDataByGroup,
   getHeaderData,
   setFree,
   priceValidation,
@@ -188,6 +190,8 @@ router.get("/private", isAuth);
 router.get("/price/getheaderdata/:tableId", getHeaderData);
 router.get("/price/gettabledata/:tableId", getTableData);
 router.get("/price/getpricegroupsdata", getPriceGroupsData);
+router.post("/price/getpricegroupvalue", getPriceGroupValue);
+router.post("/price/getpricedatabygroup", getPriceDataByGroup);
 router.post("/price/creategroup", createPriceGroup);
 router.post("/price/updategroup", updatePriceGroup);
 router.post("/price/addpricepoint", addPricePoint);

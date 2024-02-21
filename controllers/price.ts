@@ -297,6 +297,49 @@ export const priceValidation = (req, res, next) => {
   });
 };
 
+export const getPriceGroupValue = (req, res, next) => {
+  const { groupId, pointId, tableId } = req.body;
+
+  console.log(req.body);
+
+  PriceGroupDatas.findOne({
+    attributes: ['value'],
+    where: {
+      group_id: groupId,
+      table_id: tableId,
+      point_id: pointId
+    }
+  }).then((result) => {
+  	console.log(result);
+    if (result && result.value != null) {
+      res.json(result.value);
+    } else {
+      res.json(0);
+    }
+  }).catch((error) => {
+		console.log(error);
+		res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const getPriceDataByGroup = (req, res, next) => {
+  const { groupId, tableId } = req.body;
+
+  console.log(req.body);
+
+  PriceGroupDatas.findAll({
+    where: {
+      group_id: groupId,
+      table_id: tableId
+    }
+  }).then((result) => {
+    res.json(result);
+  }).catch((error) => {
+		console.log(error);
+		res.status(500).json({ error: "Internal server error" });
+  });
+};
+
 export const setPriceData = (req, res, next) => {
   const { groupId, pointId, value } = req.body;
   let tableId = null;
