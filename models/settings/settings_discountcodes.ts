@@ -16,7 +16,7 @@ const SettingsDiscountCodes = sequelize.define('settings_discountcodes', {
       type: Sequelize.INTEGER,
    },
    amount: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
    },
    valid_start_date: {
       type: Sequelize.DATE,
