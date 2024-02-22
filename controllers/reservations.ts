@@ -112,8 +112,6 @@ export const getReservationDetails = async (req: Request, res: Response) => {
 export const updateReservation = (req, res, next) => {
   const updateFields = req.body;
 
-  console.log(updateFields);
-
   Reservations.update(updateFields, { where: { id: req.body.id } })
   .then(newReservation => {
     res.status(201).json({ message: 'Reservation updated successfully', reservation: newReservation });
