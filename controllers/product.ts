@@ -380,7 +380,7 @@ export const getProductsData = (req, res, next) => {
       {
         model: ProductLines,
         as: 'line',
-        attributes: ['line', 'size'],
+        attributes: ['line', 'size', 'price_group_id'],
       },
       {
         model: SettingsLocations,
