@@ -18,7 +18,7 @@ dotenv.config();
 export const createPriceGroup = (req, res, next) => {
 	PriceGroup.findOne({ where : {
 		price_group: req.body.group,
-		table_id: req.body.tableId,
+		// table_id: req.body.tableId,
 	}})
 	.then(price_group => {
 		if (price_group) {
@@ -185,7 +185,7 @@ export const getTableData = (req, res, next) => {
   				AND ${tableId ? 't2.table_id = ' + tableId : 't2.table_id IS NULL'}
     		LEFT JOIN price_points AS t3 ON t2.point_id = t3.id
     			AND ${tableId ? 't3.table_id = ' + tableId : 't3.table_id IS NULL'}
-  	WHERE ${tableId ? 't1.table_id = ' + tableId : 't1.table_id IS NULL'}
+  	-- WHERE ${tableId ? 't1.table_id = ' + tableId : 't1.table_id IS NULL'}
 	  ORDER BY group_id, point_id
   `;
 	sequelize.query(
@@ -291,6 +291,49 @@ export const priceValidation = (req, res, next) => {
 		} else {
 		  res.status(200).json({ message: "No confliction" });
 		}
+  }).catch((error) => {
+		console.log(error);
+		res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const getPriceGroupValue = (req, res, next) => {
+  const { groupId, pointId, tableId } = req.body;
+
+  console.log(req.body);
+
+  PriceGroupDatas.findOne({
+    attributes: ['value'],
+    where: {
+      group_id: groupId,
+      table_id: tableId,
+      point_id: pointId
+    }
+  }).then((result) => {
+  	console.log(result);
+    if (result && result.value != null) {
+      res.json(result.value);
+    } else {
+      res.json(0);
+    }
+  }).catch((error) => {
+		console.log(error);
+		res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const getPriceDataByGroup = (req, res, next) => {
+  const { groupId, tableId } = req.body;
+
+  console.log(req.body);
+
+  PriceGroupDatas.findAll({
+    where: {
+      group_id: groupId,
+      table_id: tableId
+    }
+  }).then((result) => {
+    res.json(result);
   }).catch((error) => {
 		console.log(error);
 		res.status(500).json({ error: "Internal server error" });
@@ -585,11 +628,11 @@ export const clonePriceTableCell = (req, res, next) => {
       .then(table => {
         newTableId = table.dataValues.id;
         return Promise.all([
-          PriceGroup.sequelize.query(
-            `INSERT INTO price_groups (price_group, table_id, is_free, extra_day, cloned_id) 
-            SELECT price_group, ${newTableId}, is_free, extra_day, id FROM price_groups WHERE table_id = ${sourceId};`,
-            { transaction: t }
-          ),
+          // PriceGroup.sequelize.query(
+          //   `INSERT INTO price_groups (price_group, table_id, is_free, extra_day, cloned_id) 
+          //   SELECT price_group, ${newTableId}, is_free, extra_day, id FROM price_groups WHERE table_id = ${sourceId};`,
+          //   { transaction: t }
+          // ),
           PricePoints.sequelize.query(
             `INSERT INTO price_points (duration, table_id, duration_type, cloned_id) 
             SELECT duration, ${newTableId}, duration_type, id FROM price_points WHERE table_id = ${sourceId};`,
@@ -603,7 +646,8 @@ export const clonePriceTableCell = (req, res, next) => {
 							  VALUE
 							)
 							SELECT
-							  (SELECT id FROM price_groups AS t2 WHERE t2.cloned_id = group_id AND t2.table_id = ${newTableId}),
+							  -- (SELECT id FROM price_groups AS t2 WHERE t2.cloned_id = group_id AND t2.table_id = ${newTableId}),
+							  group_id,
 							  ${newTableId},
 							  (SELECT id FROM price_points AS t3 WHERE t3.cloned_id = point_id AND t3.table_id = ${newTableId}),
 							  VALUE

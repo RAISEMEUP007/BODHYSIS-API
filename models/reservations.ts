@@ -41,8 +41,23 @@ const Reservations = sequelize.define(
     note: {
       type: DataTypes.STRING,
     },
-    price: {
+    subtotal: {
       type: DataTypes.FLOAT,
+    },
+    discount_amount: {
+      type: DataTypes.FLOAT,
+    },
+    tax_rate: {
+      type: DataTypes.FLOAT,
+    },
+    tax_amount: {
+      type: DataTypes.FLOAT,
+    },
+    total_price: {
+      type: DataTypes.FLOAT,
+    },
+    price_table_id: {
+      type: DataTypes.INTEGER,
     },
     paid: {
       type: DataTypes.FLOAT,

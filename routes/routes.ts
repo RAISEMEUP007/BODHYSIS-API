@@ -14,6 +14,8 @@ import {
   addPricePoint,
   getTableData,
   getPriceGroupsData,
+  getPriceGroupValue,
+  getPriceDataByGroup,
   getHeaderData,
   setFree,
   priceValidation,
@@ -155,7 +157,10 @@ import {
   retriveCustomerStripe,
   createCardToCustomer,
   addAndSaveCard,
+  addCardTokenToCustomer,
+  detachCardTokenToCustomer,
   addPaymentMethodToCustomer,
+  makePayment,
   listPaymentMethods,
 } from "../controllers/stripe.js";
 
@@ -185,6 +190,8 @@ router.get("/private", isAuth);
 router.get("/price/getheaderdata/:tableId", getHeaderData);
 router.get("/price/gettabledata/:tableId", getTableData);
 router.get("/price/getpricegroupsdata", getPriceGroupsData);
+router.post("/price/getpricegroupvalue", getPriceGroupValue);
+router.post("/price/getpricedatabygroup", getPriceDataByGroup);
 router.post("/price/creategroup", createPriceGroup);
 router.post("/price/updategroup", updatePriceGroup);
 router.post("/price/addpricepoint", addPricePoint);
@@ -414,6 +421,9 @@ router.post("/retrivecustomerstripe/", retriveCustomerStripe);
 router.post("/createcardtocustomer/", createCardToCustomer);
 router.post("/addandsavecard/", addAndSaveCard);
 router.post("/addpaymentmethodtocustomer/", addPaymentMethodToCustomer);
+router.post("/stripe/addcardtokentocustomer/", addCardTokenToCustomer);
+router.post("/stripe/detachcardtokentocustomer/", detachCardTokenToCustomer);
+router.post("/stripe/makepayment/", makePayment);
 router.post("/stripe/listpaymentmethods/", listPaymentMethods);
 
 router.get("/public", (req, res, next) => {
