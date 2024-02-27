@@ -150,6 +150,7 @@ import {
   updateReservation,
   createTransaction,
   getTransactionsData,
+  removeReservationItem,
 } from "../controllers/reservations.js";
 
 import {
@@ -414,6 +415,7 @@ router.post("/reservations/updatereservation", updateReservation);
 
 router.post("/reservation/createtransaction/", createTransaction);
 router.post("/reservation/gettransactionsdata/", getTransactionsData);
+router.post("/reservation/removereservationitem/", removeReservationItem);
 
 /* ----- Stripe ----- */
 router.post("/createcustomerstripe/", createCustomerStripe);
