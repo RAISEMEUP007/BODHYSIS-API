@@ -29,9 +29,6 @@ const ProductFamilies = sequelize.define('product_families', {
    summary: {
        type: Sequelize.STRING,
    },
-   price_group_id: {
-      type: Sequelize.INTEGER,
-   },
    description: {
       type: Sequelize.STRING,
    },

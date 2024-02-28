@@ -50,9 +50,6 @@ const ProductProducts = sequelize.define('product_products', {
    current_location: {
       type: DataTypes.INTEGER,
    },
-   price_group_id: {
-      type: DataTypes.INTEGER,
-   },
    status: {
       type: DataTypes.INTEGER,
    },

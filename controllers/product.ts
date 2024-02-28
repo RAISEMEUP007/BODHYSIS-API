@@ -172,14 +172,13 @@ export const getProductFamiliesData = (req, res, next) => {
 };
 
 export const createProductFamily = (req, res, next) => {
-  const { family, category_id, display_name, summary, notes, price_group_id } = req.body;
+  const { family, category_id, display_name, summary, notes } = req.body;
   const imgUrl = generateFileUrl(req.files);
 
   ProductFamilies.create({
     family: family,
     category_id: category_id,
     display_name: display_name,
-    price_group_id: price_group_id,
     img_url: imgUrl,
     summary: summary,
     notes: notes
@@ -198,7 +197,7 @@ export const createProductFamily = (req, res, next) => {
 }
 
 export const updateProductFamily = (req, res, next) => {
-  const { id, family, category_id, display_name, summary, notes, price_group_id } = req.body;
+  const { id, family, category_id, display_name, summary, notes } = req.body;
 
   const imgUrl = generateFileUrl(req.files);
 
@@ -207,8 +206,7 @@ export const updateProductFamily = (req, res, next) => {
     category_id: category_id,
     display_name: display_name,
     summary: summary,
-    notes: notes,
-    price_group_id: price_group_id
+    notes: notes
   };
 
   if (imgUrl) {
@@ -285,7 +283,7 @@ export const getProductLinesData = (req, res, next) => {
       {
         model: ProductFamilies,
         as: 'family',
-        attributes: ['family', 'display_name', 'price_group_id'],
+        attributes: ['family', 'display_name'],
       },
     ],
     order: [
@@ -375,7 +373,7 @@ export const getProductsData = (req, res, next) => {
       {
         model: ProductFamilies,
         as: 'family',
-        attributes: ['family', 'display_name', 'price_group_id'],
+        attributes: ['family', 'display_name'],
       },
       {
         model: ProductLines,

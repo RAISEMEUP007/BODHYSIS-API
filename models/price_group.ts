@@ -14,15 +14,8 @@ const PriceGroup = sequelize.define('price_groups', {
       type: DataTypes.STRING,
       allowNull: false,
    },
-   table_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-   },
-   is_free: {
-      type: DataTypes.BOOLEAN,
-   },
-   extra_day: {
-      type: DataTypes.INTEGER,
+   description: {
+      type: DataTypes.STRING,
    },
 }, {
    timestamps: false  // Disable timestamps
@@ -35,7 +28,6 @@ export interface PriceGroupType {
    table_id: number
    is_free: boolean
    extra_day: number
-
 }
 
 

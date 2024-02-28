@@ -1,21 +1,37 @@
+import { Request, Response } from "express";
+import sequelize from '../utils/database';
 import Reservations, {
   ReservationProductType,
   ReservationType,
-} from "../models/reservations";
-import { Request, Response } from "express";
-import SettingsLocations, {
-  SettingsLocationType,
-} from "../models/settings/settings_locations";
-import ProductProducts from "../models/product/product_products";
-import sequelize from '../utils/database';
+} from "../models/reservation/reservations";
 import ReservationPayments from '../models/reservation/reservation_payments.js';
+import ReservationItems from '../models/reservation/reservation_items.js';
+import ProductLines from '../models/product/product_lines.js';
 
 export const createReservation = (req, res, next) => {
   Reservations.create(req.body)
   .then(newReservation => {
-    res.status(201).json({ message: 'Reservation created successfully', reservation: newReservation });
+    if(req.body.items){
+      const reservationItemsPromises = req.body.items.map(item => {
+        return ReservationItems.create({
+          reservation_id: newReservation.id,
+          line_id: item.id,
+          quantity: item.quantity,
+          price_group_id: item.price_group_id,
+          price: item.price,
+        });
+      });
+
+      return Promise.all(reservationItemsPromises)
+      .then(newItems => {
+        res.status(201).json({ message: 'Reservation created successfully', reservation: newReservation, items: newItems });
+      });
+    }else{
+      res.status(201).json({ message: 'Reservation created successfully', reservation: newReservation });
+    }
   })
   .catch(error => {
+    console.log(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -61,6 +77,7 @@ export const getReservationsData = (req, res, next) => {
     ON t1.end_location_id = t5.id
     LEFT JOIN settings_discountcodes AS t6
     ON t1.promo_code = t6.id
+  ORDER BY t1.createdAt DESC
   LIMIT 200
   `;
 
@@ -82,7 +99,6 @@ export const getReservationsList = (_: Request, res: Response) => {
     Reservations.findAll({
       order: [["createdAt", "DESC"]],
     }).then((result: any) => {
-      console.log("result", result);
       return res.status(201).json({ reservations: result });
     });
   } catch (error) {
@@ -95,6 +111,12 @@ export const getReservationsList = (_: Request, res: Response) => {
 export const getReservationDetails = async (req: Request, res: Response) => {
   const id = req.params.id;
   let queryOptions = {
+    include: [{ 
+      model: ReservationItems, 
+      as: 'items',
+      // attributes: [sequelize.literal('items.id AS rid'), 'reservation_id', 'line_id', 'price_group_id', 'quantity', 'price'],
+      include: { model: ProductLines, as: 'lines', attributes: ['line', 'price_group_id', 'size'] },
+    }],
     where: {
       id: id
     }
@@ -102,29 +124,103 @@ export const getReservationDetails = async (req: Request, res: Response) => {
   
   Reservations.findOne(queryOptions)
   .then((reservation) => {
-    res.status(200).json(reservation);
+    const transformedReservation = {
+      ...reservation.toJSON(),
+      items: reservation.items.map(item => ({
+        ...item.toJSON(),
+        line: item.lines.line,
+        price_group_id: item.lines.price_group_id,
+        size: item.lines.size,
+      }))
+    };
+    res.status(200).json(transformedReservation);
   })
   .catch(err => {
+    console.log(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
 
 export const updateReservation = (req, res, next) => {
   const updateFields = req.body;
-
   Reservations.update(updateFields, { where: { id: req.body.id } })
-  .then(newReservation => {
-    res.status(201).json({ message: 'Reservation updated successfully', reservation: newReservation });
+  .then(updatedCount => {
+    if (req.body.items) {
+      const reservationItemsPromises = req.body.items.map(item => {
+        return new Promise((resolve, reject) => {
+          ReservationItems.findOne({ where: { id: item.id } })
+          .then(foundItem => {
+            if (foundItem) {
+              foundItem.update({
+                line_id: item.line_id,
+                price_group_id: item.price_group_id,
+                quantity: item.quantity,
+                price: item.price,
+              })
+              .then(updatedItem => {
+                item.id = updatedItem.id;
+                resolve( item);
+              })
+              .catch(error => reject(error));
+            } else {
+              ReservationItems.create({
+                reservation_id: req.body.id,
+                line_id: item.line_id,
+                price_group_id: item.price_group_id,
+                quantity: item.quantity,
+                price: item.price,
+              })
+              .then(newItem => {
+                item.id = newItem.id;
+                resolve(item);
+              })
+              .catch(error => reject(error));
+            }
+          })
+          .catch(error => reject(error));
+        });
+      });
+
+      Promise.all(reservationItemsPromises)
+      .then(newItems => {
+        res.status(201).json({ message: 'Reservation updated successfully', items: newItems });
+      })
+      .catch(error => {
+        console.log(error);
+        if (error.name === 'SequelizeUniqueConstraintError') {
+          const message = error.errors[0].message;
+          const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+          res.status(409).json({ error: capitalizedMessage });
+        } else {
+          res.status(500).json({ error: "Internal server error" });
+        }
+      });
+    } else {
+      res.status(201).json({ message: 'Reservation updated successfully', });
+    }
   })
   .catch(error => {
     console.log(error);
-    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
-      const message = error.errors[0].message;
-      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
-      res.status(409).json({ error: capitalizedMessage});
-    }else res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   });
 }
+
+export const removeReservationItem = (req, res, next) => {
+  console.log(req.body);
+  ReservationItems.destroy({ where: { id: req.body.id } })
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "Reservation item deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Reservation item not found" });
+    }
+  })
+  .catch((error) => {
+    if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+      res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+};
 
 export const createTransaction = (req, res, next) => {
   ReservationPayments.create(req.body)

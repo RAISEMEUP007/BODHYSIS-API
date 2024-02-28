@@ -1,9 +1,10 @@
 import { DataTypes } from "sequelize";
 
-import sequelize from "../utils/database";
+import sequelize from "../../utils/database";
+import ReservationItems from './reservation_items.ts';
 
 const Reservations = sequelize.define(
-  "reservation",
+  "reservations",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -28,9 +29,6 @@ const Reservations = sequelize.define(
     },
     end_date: {
       type: DataTypes.STRING,
-    },
-    items: {
-      type: DataTypes.JSON,
     },
     promo_code: {
       type: DataTypes.STRING,
@@ -67,6 +65,7 @@ const Reservations = sequelize.define(
     timestamps: true,
   }
 );
+// Reservations.hasMany(ReservationItems, { foreignKey: 'reservation_id', as: 'reservationItems' });
 
 export interface ReservationProductType {
   quantity: number;

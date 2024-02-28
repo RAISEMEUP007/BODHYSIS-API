@@ -7,11 +7,12 @@ import sequelize from '../utils/database';
 
 import PriceGroup from '../models/price_group';
 import PricePoints from '../models/price_points.js';
-import PriceGroupDatas from '../models/price_group_datas.js';
+import PriceTableDetails from '../models/price_table_details.js';
 import PriceSeasons from '../models/price_seasons';
 import PriceBrands from '../models/price_brands.js';
 import PriceTables from '../models/price_tables.js';
 import PriceLogic from '../models/price_logic.js';
+import PriceTableGroups from '../models/price_table_groups.js';
 
 dotenv.config();
 
@@ -26,7 +27,6 @@ export const createPriceGroup = (req, res, next) => {
 		} else if (req.body.group) {
 			return PriceGroup.create(({
 				price_group: req.body.group,
-				table_id: req.body.tableId,
 			}))
 			.then(() => {
 				res.status(200).json({message: "Added Successfully"});
@@ -45,18 +45,15 @@ export const createPriceGroup = (req, res, next) => {
 export const updatePriceGroup = (req, res, next) => {
   PriceGroup.findOne({ where: { 
   	price_group: req.body.oldName,
-		table_id: req.body.tableId,
   }})
   .then(result => {
     if (result) {
       return PriceGroup.update(
         { 
         	price_group: req.body.newName,
-					table_id: req.body.tableId,
         },
         { where: { 
         	price_group: req.body.oldName,
-					table_id: req.body.tableId,
         }}
       )
       .then(() => {
@@ -174,17 +171,21 @@ export const getTableData = (req, res, next) => {
 	  SELECT
   		t1.id AS group_id,
   		t1.price_group,
-  		t1.is_free,
-  		t1.extra_day,
+  		t4.is_free,
+  		t4.extra_day,
   		t3.id AS point_id,
   		t2.value
 	  FROM
   		price_groups AS t1
-    		LEFT JOIN price_group_datas AS t2 
-    			ON t1.id = t2.group_id
-  				AND ${tableId ? 't2.table_id = ' + tableId : 't2.table_id IS NULL'}
-    		LEFT JOIN price_points AS t3 ON t2.point_id = t3.id
-    			AND ${tableId ? 't3.table_id = ' + tableId : 't3.table_id IS NULL'}
+  		INNER JOIN price_table_groups AS t4
+  			ON t1.id = t4.group_id
+  			AND ${tableId ? 't4.table_id = ' + tableId : 't4.table_id IS NULL'}
+  			AND t4.is_active = 1
+  		LEFT JOIN price_table_details AS t2 
+  			ON t1.id = t2.group_id
+				AND ${tableId ? 't2.table_id = ' + tableId : 't2.table_id IS NULL'}
+  		LEFT JOIN price_points AS t3 ON t2.point_id = t3.id
+  			AND ${tableId ? 't3.table_id = ' + tableId : 't3.table_id IS NULL'}
   	-- WHERE ${tableId ? 't1.table_id = ' + tableId : 't1.table_id IS NULL'}
 	  ORDER BY group_id, point_id
   `;
@@ -251,7 +252,9 @@ export const getTableData = (req, res, next) => {
 };
 
 export const getPriceGroupsData = (req, res, next) => {
-	PriceGroup.findAll()
+	PriceGroup.findAll({
+		order: [['price_group', 'ASC']]
+	})
 	.then((PriceGroup) => {
     let PriceGroupJSON = [];
     for (let i = 0; i < PriceGroup.length; i++) {
@@ -266,9 +269,12 @@ export const getPriceGroupsData = (req, res, next) => {
 };
 
 export const setFree = (req, res, next) => {
-	PriceGroup.update(
+	PriceTableGroups.update(
 	  { is_free: req.body.isFree },
-	  { where: { price_group: req.body.group } }
+	  { where: { 
+	  	table_id: req.body.table_id,
+	  	group_id: req.body.group_id,
+	  } }
 	).then((result) => {
 		res.status(200).json({ message: "SetFree Successfully" });
 	}).catch((error) => {
@@ -281,7 +287,7 @@ export const priceValidation = (req, res, next) => {
   let tableId = null;
   if(req.body.tableId) tableId = req.body.tableId;
 
-  PriceGroupDatas.findOne({	where: { 
+  PriceTableDetails.findOne({	where: { 
 	  group_id: groupId,
 	  table_id: tableId,
 	  value: value
@@ -302,7 +308,7 @@ export const getPriceGroupValue = (req, res, next) => {
 
   console.log(req.body);
 
-  PriceGroupDatas.findOne({
+  PriceTableDetails.findOne({
     attributes: ['value'],
     where: {
       group_id: groupId,
@@ -327,7 +333,7 @@ export const getPriceDataByGroup = (req, res, next) => {
 
   console.log(req.body);
 
-  PriceGroupDatas.findAll({
+  PriceTableDetails.findAll({
     where: {
       group_id: groupId,
       table_id: tableId
@@ -345,7 +351,7 @@ export const setPriceData = (req, res, next) => {
   let tableId = null;
   if(req.body.tableId) tableId = req.body.tableId;
 
-  PriceGroupDatas.findOne({	where: { 
+  PriceTableDetails.findOne({	where: { 
 	  group_id: groupId,
 	  table_id: tableId,
 	  value: value
@@ -353,7 +359,7 @@ export const setPriceData = (req, res, next) => {
 		if(value && result){
 			//return res.status(409).json({error: "Price already exists"});
 		}
-	  PriceGroupDatas.findOrCreate({
+	  PriceTableDetails.findOrCreate({
 			where: { 
 			  group_id: groupId,
 			  table_id: tableId,
@@ -366,7 +372,7 @@ export const setPriceData = (req, res, next) => {
 			  value: value
 			}}).then(([result, created]) => {
 				if (!created) {
-				  PriceGroupDatas.update(
+				  PriceTableDetails.update(
 					{ value: value },
 					{ where: { 
 							group_id: groupId,
@@ -389,42 +395,49 @@ export const setPriceData = (req, res, next) => {
 };
 
 export const setExtraDay = (req, res, next) => {
-  PriceGroup.update(
+  PriceTableGroups.update(
     { extra_day: req.body.extraDay },
-    { where: { price_group: req.body.group } }
+    { where: { 
+	  	table_id: req.body.table_id,
+	  	group_id: req.body.group_id,
+    } }
   ).then((result) => {
-    res.status(200).json({ message: "SetFree Successfully" });
+    res.status(200).json({ message: "Set Extraday Successfully" });
   }).catch((error) => {
     res.status(500).json({ error: "Internal server error" });
   });
 };
 
 export const deleteGroup = (req, res, next) => {
-  PriceGroup.destroy({ where: { price_group: req.body.group } })
-    .then((result) => {
-      if (result === 1) {
-        res.status(200).json({ message: "Group deleted successfully" });
-      } else {
-        res.status(404).json({ error: "Group not found" });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Internal server error" });
-    });
+  PriceGroup.destroy({ where: { id: req.body.id } })
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "Group deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Group not found" });
+    }
+  })
+  .catch((error) => {
+		if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+			res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+		}else	res.status(500).json({ error: "Internal server error" });
+  });
 };
 
 export const deletePricePoint = (req, res, next) => {
   PricePoints.destroy({ where: { id: req.body.pointId } })
-    .then((result) => {
-      if (result === 1) {
-        res.status(200).json({ message: "PricePoint deleted successfully" });
-      } else {
-        res.status(404).json({ error: "PricePoint not found" });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Internal server error" });
-    });
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "PricePoint deleted successfully" });
+    } else {
+      res.status(404).json({ error: "PricePoint not found" });
+    }
+  })
+  .catch((error) => {
+		if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+			res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+		}else	res.status(500).json({ error: "Internal server error" });
+  });
 };
 
 export const getSeasonsData = (req, res, next) => {
@@ -638,8 +651,8 @@ export const clonePriceTableCell = (req, res, next) => {
             SELECT duration, ${newTableId}, duration_type, id FROM price_points WHERE table_id = ${sourceId};`,
             { transaction: t }
           ),
-          PriceGroupDatas.sequelize.query(
-            `INSERT INTO price_group_datas (
+          PriceTableDetails.sequelize.query(
+            `INSERT INTO price_table_details (
 							  group_id,
 							  table_id,
 							  point_id,
@@ -652,7 +665,7 @@ export const clonePriceTableCell = (req, res, next) => {
 							  (SELECT id FROM price_points AS t3 WHERE t3.cloned_id = point_id AND t3.table_id = ${newTableId}),
 							  VALUE
 							FROM
-							  price_group_datas
+							  price_table_details
 							WHERE table_id = ${sourceId};`,
             { transaction: t }
         	)
@@ -774,3 +787,61 @@ export const deletePriceLogic = (req, res, next) => {
   });
 };
 
+export const getPriceGroupActiveDataByTableId = (req, res, next)=>{
+	PriceGroup.findAll({
+		attributes: ['id', 'price_group'],
+	  include: 
+	    { 
+	    	model: PriceTableGroups, 
+	    	as: 'price_table_group',
+	    	attributes: ['is_active'],
+	    	where: {
+          table_id: req.params.tableId
+        },
+        required: false,
+	    },
+	}).then((results) => {
+		const transformedResults = results.map(item => ({
+		  id: item.id,
+		  price_group: item.price_group,
+		  is_active: item.price_table_group[0]?.is_active ?? false,
+		}));
+    res.status(200).json(transformedResults);
+	})
+	.catch(err => {
+		console.log(err);
+		res.status(502).json({error: "An error occurred"});
+	});
+}
+
+export const setActiveGroup = (req, res, next) => {
+  PriceTableGroups.findOrCreate({
+	where: { 
+	  table_id: req.body.table_id,
+	  group_id: req.body.group_id,
+	},
+	defaults: {
+	  group_id: req.body.group_id,
+	  table_id: req.body.table_id,
+	  is_active: req.body.is_active,
+	}}).then(([result, created]) => {
+		if (!created) {
+		  PriceTableGroups.update(
+			{ is_active: req.body.is_active, },
+			{ where: { 
+			  group_id: req.body.group_id,
+			  table_id: req.body.table_id,
+			}}).then(() => {
+				res.status(200).json({ message: "Updated Successfully" });
+		  }).catch((error) => {
+				console.log(error);
+				res.status(500).json({ error: "Internal server error" });
+		  });
+		} else {
+		  res.status(200).json({ message: "Set Successfully" });
+		}
+  }).catch((error) => {
+		console.log(error);
+		res.status(500).json({ error: "Internal server error" });
+  });
+};
