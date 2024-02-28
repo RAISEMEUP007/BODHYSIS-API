@@ -3,20 +3,20 @@ import { DataTypes } from "sequelize";
 
 import sequelize from '../utils/database';
 
-const PriceGroupDatas = sequelize.define('price_group_datas', {
+const PriceTableDetails = sequelize.define('price_table_details', {
    id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       allowNull: false,
       primaryKey: true,
    },
-   group_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-   },
    table_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
+   },
+   group_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
    },
    point_id: {
       type: DataTypes.INTEGER,
@@ -39,4 +39,4 @@ export interface PriceGroupDataType {
    value: Array<number>
 }
 
-export default PriceGroupDatas;
+export default PriceTableDetails;

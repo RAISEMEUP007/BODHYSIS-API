@@ -7,7 +7,7 @@ import sequelize from '../utils/database';
 
 import PriceGroup from '../models/price_group';
 import PricePoints from '../models/price_points.js';
-import PriceGroupDatas from '../models/price_group_datas.js';
+import PriceTableDetails from '../models/price_table_details.js';
 import PriceSeasons from '../models/price_seasons';
 import PriceBrands from '../models/price_brands.js';
 import PriceTables from '../models/price_tables.js';
@@ -176,7 +176,7 @@ export const getTableData = (req, res, next) => {
   		t2.value
 	  FROM
   		price_groups AS t1
-    		LEFT JOIN price_group_datas AS t2 
+    		LEFT JOIN price_table_details AS t2 
     			ON t1.id = t2.group_id
   				AND ${tableId ? 't2.table_id = ' + tableId : 't2.table_id IS NULL'}
     		LEFT JOIN price_points AS t3 ON t2.point_id = t3.id
@@ -277,7 +277,7 @@ export const priceValidation = (req, res, next) => {
   let tableId = null;
   if(req.body.tableId) tableId = req.body.tableId;
 
-  PriceGroupDatas.findOne({	where: { 
+  PriceTableDetails.findOne({	where: { 
 	  group_id: groupId,
 	  table_id: tableId,
 	  value: value
@@ -298,7 +298,7 @@ export const getPriceGroupValue = (req, res, next) => {
 
   console.log(req.body);
 
-  PriceGroupDatas.findOne({
+  PriceTableDetails.findOne({
     attributes: ['value'],
     where: {
       group_id: groupId,
@@ -323,7 +323,7 @@ export const getPriceDataByGroup = (req, res, next) => {
 
   console.log(req.body);
 
-  PriceGroupDatas.findAll({
+  PriceTableDetails.findAll({
     where: {
       group_id: groupId,
       table_id: tableId
@@ -341,7 +341,7 @@ export const setPriceData = (req, res, next) => {
   let tableId = null;
   if(req.body.tableId) tableId = req.body.tableId;
 
-  PriceGroupDatas.findOne({	where: { 
+  PriceTableDetails.findOne({	where: { 
 	  group_id: groupId,
 	  table_id: tableId,
 	  value: value
@@ -349,7 +349,7 @@ export const setPriceData = (req, res, next) => {
 		if(value && result){
 			//return res.status(409).json({error: "Price already exists"});
 		}
-	  PriceGroupDatas.findOrCreate({
+	  PriceTableDetails.findOrCreate({
 			where: { 
 			  group_id: groupId,
 			  table_id: tableId,
@@ -362,7 +362,7 @@ export const setPriceData = (req, res, next) => {
 			  value: value
 			}}).then(([result, created]) => {
 				if (!created) {
-				  PriceGroupDatas.update(
+				  PriceTableDetails.update(
 					{ value: value },
 					{ where: { 
 							group_id: groupId,
@@ -634,8 +634,8 @@ export const clonePriceTableCell = (req, res, next) => {
             SELECT duration, ${newTableId}, duration_type, id FROM price_points WHERE table_id = ${sourceId};`,
             { transaction: t }
           ),
-          PriceGroupDatas.sequelize.query(
-            `INSERT INTO price_group_datas (
+          PriceTableDetails.sequelize.query(
+            `INSERT INTO price_table_details (
 							  group_id,
 							  table_id,
 							  point_id,
@@ -648,7 +648,7 @@ export const clonePriceTableCell = (req, res, next) => {
 							  (SELECT id FROM price_points AS t3 WHERE t3.cloned_id = point_id AND t3.table_id = ${newTableId}),
 							  VALUE
 							FROM
-							  price_group_datas
+							  price_table_details
 							WHERE table_id = ${sourceId};`,
             { transaction: t }
         	)

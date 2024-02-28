@@ -28,7 +28,6 @@ export interface PriceGroupType {
    table_id: number
    is_free: boolean
    extra_day: number
-
 }
 
 
