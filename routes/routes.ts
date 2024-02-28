@@ -37,6 +37,8 @@ import {
   getPriceLogicData,
   createPriceLogic,
   deletePriceLogic,
+  getPriceGroupActiveDataByTableId,
+  setActiveGroup,
 } from "../controllers/price.js";
 import {
   getProductCategoriesData,
@@ -187,8 +189,9 @@ router.post("/newpassword", newPass);
 router.get("/private", isAuth);
 
 /* ----- price ----- */
-// price group
+// price table detail
 router.get("/price/getheaderdata/:tableId", getHeaderData);
+router.get("/price/getpricegroupactivedatabytableid/:tableId", getPriceGroupActiveDataByTableId);
 router.get("/price/gettabledata/:tableId", getTableData);
 router.get("/price/getpricegroupsdata", getPriceGroupsData);
 router.post("/price/getpricegroupvalue", getPriceGroupValue);
@@ -202,6 +205,7 @@ router.post("/price/setpricedata", setPriceData);
 router.post("/price/setextraday", setExtraDay);
 router.post("/price/deletegroup", deleteGroup);
 router.post("/price/deletepricepoint", deletePricePoint);
+router.post("/price/setactivegroup", setActiveGroup);
 
 // Seasons management
 router.get("/price/getseasonsdata", getSeasonsData);

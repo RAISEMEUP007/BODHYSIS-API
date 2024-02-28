@@ -12,6 +12,7 @@ import PriceSeasons from '../models/price_seasons';
 import PriceBrands from '../models/price_brands.js';
 import PriceTables from '../models/price_tables.js';
 import PriceLogic from '../models/price_logic.js';
+import PriceTableGroups from '../models/price_table_groups.js';
 
 dotenv.config();
 
@@ -770,3 +771,62 @@ export const deletePriceLogic = (req, res, next) => {
   });
 };
 
+export const getPriceGroupActiveDataByTableId = (req, res, next)=>{
+	PriceGroup.findAll({
+		attributes: ['id', 'price_group'],
+	  include: 
+	    { 
+	    	model: PriceTableGroups, 
+	    	as: 'price_table_group',
+	    	attributes: ['is_active'],
+	    	where: {
+          table_id: req.params.tableId
+        },
+        required: false,
+        limit: 1
+	    },
+	}).then((results) => {
+		const transformedResults = results.map(item => ({
+		  id: item.id,
+		  price_group: item.price_group,
+		  is_active: item.price_table_group[0]?.is_active ?? false,
+		}));
+    res.status(200).json(transformedResults);
+	})
+	.catch(err => {
+		console.log(err);
+		res.status(502).json({error: "An error occurred"});
+	});
+}
+
+export const setActiveGroup = (req, res, next) => {
+  PriceTableGroups.findOrCreate({
+	where: { 
+	  table_id: req.body.table_id,
+	  group_id: req.body.group_id,
+	},
+	defaults: {
+	  group_id: req.body.group_id,
+	  table_id: req.body.table_id,
+	  is_active: req.body.is_active,
+	}}).then(([result, created]) => {
+		if (!created) {
+		  PriceTableGroups.update(
+			{ is_active: req.body.is_active, },
+			{ where: { 
+			  group_id: req.body.group_id,
+			  table_id: req.body.table_id,
+			}}).then(() => {
+				res.status(200).json({ message: "Updated Successfully" });
+		  }).catch((error) => {
+				console.log(error);
+				res.status(500).json({ error: "Internal server error" });
+		  });
+		} else {
+		  res.status(200).json({ message: "Set Successfully" });
+		}
+  }).catch((error) => {
+		console.log(error);
+		res.status(500).json({ error: "Internal server error" });
+  });
+};
