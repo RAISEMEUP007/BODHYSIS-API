@@ -26,7 +26,6 @@ export const createPriceGroup = (req, res, next) => {
 		} else if (req.body.group) {
 			return PriceGroup.create(({
 				price_group: req.body.group,
-				table_id: req.body.tableId,
 			}))
 			.then(() => {
 				res.status(200).json({message: "Added Successfully"});
@@ -45,18 +44,15 @@ export const createPriceGroup = (req, res, next) => {
 export const updatePriceGroup = (req, res, next) => {
   PriceGroup.findOne({ where: { 
   	price_group: req.body.oldName,
-		table_id: req.body.tableId,
   }})
   .then(result => {
     if (result) {
       return PriceGroup.update(
         { 
         	price_group: req.body.newName,
-					table_id: req.body.tableId,
         },
         { where: { 
         	price_group: req.body.oldName,
-					table_id: req.body.tableId,
         }}
       )
       .then(() => {
@@ -400,7 +396,7 @@ export const setExtraDay = (req, res, next) => {
 };
 
 export const deleteGroup = (req, res, next) => {
-  PriceGroup.destroy({ where: { price_group: req.body.group } })
+  PriceGroup.destroy({ where: { id: req.body.id } })
     .then((result) => {
       if (result === 1) {
         res.status(200).json({ message: "Group deleted successfully" });
