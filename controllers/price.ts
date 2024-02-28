@@ -408,30 +408,34 @@ export const setExtraDay = (req, res, next) => {
 
 export const deleteGroup = (req, res, next) => {
   PriceGroup.destroy({ where: { id: req.body.id } })
-    .then((result) => {
-      if (result === 1) {
-        res.status(200).json({ message: "Group deleted successfully" });
-      } else {
-        res.status(404).json({ error: "Group not found" });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Internal server error" });
-    });
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "Group deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Group not found" });
+    }
+  })
+  .catch((error) => {
+		if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+			res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+		}else	res.status(500).json({ error: "Internal server error" });
+  });
 };
 
 export const deletePricePoint = (req, res, next) => {
   PricePoints.destroy({ where: { id: req.body.pointId } })
-    .then((result) => {
-      if (result === 1) {
-        res.status(200).json({ message: "PricePoint deleted successfully" });
-      } else {
-        res.status(404).json({ error: "PricePoint not found" });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "Internal server error" });
-    });
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "PricePoint deleted successfully" });
+    } else {
+      res.status(404).json({ error: "PricePoint not found" });
+    }
+  })
+  .catch((error) => {
+		if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+			res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+		}else	res.status(500).json({ error: "Internal server error" });
+  });
 };
 
 export const getSeasonsData = (req, res, next) => {
