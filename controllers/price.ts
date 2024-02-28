@@ -171,17 +171,21 @@ export const getTableData = (req, res, next) => {
 	  SELECT
   		t1.id AS group_id,
   		t1.price_group,
-  		t1.is_free,
-  		t1.extra_day,
+  		t4.is_free,
+  		t4.extra_day,
   		t3.id AS point_id,
   		t2.value
 	  FROM
   		price_groups AS t1
-    		LEFT JOIN price_table_details AS t2 
-    			ON t1.id = t2.group_id
-  				AND ${tableId ? 't2.table_id = ' + tableId : 't2.table_id IS NULL'}
-    		LEFT JOIN price_points AS t3 ON t2.point_id = t3.id
-    			AND ${tableId ? 't3.table_id = ' + tableId : 't3.table_id IS NULL'}
+  		INNER JOIN price_table_groups AS t4
+  			ON t1.id = t4.group_id
+  			AND ${tableId ? 't4.table_id = ' + tableId : 't4.table_id IS NULL'}
+  			AND t4.is_active = 1
+  		LEFT JOIN price_table_details AS t2 
+  			ON t1.id = t2.group_id
+				AND ${tableId ? 't2.table_id = ' + tableId : 't2.table_id IS NULL'}
+  		LEFT JOIN price_points AS t3 ON t2.point_id = t3.id
+  			AND ${tableId ? 't3.table_id = ' + tableId : 't3.table_id IS NULL'}
   	-- WHERE ${tableId ? 't1.table_id = ' + tableId : 't1.table_id IS NULL'}
 	  ORDER BY group_id, point_id
   `;
@@ -263,9 +267,12 @@ export const getPriceGroupsData = (req, res, next) => {
 };
 
 export const setFree = (req, res, next) => {
-	PriceGroup.update(
+	PriceTableGroups.update(
 	  { is_free: req.body.isFree },
-	  { where: { price_group: req.body.group } }
+	  { where: { 
+	  	table_id: req.body.table_id,
+	  	group_id: req.body.group_id,
+	  } }
 	).then((result) => {
 		res.status(200).json({ message: "SetFree Successfully" });
 	}).catch((error) => {
@@ -386,11 +393,14 @@ export const setPriceData = (req, res, next) => {
 };
 
 export const setExtraDay = (req, res, next) => {
-  PriceGroup.update(
+  PriceTableGroups.update(
     { extra_day: req.body.extraDay },
-    { where: { price_group: req.body.group } }
+    { where: { 
+	  	table_id: req.body.table_id,
+	  	group_id: req.body.group_id,
+    } }
   ).then((result) => {
-    res.status(200).json({ message: "SetFree Successfully" });
+    res.status(200).json({ message: "Set Extraday Successfully" });
   }).catch((error) => {
     res.status(500).json({ error: "Internal server error" });
   });
