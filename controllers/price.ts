@@ -252,7 +252,9 @@ export const getTableData = (req, res, next) => {
 };
 
 export const getPriceGroupsData = (req, res, next) => {
-	PriceGroup.findAll()
+	PriceGroup.findAll({
+		order: [['price_group', 'ASC']]
+	})
 	.then((PriceGroup) => {
     let PriceGroupJSON = [];
     for (let i = 0; i < PriceGroup.length; i++) {
@@ -797,7 +799,6 @@ export const getPriceGroupActiveDataByTableId = (req, res, next)=>{
           table_id: req.params.tableId
         },
         required: false,
-        limit: 1
 	    },
 	}).then((results) => {
 		const transformedResults = results.map(item => ({
