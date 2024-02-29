@@ -153,6 +153,7 @@ import {
   createTransaction,
   getTransactionsData,
   removeReservationItem,
+  verifyQuantity,
 } from "../controllers/reservations.js";
 
 import {
@@ -420,6 +421,7 @@ router.post("/reservations/updatereservation", updateReservation);
 router.post("/reservation/createtransaction/", createTransaction);
 router.post("/reservation/gettransactionsdata/", getTransactionsData);
 router.post("/reservation/removereservationitem/", removeReservationItem);
+router.post("/reservation/verifyQuantity/", verifyQuantity);
 
 /* ----- Stripe ----- */
 router.post("/createcustomerstripe/", createCustomerStripe);
