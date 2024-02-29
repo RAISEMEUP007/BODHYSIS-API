@@ -290,7 +290,7 @@ export const verifyQuantity = async (req, res, next) => {
       const requestedQuantity = item.quantity;
       const availableQuantity = availableQuantities[itemId] || 0;
       const stageInfo = stageAmount[itemId] || {};
-      const { out_amount } = stageInfo;
+      const out_amount = stageInfo.out_amount || 0;
       const totalReserved = parseInt(out_amount);
       const remainingQuantity = availableQuantity - totalReserved;
 
@@ -301,7 +301,7 @@ export const verifyQuantity = async (req, res, next) => {
       response.push({
         line: item.line + ' ' + item.size,
         requested: requestedQuantity,
-        available: remainingQuantity
+        available: remainingQuantity || 0,
       });
     }
 
