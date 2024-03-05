@@ -8,7 +8,9 @@ import { getAvaliableQuantitiesByLine } from "./product.ts";
 
 import ReservationPayments from '../models/reservation/reservation_payments.js';
 import ReservationItems from '../models/reservation/reservation_items.js';
+import ReservationItemsExtras from '../models/reservation/reservation_items_extras.js';
 import ProductLines from '../models/product/product_lines.js';
+import SettingsExtras from '../models/settings/settings_extras.js';
 
 export const createReservation = (req, res, next) => {
   Reservations.create(req.body)
@@ -116,12 +118,25 @@ export const getReservationDetails = async (req: Request, res: Response) => {
     include: [{ 
       model: ReservationItems, 
       as: 'items',
-      // attributes: [sequelize.literal('items.id AS rid'), 'reservation_id', 'line_id', 'price_group_id', 'quantity', 'price'],
-      include: { model: ProductLines, as: 'lines', attributes: ['line', 'price_group_id', 'size'] },
+      include: [
+        { 
+          model: ProductLines, 
+          as: 'lines', 
+          attributes: ['line', 'price_group_id', 'size'],
+        },
+        {
+          model: ReservationItemsExtras,
+          as: 'item_extras',
+          include: {
+            model: SettingsExtras,
+            as: 'extras'
+          }
+        }
+      ],
     }],
     where: {
       id: id
-    }
+    },
   };
   
   Reservations.findOne(queryOptions)
@@ -133,6 +148,13 @@ export const getReservationDetails = async (req: Request, res: Response) => {
         line: item.lines.line,
         price_group_id: item.lines.price_group_id,
         size: item.lines.size,
+        extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
+      }))
+      .sort((a, b) => a.line.localeCompare(b.line)) 
+      .map(item => ({
+        ...item,
+        lines: undefined,
+        item_extras: undefined
       }))
     };
     res.status(200).json(transformedReservation);
@@ -161,7 +183,9 @@ export const updateReservation = (req, res, next) => {
               })
               .then(updatedItem => {
                 item.id = updatedItem.id;
-                resolve( item);
+                saveReservationItemsExtras(item.id, item.extras)
+                  .then(() => resolve(item))
+                  .catch(error => reject(error));
               })
               .catch(error => reject(error));
             } else {
@@ -174,7 +198,9 @@ export const updateReservation = (req, res, next) => {
               })
               .then(newItem => {
                 item.id = newItem.id;
-                resolve(item);
+                saveReservationItemsExtras(item.id, item.extras)
+                  .then(() => resolve(item))
+                  .catch(error => reject(error));
               })
               .catch(error => reject(error));
             }
@@ -204,6 +230,33 @@ export const updateReservation = (req, res, next) => {
   .catch(error => {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+function saveReservationItemsExtras(reservationItemId, extras) {
+  return new Promise((resolve, reject) => {
+    ReservationItemsExtras.destroy({ where: { item_id: reservationItemId } })
+      .then(() => {
+        if (!extras || !Array.isArray(extras) || extras.length === 0) {
+          resolve();
+        } else {
+          Promise.all(extras.map(extra => 
+            ReservationItemsExtras.create({
+              item_id: reservationItemId,
+              extra_id: extra.id,
+            })
+          ))
+            .then(() => {
+              resolve();
+            })
+            .catch(error => {
+              reject(error);
+            });
+        }
+      })
+      .catch(error => {
+        reject(error);
+      });
   });
 }
 

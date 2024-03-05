@@ -92,6 +92,10 @@ import {
   createReservationType,
   updateReservationType,
   deleteReservationType,
+  getExtrasData,
+  createExtra,
+  updateExtra,
+  deleteExtra,
   getTrucksData,
   createTruck,
   updateTruck,
@@ -409,6 +413,20 @@ router.post(
   "/customer/deletedeliveryaddressbycid",
   deleteDeliveryAddressByCustomerId
 );
+
+// Settings/Extras
+router.get("/settings/getextrasdata", getExtrasData);
+router.post(
+  "/settings/createextra",
+  upload.array("img", 3),
+  createExtra
+);
+router.post(
+  "/settings/updateextra",
+  upload.array("img", 3),
+  updateExtra
+);
+router.post("/settings/deleteextra", deleteExtra);
 
 /* ----- Reservations ----- */
 // Reservations
