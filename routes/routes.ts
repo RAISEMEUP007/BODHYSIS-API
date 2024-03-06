@@ -8,6 +8,7 @@ import {
   resetPass,
   verifyChangePass,
   newPass,
+  refreshToken,
 } from "../controllers/auth.js";
 import {
   createPriceGroup,
@@ -171,6 +172,8 @@ import {
   makePayment,
   listPaymentMethods,
 } from "../controllers/stripe.js";
+import { ensureAuthenticated } from "../middlewares/ensureAuthenticated.js";
+import { getOrders } from "../controllers/orders.js";
 
 
 const router = express.Router();
@@ -192,6 +195,7 @@ router.post("/resetpass", resetPass);
 router.get("/changepass/:id", verifyChangePass);
 router.post("/newpassword", newPass);
 router.get("/private", isAuth);
+router.post("/refresh-token", refreshToken);
 
 /* ----- price ----- */
 // price table detail
@@ -451,6 +455,9 @@ router.post("/stripe/addcardtokentocustomer/", addCardTokenToCustomer);
 router.post("/stripe/detachcardtokentocustomer/", detachCardTokenToCustomer);
 router.post("/stripe/makepayment/", makePayment);
 router.post("/stripe/listpaymentmethods/", listPaymentMethods);
+
+// Orders
+router.get("/orders", ensureAuthenticated, getOrders)
 
 router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });
