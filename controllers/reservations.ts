@@ -150,12 +150,12 @@ export const getReservationDetails = async (req: Request, res: Response) => {
         size: item.lines.size,
         extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
       }))
-      .sort((a, b) => a.line.localeCompare(b.line)) 
       .map(item => ({
         ...item,
         lines: undefined,
         item_extras: undefined
       }))
+      .sort((a, b) => a.line.localeCompare(b.line)) 
     };
     res.status(200).json(transformedReservation);
   })
@@ -233,7 +233,7 @@ export const updateReservation = (req, res, next) => {
   });
 }
 
-function saveReservationItemsExtras(reservationItemId, extras) {
+const saveReservationItemsExtras = (reservationItemId, extras) => {
   return new Promise((resolve, reject) => {
     ReservationItemsExtras.destroy({ where: { item_id: reservationItemId } })
       .then(() => {
