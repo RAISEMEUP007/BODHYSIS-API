@@ -92,6 +92,10 @@ import {
   createReservationType,
   updateReservationType,
   deleteReservationType,
+  getExtrasData,
+  createExtra,
+  updateExtra,
+  deleteExtra,
   getTrucksData,
   createTruck,
   updateTruck,
@@ -153,6 +157,7 @@ import {
   createTransaction,
   getTransactionsData,
   removeReservationItem,
+  verifyQuantity,
 } from "../controllers/reservations.js";
 
 import {
@@ -409,6 +414,20 @@ router.post(
   deleteDeliveryAddressByCustomerId
 );
 
+// Settings/Extras
+router.get("/settings/getextrasdata", getExtrasData);
+router.post(
+  "/settings/createextra",
+  upload.array("img", 3),
+  createExtra
+);
+router.post(
+  "/settings/updateextra",
+  upload.array("img", 3),
+  updateExtra
+);
+router.post("/settings/deleteextra", deleteExtra);
+
 /* ----- Reservations ----- */
 // Reservations
 router.get("/reservations/getreservationsdata/", getReservationsData);
@@ -420,6 +439,7 @@ router.post("/reservations/updatereservation", updateReservation);
 router.post("/reservation/createtransaction/", createTransaction);
 router.post("/reservation/gettransactionsdata/", getTransactionsData);
 router.post("/reservation/removereservationitem/", removeReservationItem);
+router.post("/reservation/verifyQuantity/", verifyQuantity);
 
 /* ----- Stripe ----- */
 router.post("/createcustomerstripe/", createCustomerStripe);

@@ -22,6 +22,7 @@ import SettingsDiscountCodes from '../models/settings/settings_discountcodes.js'
 import SettingsExclusions from '../models/settings/settings_exclusions.js';
 import SettingsTaxcodes from '../models/settings/settings_taxcodes.js';
 import SettingsColorcombinations from '../models/settings/settings_colorcombinations.js';
+import SettingsExtras from '../models/settings/settings_extras.js';
 
 dotenv.config();
 
@@ -1129,4 +1130,132 @@ export const deleteColorcombination = (req, res, next) => {
     .catch((error) => {
       res.status(500).json({ error: "Internal server error" });
     });
+};
+
+export const getExtrasData = (req, res, next) => {
+  SettingsExtras.findAll()
+  .then((extras) => {
+    res.status(200).json(extras);
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred" });
+  });
+};
+
+export const createExtra = (req, res, next) => {
+  const { level,
+          name, 
+          description,
+          status,
+          option,
+          fixed_price,
+          price_group_id,
+          is_visible_online,
+          is_default_selected,
+          is_online_mandatory,
+          is_apply_tax,
+          is_apply_discounts } = req.body;
+  console.log(req.body);
+
+  const imgUrl = generateFileUrl(req.files);
+
+  const fields = {
+    level,
+    name,
+    description,
+    status : 1,
+    option,
+    fixed_price,
+    price_group_id,
+    is_visible_online,
+    is_default_selected,
+    is_online_mandatory,
+    is_apply_tax,
+    is_apply_discounts
+  };
+
+  if (imgUrl) {
+    fields.img_url = imgUrl;
+  }
+
+  SettingsExtras.create(fields)
+  .then(newextra => {
+    res.status(201).json({ message: 'Extra created successfully', extra: newextra });
+  })
+  .catch(error => {
+    console.log(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateExtra = (req, res, next) => {
+  const { id,
+          level,
+          name,
+          description,
+          status,
+          option,
+          fixed_price,
+          price_group_id,
+          is_visible_online,
+          is_default_selected,
+          is_online_mandatory,
+          is_apply_tax,
+          is_apply_discounts } = req.body;
+  console.log(req.body);
+  const imgUrl = generateFileUrl(req.files);
+
+  const updateFields = {
+    id,
+    level,
+    name,
+    description,
+    status,
+    option,
+    fixed_price,
+    price_group_id,
+    is_visible_online,
+    is_default_selected,
+    is_online_mandatory,
+    is_apply_tax,
+    is_apply_discounts
+  }
+
+  if (imgUrl) {
+    updateFields.img_url = imgUrl;
+  }
+
+  SettingsExtras.update(updateFields, { where: { id: id } })
+  .then(newExtra => {
+    res.status(201).json({ message: 'Extra updated successfully', extra: newExtra });
+  })
+  .catch(error => {
+    console.log(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const deleteExtra = (req, res, next) => {
+  SettingsExtras.destroy({ where: { id: req.body.id } })
+  .then((result) => {
+    if (result === 1) {
+      res.status(200).json({ message: "Extra deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Extra not found" });
+    }
+  })
+  .catch((error) => {
+    if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
+      res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
 };

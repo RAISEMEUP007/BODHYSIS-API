@@ -4,9 +4,13 @@ import Reservations, {
   ReservationProductType,
   ReservationType,
 } from "../models/reservation/reservations";
+import { getAvaliableQuantitiesByLine } from "./product.ts";
+
 import ReservationPayments from '../models/reservation/reservation_payments.js';
 import ReservationItems from '../models/reservation/reservation_items.js';
+import ReservationItemsExtras from '../models/reservation/reservation_items_extras.js';
 import ProductLines from '../models/product/product_lines.js';
+import SettingsExtras from '../models/settings/settings_extras.js';
 
 export const createReservation = (req, res, next) => {
   Reservations.create(req.body)
@@ -114,12 +118,25 @@ export const getReservationDetails = async (req: Request, res: Response) => {
     include: [{ 
       model: ReservationItems, 
       as: 'items',
-      // attributes: [sequelize.literal('items.id AS rid'), 'reservation_id', 'line_id', 'price_group_id', 'quantity', 'price'],
-      include: { model: ProductLines, as: 'lines', attributes: ['line', 'price_group_id', 'size'] },
+      include: [
+        { 
+          model: ProductLines, 
+          as: 'lines', 
+          attributes: ['line', 'price_group_id', 'size'],
+        },
+        {
+          model: ReservationItemsExtras,
+          as: 'item_extras',
+          include: {
+            model: SettingsExtras,
+            as: 'extras'
+          }
+        }
+      ],
     }],
     where: {
       id: id
-    }
+    },
   };
   
   Reservations.findOne(queryOptions)
@@ -131,7 +148,14 @@ export const getReservationDetails = async (req: Request, res: Response) => {
         line: item.lines.line,
         price_group_id: item.lines.price_group_id,
         size: item.lines.size,
+        extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
       }))
+      .map(item => ({
+        ...item,
+        lines: undefined,
+        item_extras: undefined
+      }))
+      .sort((a, b) => a.line.localeCompare(b.line)) 
     };
     res.status(200).json(transformedReservation);
   })
@@ -159,7 +183,9 @@ export const updateReservation = (req, res, next) => {
               })
               .then(updatedItem => {
                 item.id = updatedItem.id;
-                resolve( item);
+                saveReservationItemsExtras(item.id, item.extras)
+                  .then(() => resolve(item))
+                  .catch(error => reject(error));
               })
               .catch(error => reject(error));
             } else {
@@ -172,7 +198,9 @@ export const updateReservation = (req, res, next) => {
               })
               .then(newItem => {
                 item.id = newItem.id;
-                resolve(item);
+                saveReservationItemsExtras(item.id, item.extras)
+                  .then(() => resolve(item))
+                  .catch(error => reject(error));
               })
               .catch(error => reject(error));
             }
@@ -202,6 +230,33 @@ export const updateReservation = (req, res, next) => {
   .catch(error => {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+const saveReservationItemsExtras = (reservationItemId, extras) => {
+  return new Promise((resolve, reject) => {
+    ReservationItemsExtras.destroy({ where: { item_id: reservationItemId } })
+      .then(() => {
+        if (!extras || !Array.isArray(extras) || extras.length === 0) {
+          resolve();
+        } else {
+          Promise.all(extras.map(extra => 
+            ReservationItemsExtras.create({
+              item_id: reservationItemId,
+              extra_id: extra.id,
+            })
+          ))
+            .then(() => {
+              resolve();
+            })
+            .catch(error => {
+              reject(error);
+            });
+        }
+      })
+      .catch(error => {
+        reject(error);
+      });
   });
 }
 
@@ -265,3 +320,106 @@ export const getTransactionsData = (req, res, next) => {
     res.status(502).json({error: "An error occurred"});
   });
 };
+
+export const verifyQuantity = async (req, res, next) => {
+  const { start_date, end_date, items } = req.body;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: 'Request body must have a non-empty array of items' });
+  }
+
+  try {
+    const idsArray = items.map(item => item.id);
+    const availableQuantities = await getAvaliableQuantitiesByLine(idsArray);
+    const stageAmount = await getStageAmount(start_date, end_date, idsArray);
+    // const availableQuantities = await getAvaliableQuantitiesByLine(idsArray);
+    // const stageAmount = await getStageAmount(start_date, end_date, idsArray);
+
+    const response = [];
+    let hasInsufficientQuantity = false;
+
+    for (const item of items) {
+      const itemId = item.id;
+      const requestedQuantity = item.quantity;
+      const availableQuantity = availableQuantities[itemId] || 0;
+      const stageInfo = stageAmount[itemId] || {};
+      const out_amount = stageInfo.out_amount || 0;
+      const totalReserved = parseInt(out_amount);
+      const remainingQuantity = availableQuantity - totalReserved;
+
+      if (requestedQuantity > remainingQuantity) {
+        hasInsufficientQuantity = true;
+      }
+
+      response.push({
+        line: item.line + ' ' + item.size,
+        requested: requestedQuantity,
+        available: remainingQuantity || 0,
+      });
+    }
+
+    if (hasInsufficientQuantity) {
+      return res.status(400).json({ error: 'Insufficient quantity for one or more items', quantities: response });
+    }
+
+    res.status(200).json({ message: 'All quantities verified', quantities: response });
+    next();
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: 'An error occurred while verifying quantities' });
+  }
+};
+
+const getStageAmount = (startDate, endDate, line_id = null) => {
+  let lineIdCondition = '';
+  let replacements = { start_date: startDate, end_date: endDate };
+
+  if (Array.isArray(line_id)) {
+    lineIdCondition = 'AND t1.line_id IN (:line_id)';
+    replacements.line_id = line_id;
+  } else if (Number.isInteger(line_id)) {
+    lineIdCondition = 'AND t1.line_id = :line_id';
+    replacements.line_id = line_id;
+  }
+
+  const query = `
+    SELECT
+      t1.line_id,
+      t2.stage,
+      SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) AS reserved,
+      SUM(IF(t2.stage = 3, t1.quantity, 0)) AS checked_out,
+      SUM(IF(t2.stage = 4, t1.quantity, 0)) AS checked_in,
+      (SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) + SUM(IF(t2.stage = 3, t1.quantity, 0))) - SUM(IF(t2.stage = 4, t1.quantity, 0)) AS out_amount
+    FROM
+      reservation_items AS t1
+      INNER JOIN reservations AS t2
+        ON t1.reservation_id = t2.id
+    WHERE
+      t2.start_date < :end_date
+      AND t2.end_date > :start_date
+      AND t2.stage IN (1, 2, 3, 4)
+      ${lineIdCondition}
+    GROUP BY t1.line_id, t2.stage;
+  `;
+
+  return sequelize.query(query, {
+    replacements,
+    type: sequelize.QueryTypes.SELECT
+  }).then(stageAmounts => {
+    const formattedResults = stageAmounts.reduce((acc, cur) => {
+      acc[cur.line_id] = {
+        line_id: cur.line_id,
+        stage: cur.stage,
+        reserved: cur.reserved,
+        checked_out: cur.checked_out,
+        checked_in: cur.checked_in,
+        out_amount: cur.out_amount
+      };
+      return acc;
+    }, {});
+    return formattedResults;
+  }).catch(error => {
+    console.error(error);
+    throw new Error('An error occurred while fetching stage amounts');
+  });
+}

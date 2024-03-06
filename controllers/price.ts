@@ -187,7 +187,7 @@ export const getTableData = (req, res, next) => {
   		LEFT JOIN price_points AS t3 ON t2.point_id = t3.id
   			AND ${tableId ? 't3.table_id = ' + tableId : 't3.table_id IS NULL'}
   	-- WHERE ${tableId ? 't1.table_id = ' + tableId : 't1.table_id IS NULL'}
-	  ORDER BY group_id, point_id
+	  ORDER BY t1.price_group, point_id
   `;
 	sequelize.query(
 	  query,
