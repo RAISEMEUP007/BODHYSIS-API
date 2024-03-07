@@ -3,6 +3,7 @@ import sequelize from "./utils/database";
 import router from "./routes/routes";
 import dotenv from "dotenv";
 import cors from "cors";
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -35,8 +36,37 @@ app.use((_, res, next) => {
 });
 
 app.use("/uploads", express.static("uploads"));
+
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization;
+
+  const excludedRoutes = ['/login', '/signup', '/resetpass', '/changepass', '/newpassword'];
+
+  const path = req.originalUrl.split('?')[0];
+
+  if (excludedRoutes.some(route => path.includes(route))) {
+    return next();
+  }
+
+  if (!token) {
+    return res.status(401).json({ error: 'Authorization token is missing' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: 'Token is invalid or expired' });
+    }
+    req.user = {
+      email: decoded.email,
+      userId: decoded.userId,
+      userName: decoded.userName
+    };
+    next();
+  });
+};
+app.use(verifyToken);
 app.use(router);
 
 sequelize.sync();
 
-app.listen(5000);
+app.listen(process.env.BASE_PORT);

@@ -4,6 +4,7 @@ import multer from "multer";
 import {
   signup,
   login,
+  logout,
   isAuth,
   resetPass,
   verifyChangePass,
@@ -187,6 +188,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post("/login", login);
+router.post("/logout", logout);
 router.post("/signup", signup);
 router.post("/resetpass", resetPass);
 router.get("/changepass/:id", verifyChangePass);
