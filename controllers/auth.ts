@@ -59,10 +59,20 @@ export const login = (req, res, next) => {
 				if (err) {
 					res.status(502).json({message: "error while checking user password"});
 				} else if (compareRes) {
-					const token = jwt.sign({ email: req.body.email }, 'secret', { expiresIn: '1h' });
-					res.status(200).json({message: "user logged in", "token": token});
+					const token = jwt.sign({ 
+					  email: dbUser.email,
+					  userId: dbUser.id,
+					  userName: dbUser.name
+					}, process.env.JWT_SECRET, { expiresIn: '1h' });
+					res.status(200).json({
+						message: "user logged in", 
+						token: token,
+						email: dbUser.email,
+						userId: dbUser.id,
+						userName: dbUser.name
+					});
 				} else {
-					res.status(401).json({message: "invalid credentials"});
+					res.status(403).json({message: "invalid credentials"});
 				};
 			});
 		};
@@ -70,6 +80,11 @@ export const login = (req, res, next) => {
 	.catch(err => {
 		console.log('error', err);
 	});
+};
+
+export const logout = (req, res, next) => {
+	const token = req.headers.authorization;
+	res.status(200).json({ message: 'success' });
 };
 
 export const resetPass = async (req, res, next) => {
@@ -81,7 +96,6 @@ export const resetPass = async (req, res, next) => {
 		const id = uuidv4();
   
 		const verifyLink = `${process.env.BASE_URL}/changepass/${id}`;
-		console.log(verifyLink);
 		const clientDirection = `${req.body.clientHost}/changepass/${id}`;
 
 		const currentDate = new Date();
