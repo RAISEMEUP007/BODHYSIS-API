@@ -3,6 +3,7 @@ import { Sequelize } from 'sequelize';
 import sequelize from '../../utils/database';
 import ProductCategories from './product_categories.js';
 import ProductFamilies from './product_families.js';
+import PriceGroup from '../price_group';
 
 const ProductLines = sequelize.define('product_lines', {
    id: {
@@ -42,6 +43,6 @@ const ProductLines = sequelize.define('product_lines', {
 
 ProductLines.belongsTo(ProductCategories, { foreignKey: 'category_id', as: 'category' });
 ProductLines.belongsTo(ProductFamilies, { foreignKey: 'family_id', as: 'family' });
-
+ProductLines.belongsTo(PriceGroup, { foreignKey: 'price_group_id', as: 'price_group' });
 
 export default ProductLines;
