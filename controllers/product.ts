@@ -10,6 +10,7 @@ import ProductFamilies from '../models/product/product_families.js';
 import ProductLines from '../models/product/product_lines.js';
 import ProductProducts from '../models/product/product_products.js';
 import SettingsLocations from '../models/settings/settings_locations.js';
+import PriceGroup from '../models/price_group';
 
 dotenv.config();
 
@@ -285,6 +286,11 @@ export const getProductLinesData = (req, res, next) => {
         as: 'family',
         attributes: ['family', 'display_name'],
       },
+      {
+        model: PriceGroup,
+        as: 'price_group',
+        attributes: ['id', 'price_group'],
+      },
     ],
     order: [
       [{ model: ProductCategories, as: 'category' }, 'category'],
@@ -307,6 +313,7 @@ export const getProductLinesData = (req, res, next) => {
     res.status(200).json(productLinesJSON);
   })
   .catch(err => {
+    console.log(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -379,6 +386,11 @@ export const getProductsData = (req, res, next) => {
         model: ProductLines,
         as: 'line',
         attributes: ['line', 'size', 'price_group_id'],
+        include: {
+          model: PriceGroup,
+          as: 'price_group',
+          attributes: ['id', 'price_group'],
+        },
       },
       {
         model: SettingsLocations,
@@ -432,8 +444,8 @@ export const quickAddProduct = (req, res, next) => {
 
   for (let i = 0; i < rowcounts; i++) {
     let newRow = productData;
-    newRow.serial_number = `${newRow.line}${i.toString().padStart(3, '0')}`;
-    newRow.barcode = `${newRow.line}${newRow.serial_number}`;
+    newRow.serial_number = `${newRow.line}-${(i+1).toString().padStart(4, '0')}`;
+    newRow.barcode = `${newRow.shortcode}-${(i+1).toString().padStart(4, '0')}`;
     rows.push(ProductProducts.create(productData));
   }
 
