@@ -23,6 +23,10 @@ export const createReservation = (req, res, next) => {
           quantity: item.quantity,
           price_group_id: item.price_group_id,
           price: item.price,
+        })
+        .then(newItem => {
+          item.id = newItem.id;
+          return saveReservationItemsExtras(item.id, item.extras);
         });
       });
 
