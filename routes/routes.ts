@@ -173,7 +173,7 @@ import {
   makePayment,
   listPaymentMethods,
 } from "../controllers/stripe.js";
-import { getOrders, getOrders } from "../controllers/orders.js";
+import { getOrders } from "../controllers/orders.js";
 
 
 const router = express.Router();
