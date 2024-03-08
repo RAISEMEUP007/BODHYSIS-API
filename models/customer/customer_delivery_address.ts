@@ -29,7 +29,7 @@ const CustomerDeliveryAddress = sequelize.define('customer_delivery_address', {
       type: Sequelize.STRING,
    },
    country_id: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
    },
    is_used: {
       type: Sequelize.BOOLEAN,

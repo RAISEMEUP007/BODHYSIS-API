@@ -49,15 +49,15 @@ const CustomerCustomers = sequelize.define('customer_customers', {
       allowNull: false,
    },
    country_id: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false,
    },
    language_id: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false,
    },
    home_location: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false,
    },
    delivery_street_number: {
