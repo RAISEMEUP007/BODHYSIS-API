@@ -3,11 +3,36 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import sgMail from '@sendgrid/mail';
-
+import dayjs from 'dayjs';
 import User from '../models/user.js';
 import UserForgotPassword from '../models/users_forgot_password.js';
+import UserRefreshToken from '../models/user_refresh_token.js';
+import { NextFunction ,Request, Response} from 'express';
+
+type JwtVerifyPayload = {
+  email: string;
+  sub: string;
+	userId:string;
+	userName:string;
+};
 
 dotenv.config();
+
+const generateRefreshToken =async(userId:number|string, email:string,  userName:string)=>{
+	const expiresIn = dayjs().add(30, "day").unix()
+	const refreshToken = jwt.sign({ email, userId, userName }, process.env.JWT_REFRESH_TOKEN_SECRET, {
+		 subject: userId.toString(),
+		 expiresIn: '30d'
+	});
+
+	await UserRefreshToken.create({
+		user_id: userId,
+		expires_in: expiresIn,
+		refresh_token: refreshToken
+	})
+
+	return refreshToken
+}
 
 export const signup = (req, res, next) => {
 	User.findOne({ where : {
@@ -55,18 +80,21 @@ export const login = (req, res, next) => {
 		if (!dbUser) {
 			return res.status(404).json({message: "user not found"});
 		} else {
-			bcrypt.compare(req.body.password, dbUser.password, (err, compareRes) => {
+			bcrypt.compare(req.body.password, dbUser.password, async (err, compareRes) => {
 				if (err) {
 					res.status(502).json({message: "error while checking user password"});
-				} else if (compareRes) {
-					const token = jwt.sign({ 
-					  email: dbUser.email,
-					  userId: dbUser.id,
-					  userName: dbUser.name
-					}, process.env.JWT_SECRET, { expiresIn: '1h' });
+				} else if (compareRes) {				
+					await UserRefreshToken.destroy({
+						where: {
+							user_id: dbUser.id,
+						}
+					})
+
+					const refreshToken = await generateRefreshToken(dbUser.id, req.body.email)
+
 					res.status(200).json({
 						message: "user logged in", 
-						token: token,
+						refreshToken,
 						email: dbUser.email,
 						userId: dbUser.id,
 						userName: dbUser.name
@@ -211,3 +239,36 @@ export const isAuth = (req, res, next) => {
 		res.status(200).json({ message: 'here is your resource' });
 	};
 };
+
+export const refreshToken = async (req:Request, res:Response, next:NextFunction)=>{
+	const refreshToken = req.body.refresh_token
+
+	const findRefreshToken = await UserRefreshToken.findOne({
+		where: {
+			refresh_token: refreshToken
+		}
+	})
+
+	if(!findRefreshToken) { 
+		return res.status(401).send({message: "Refresh token invalid."})
+	}
+
+	const { email, sub} = jwt.verify(
+		refreshToken,
+		process.env.JWT_REFRESH_TOKEN_SECRET
+	) as JwtVerifyPayload;
+
+	const refreshTokenExpired = dayjs().isAfter(dayjs.unix(findRefreshToken?.expires_in))
+
+	if(refreshTokenExpired){
+		await UserRefreshToken.destroy({
+			where: {
+				user_id : sub
+			}
+		})
+		const newRefreshToken = await generateRefreshToken(sub,email)
+		return res.send({refreshToken:newRefreshToken})
+	}
+
+	return res.status(401).send({})
+}

@@ -56,7 +56,7 @@ const verifyToken = (req, res, next) => {
     token = token.slice(7);
   }else return res.status(401).json({ error: 'Token is invalid or expired' });
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+  jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).json({ error: 'Token is invalid or expired' });
     }
