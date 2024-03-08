@@ -34,11 +34,6 @@ const generateRefreshToken =async(userId:number|string, email:string,  userName:
 	return refreshToken
 }
 
-
-// const generateToken=(email:string,id:string,name:string)=>{	
-// 	return jwt.sign({ email, userId:id, userName:name }, 'secret', { expiresIn: '1h' });
-// }
-
 export const signup = (req, res, next) => {
 	User.findOne({ where : {
 		email: req.body.email, 
@@ -96,12 +91,9 @@ export const login = (req, res, next) => {
 					})
 
 					const refreshToken = await generateRefreshToken(dbUser.id, req.body.email)
-				
-					// const token =generateToken(dbUser.email,dbUser.id,dbUser.name)
 
 					res.status(200).json({
 						message: "user logged in", 
-						// token: token,
 						refreshToken,
 						email: dbUser.email,
 						userId: dbUser.id,
@@ -261,12 +253,10 @@ export const refreshToken = async (req:Request, res:Response, next:NextFunction)
 		return res.status(401).send({message: "Refresh token invalid."})
 	}
 
-	const { email, sub,userId,userName} = jwt.verify(
+	const { email, sub} = jwt.verify(
 		refreshToken,
 		process.env.JWT_REFRESH_TOKEN_SECRET
 	) as JwtVerifyPayload;
-
-	// const newToken = generateToken(email,userId,userName)
 
 	const refreshTokenExpired = dayjs().isAfter(dayjs.unix(findRefreshToken?.expires_in))
 
