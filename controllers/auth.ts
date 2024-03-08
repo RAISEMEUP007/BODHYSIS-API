@@ -18,9 +18,9 @@ type JwtVerifyPayload = {
 
 dotenv.config();
 
-const generateRefreshToken =async(userId:number|string, email:string)=>{
+const generateRefreshToken =async(userId:number|string, email:string,  userName:string)=>{
 	const expiresIn = dayjs().add(30, "day").unix()
-	const refreshToken = jwt.sign({ email }, process.env.JWT_REFRESH_TOKEN_SECRET, {
+	const refreshToken = jwt.sign({ email, userId, userName }, process.env.JWT_REFRESH_TOKEN_SECRET, {
 		 subject: userId.toString(),
 		 expiresIn: '30d'
 	});
@@ -35,9 +35,9 @@ const generateRefreshToken =async(userId:number|string, email:string)=>{
 }
 
 
-const generateToken=(email:string,id:string,name:string)=>{	
-	return jwt.sign({ email, userId:id,userName:name }, 'secret', { expiresIn: '1h' });
-}
+// const generateToken=(email:string,id:string,name:string)=>{	
+// 	return jwt.sign({ email, userId:id, userName:name }, 'secret', { expiresIn: '1h' });
+// }
 
 export const signup = (req, res, next) => {
 	User.findOne({ where : {
@@ -97,11 +97,11 @@ export const login = (req, res, next) => {
 
 					const refreshToken = await generateRefreshToken(dbUser.id, req.body.email)
 				
-					const token =generateToken(dbUser.email,dbUser.id,dbUser.name)
+					// const token =generateToken(dbUser.email,dbUser.id,dbUser.name)
 
 					res.status(200).json({
 						message: "user logged in", 
-						token: token,
+						// token: token,
 						refreshToken,
 						email: dbUser.email,
 						userId: dbUser.id,
@@ -263,10 +263,10 @@ export const refreshToken = async (req:Request, res:Response, next:NextFunction)
 
 	const { email, sub,userId,userName} = jwt.verify(
 		refreshToken,
-		'secret_refresh_token'
+		process.env.JWT_REFRESH_TOKEN_SECRET
 	) as JwtVerifyPayload;
 
-	const newToken = generateToken(email,userId,userName)
+	// const newToken = generateToken(email,userId,userName)
 
 	const refreshTokenExpired = dayjs().isAfter(dayjs.unix(findRefreshToken?.expires_in))
 
@@ -277,10 +277,8 @@ export const refreshToken = async (req:Request, res:Response, next:NextFunction)
 			}
 		})
 		const newRefreshToken = await generateRefreshToken(sub,email)
-		return res.send({token:newToken, refreshToken:newRefreshToken})
+		return res.send({refreshToken:newRefreshToken})
 	}
 
-	
-
-	return res.send({token:newToken})
+	return res.status(401).send({})
 }
