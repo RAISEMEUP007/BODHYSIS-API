@@ -444,7 +444,7 @@ export const quickAddProduct = (req, res, next) => {
 
   for (let i = 0; i < rowcounts; i++) {
     let newRow = productData;
-    newRow.serial_number = `${newRow.line}-${(i+1).toString().padStart(4, '0')}`;
+    newRow.serial_number = `${newRow.line.line}-${(i+1).toString().padStart(4, '0')}`;
     newRow.barcode = `${newRow.shortcode}-${(i+1).toString().padStart(4, '0')}`;
     rows.push(ProductProducts.create(productData));
   }
