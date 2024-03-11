@@ -2,6 +2,8 @@ import { DataTypes } from "sequelize";
 
 import sequelize from "../../utils/database";
 import ReservationItems from './reservation_items.ts';
+import CustomerCustomers from "../customer/customer_customers";
+import SettingsLocations from "../settings/settings_locations";
 
 const Reservations = sequelize.define(
   "reservations",
@@ -12,13 +14,7 @@ const Reservations = sequelize.define(
       allowNull: false,
       primaryKey: true,
     },
-    customer_id: {
-      type: DataTypes.INTEGER,
-    },
     brand_id: {
-      type: DataTypes.INTEGER,
-    },
-    start_location_id: {
       type: DataTypes.INTEGER,
     },
     end_location_id: {
@@ -67,6 +63,14 @@ const Reservations = sequelize.define(
 );
 // Reservations.hasMany(ReservationItems, { foreignKey: 'reservation_id', as: 'reservationItems' });
 
+Reservations.belongsTo(CustomerCustomers,{
+  foreignKey: 'customer_id',
+  as : 'customer'
+})
+Reservations.belongsTo(SettingsLocations,{
+  foreignKey: 'start_location_id',
+  as : 'location'
+})
 export interface ReservationProductType {
   quantity: number;
   product_id: number;
