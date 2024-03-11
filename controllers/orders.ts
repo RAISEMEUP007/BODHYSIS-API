@@ -14,7 +14,11 @@ export const getOrders= (req:Request, res:Response, next:NextFunction) => {
         model: sequelize.models['customer_customers'],
         as: "customer",
         attributes:['id','first_name','last_name'],
-      }]
+      },
+    {
+      model: sequelize.models['settings_locations'],
+      as :'location'
+    }]
     }).then((result: any) => {
       return res.status(201).json(result);
     });
