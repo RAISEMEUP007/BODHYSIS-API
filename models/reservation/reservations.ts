@@ -2,6 +2,8 @@ import { DataTypes } from "sequelize";
 
 import sequelize from "../../utils/database";
 import ReservationItems from './reservation_items.ts';
+import CustomerCustomers from '../customer/customer_customers';
+import SettingsColorcombinations from '../settings/settings_colorcombinations';
 
 const Reservations = sequelize.define(
   "reservations",
@@ -57,6 +59,9 @@ const Reservations = sequelize.define(
     price_table_id: {
       type: DataTypes.INTEGER,
     },
+    color_id: {
+      type: DataTypes.FLOAT,
+    },
     paid: {
       type: DataTypes.FLOAT,
     },
@@ -66,6 +71,8 @@ const Reservations = sequelize.define(
   }
 );
 // Reservations.hasMany(ReservationItems, { foreignKey: 'reservation_id', as: 'reservationItems' });
+Reservations.belongsTo(CustomerCustomers, { foreignKey: 'customer_id', as: 'customer' });
+Reservations.belongsTo(SettingsColorcombinations, { foreignKey: 'color_id', as: 'color' });
 
 export interface ReservationProductType {
   quantity: number;
