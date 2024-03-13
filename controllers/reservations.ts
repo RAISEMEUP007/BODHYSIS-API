@@ -4,13 +4,15 @@ import Reservations, {
   ReservationProductType,
   ReservationType,
 } from "../models/reservation/reservations";
-import { getAvaliableQuantitiesByLine } from "./product.ts";
+import { getAvaliableQuantitiesByLine } from "./product";
 
-import ReservationPayments from '../models/reservation/reservation_payments.js';
-import ReservationItems from '../models/reservation/reservation_items.js';
-import ReservationItemsExtras from '../models/reservation/reservation_items_extras.js';
-import ProductLines from '../models/product/product_lines.js';
-import SettingsExtras from '../models/settings/settings_extras.js';
+import ReservationPayments from '../models/reservation/reservation_payments';
+import ReservationItems from '../models/reservation/reservation_items';
+import ReservationItemsExtras from '../models/reservation/reservation_items_extras';
+import ProductLines from '../models/product/product_lines';
+import SettingsExtras from '../models/settings/settings_extras';
+import CustomerCustomers from '../models/customer/customer_customers';
+import SettingsColorcombinations from '../models/settings/settings_colorcombinations';
 
 export const createReservation = (req, res, next) => {
   Reservations.create(req.body)
@@ -137,6 +139,14 @@ export const getReservationDetails = async (req: Request, res: Response) => {
           }
         }
       ],
+    },
+    {
+      model: CustomerCustomers,
+      as: 'customer',
+    },
+    {
+      model: SettingsColorcombinations,
+      as: 'color',
     }],
     where: {
       id: id
