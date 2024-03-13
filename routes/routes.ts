@@ -173,7 +173,7 @@ import {
   makePayment,
   listPaymentMethods,
 } from "../controllers/stripe.js";
-import { getOrders } from "../controllers/orders.js";
+import { getOrders, getOrdersById } from "../controllers/orders.js";
 
 
 const router = express.Router();
@@ -459,6 +459,7 @@ router.post("/stripe/listpaymentmethods/", listPaymentMethods);
 
 // Orders
 router.get("/orders", getOrders)
+router.get("/orders/:id", getOrdersById)
 
 router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });
