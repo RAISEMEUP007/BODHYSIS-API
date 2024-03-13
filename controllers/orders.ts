@@ -2,6 +2,7 @@ import sequelize from '../utils/database';
 import { NextFunction,Response,Request } from "express";
 import Reservations from "../models/reservation/reservations";
 import { Op } from "sequelize";
+import SettingsColorcombinations from '../models/settings/settings_colorcombinations';
 
 export const getOrders= (req:Request, res:Response, next:NextFunction) => {
   try {
@@ -45,7 +46,12 @@ export const getOrdersById= (req:Request, res:Response, next:NextFunction) => {
     {
       model: sequelize.models['settings_locations'],
       as :'location'
-    }]
+    },
+  {
+    model:SettingsColorcombinations,
+    as: 'color',
+    attributes:['id','color'],
+  }]
     }).then((result: any) => {
       return res.status(201).json(result);
     });
