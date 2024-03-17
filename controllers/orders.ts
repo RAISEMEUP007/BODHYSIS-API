@@ -86,7 +86,8 @@ export const getOrdersData = (req:Request, res:Response, next:NextFunction) => {
     -- t1.tax_rate,
     -- t1.tax_amount,
     -- t1.total_price,
-    t1.stage
+    t1.stage,
+    t1.color_id
   FROM
     reservations AS t1
     LEFT JOIN customer_customers AS t2

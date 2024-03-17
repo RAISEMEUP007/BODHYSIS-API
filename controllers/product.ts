@@ -408,6 +408,7 @@ export const getProductsData = (req, res, next) => {
       [{ model: ProductFamilies, as: 'family' }, 'family'],
       [{ model: ProductLines, as: 'line' }, 'line'],
       'product',
+      'barcode',
     ],
     where: whereCondition,
   };
@@ -444,8 +445,9 @@ export const quickAddProduct = (req, res, next) => {
 
   for (let i = 0; i < rowcounts; i++) {
     let newRow = productData;
-    newRow.serial_number = `${newRow.line.line}-${(i+1).toString().padStart(4, '0')}`;
-    newRow.barcode = `${newRow.shortcode}-${(i+1).toString().padStart(4, '0')}`;
+    newRow.product = `${newRow.line.line} ${newRow.line.size ?? ''} ${newRow.line.category.category}`;
+    newRow.serial_number = `${newRow?.line?.line??''}-${(i+1).toString().padStart(3, '0')}`;
+    newRow.barcode = `${newRow?.line?.shortcode??''}-${(i+1).toString().padStart(3, '0')}`;
     rows.push(ProductProducts.create(productData));
   }
 
