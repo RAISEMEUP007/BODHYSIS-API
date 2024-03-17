@@ -20,6 +20,9 @@ const User = sequelize.define('users', {
       type: Sequelize.STRING,
       allowNull: false,
    },
+   is_driver: {
+      type: Sequelize.BOOLEAN,
+   }
 });
 
 export default User;

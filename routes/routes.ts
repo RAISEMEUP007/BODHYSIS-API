@@ -10,7 +10,10 @@ import {
   verifyChangePass,
   newPass,
   refreshToken,
-} from "../controllers/auth.js";
+} from "../controllers/auth";
+import {
+  getDrivers,
+} from "../controllers/user";
 import {
   createPriceGroup,
   addPricePoint,
@@ -41,7 +44,7 @@ import {
   deletePriceLogic,
   getPriceGroupActiveDataByTableId,
   setActiveGroup,
-} from "../controllers/price.js";
+} from "../controllers/price";
 import {
   getProductCategoriesData,
   createProductCategory,
@@ -64,7 +67,7 @@ import {
   getProductQuantitiesByFamily,
   getProductQuantitiesByCategory,
   quickAddProduct,
-} from "../controllers/product.js";
+} from "../controllers/product";
 import {
   getManufacturesData,
   createManufacture,
@@ -138,7 +141,7 @@ import {
   createColorcombination,
   updateColorcombination,
   deleteColorcombination,
-} from "../controllers/settings.js";
+} from "../controllers/settings";
 import {
   getCustomersData,
   createCustomer,
@@ -149,7 +152,7 @@ import {
   updateDeliveryAddress,
   deleteDeliveryAddress,
   deleteDeliveryAddressByCustomerId,
-} from "../controllers/customer.js";
+} from "../controllers/customer";
 import {
   getReservationsData,
   createReservation,
@@ -160,7 +163,7 @@ import {
   getTransactionsData,
   removeReservationItem,
   verifyQuantity,
-} from "../controllers/reservations.js";
+} from "../controllers/reservations";
 
 import {
   createCustomerStripe,
@@ -172,11 +175,11 @@ import {
   addPaymentMethodToCustomer,
   makePayment,
   listPaymentMethods,
-} from "../controllers/stripe.js";
+} from "../controllers/stripe";
 import { 
   getOrders,
   getOrdersData
- } from "../controllers/orders.js";
+ } from "../controllers/orders";
 
 
 const router = express.Router();
@@ -200,6 +203,9 @@ router.get("/changepass/:id", verifyChangePass);
 router.post("/newpassword", newPass);
 router.get("/private", isAuth);
 router.post("/refresh-token", refreshToken);
+
+// user
+router.get("/user/getdrivers", getDrivers);
 
 /* ----- price ----- */
 // price table detail
