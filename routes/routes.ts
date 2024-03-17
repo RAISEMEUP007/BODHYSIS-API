@@ -175,11 +175,13 @@ import {
   addPaymentMethodToCustomer,
   makePayment,
   listPaymentMethods,
-} from "../controllers/stripe";
+} from "../controllers/stripe.js";
+
 import { 
   getOrders,
+  getOrdersById,
   getOrdersData
- } from "../controllers/orders";
+} from "../controllers/orders.js";
 
 
 const router = express.Router();
@@ -468,6 +470,7 @@ router.post("/stripe/listpaymentmethods/", listPaymentMethods);
 
 // Orders
 router.get("/orders", getOrders)
+router.get("/orders/:id", getOrdersById)
 router.get("/order/getordersdata/", getOrdersData);
 
 router.get("/public", (req, res, next) => {
