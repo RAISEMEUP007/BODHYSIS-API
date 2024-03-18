@@ -10,6 +10,7 @@ import {
   verifyChangePass,
   newPass,
   refreshToken,
+  getTestToken,
 } from "../controllers/auth";
 import {
   getDrivers,
@@ -176,12 +177,7 @@ import {
   makePayment,
   listPaymentMethods,
 } from "../controllers/stripe.js";
-
-import { 
-  getOrders,
-  getOrdersById,
-  getOrdersData
-} from "../controllers/orders.js";
+import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
 
 
 const router = express.Router();
@@ -205,6 +201,7 @@ router.get("/changepass/:id", verifyChangePass);
 router.post("/newpassword", newPass);
 router.get("/private", isAuth);
 router.post("/refresh-token", refreshToken);
+router.get("/auth/ttt", getTestToken);
 
 // user
 router.get("/user/getdrivers", getDrivers);
