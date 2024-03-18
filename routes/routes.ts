@@ -10,6 +10,7 @@ import {
   verifyChangePass,
   newPass,
   refreshToken,
+  getTestToken,
 } from "../controllers/auth";
 import {
   getDrivers,
@@ -200,6 +201,7 @@ router.get("/changepass/:id", verifyChangePass);
 router.post("/newpassword", newPass);
 router.get("/private", isAuth);
 router.post("/refresh-token", refreshToken);
+router.get("/auth/ttt", getTestToken);
 
 // user
 router.get("/user/getdrivers", getDrivers);
