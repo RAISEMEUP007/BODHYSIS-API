@@ -316,6 +316,53 @@ export const getProductLinesData = (req, res, next) => {
   });
 };
 
+export const getProductLinesDataByCategory = (req, res, next) => {
+  let categoryId = req.params.categoryId;
+
+  let queryOptions = {
+    include: [
+      {
+        model: ProductCategories,
+        as: 'category',
+        attributes: ['category'],
+      },
+      {
+        model: ProductFamilies,
+        as: 'family',
+        attributes: ['family', 'display_name', 'img_url'],
+      },
+      {
+        model: PriceGroup,
+        as: 'price_group',
+        attributes: ['id', 'price_group'],
+      },
+    ],
+    order: [
+      [{ model: ProductCategories, as: 'category' }, 'category'],
+      [{ model: ProductFamilies, as: 'family' }, 'family'],
+      'line',
+    ],
+  };
+
+  if (categoryId > 0) {
+    queryOptions.where = {
+      category_id: categoryId,
+    };
+  }
+  ProductLines.findAll(queryOptions)
+  .then((productLines) => {
+    // let productLinesJSON = [];
+    // for (let i = 0; i < productLines.length; i++) {
+    //   productLinesJSON.push(productLines[i].dataValues);
+    // }
+    res.status(200).json(productLines);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
 export const deleteProductLine = (req, res, next) => {
   ProductLines.destroy({ where: { id: req.body.id } })
   .then((result) => {

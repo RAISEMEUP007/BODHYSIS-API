@@ -57,6 +57,7 @@ import {
   updateProductFamily,
   deleteProductFamily,
   getProductLinesData,
+  getProductLinesDataByCategory,
   createProductLine,
   updateProductLine,
   deleteProductLine,
@@ -282,6 +283,7 @@ router.post("/product/deleteproductfamily", deleteProductFamily);
 
 // Product Line
 router.get("/product/getproductlinesdata/:familyId", getProductLinesData);
+router.get("/product/getproductlinesdata2/:categoryId", getProductLinesDataByCategory);
 router.post("/product/createproductline", createProductLine);
 router.post("/product/updateproductline", updateProductLine);
 router.post("/product/deleteproductline", deleteProductLine);
