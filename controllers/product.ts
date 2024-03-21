@@ -170,6 +170,47 @@ export const getProductFamiliesData = (req, res, next) => {
   });
 };
 
+export const getProductFamiliesDataByDisplayName = (req, res, next) => {
+  let categoryId = req.params.categoryId;
+  let queryOptions = {
+    include: [
+      {
+        model: ProductCategories,
+        as: 'category',
+        attributes: ['category'],
+      },
+      {
+        model: ProductLines,
+        as: 'lines',
+      }
+    ],
+    order: [
+      [{ model: ProductCategories, as: 'category' }, 'category'],
+      'family',
+    ],
+    group: 'display_name'
+  };
+
+  if (categoryId > 0) {
+    queryOptions.where = {
+      category_id: categoryId,
+    };
+  }
+
+  ProductFamilies.findAll(queryOptions)
+  .then((productFamilies) => {
+    let productFamiliesJSON = [];
+    for (let i = 0; i < productFamilies.length; i++) {
+      productFamiliesJSON.push(productFamilies[i].dataValues);
+    }   
+    res.status(200).json(productFamiliesJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
 export const createProductFamily = (req, res, next) => {
   const { family, category_id, display_name, summary, notes } = req.body;
   const imgUrl = generateFileUrl(req.files);
