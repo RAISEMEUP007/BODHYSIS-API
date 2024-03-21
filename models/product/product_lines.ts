@@ -44,5 +44,6 @@ const ProductLines = sequelize.define('product_lines', {
 ProductLines.belongsTo(ProductCategories, { foreignKey: 'category_id', as: 'category' });
 ProductLines.belongsTo(ProductFamilies, { foreignKey: 'family_id', as: 'family' });
 ProductLines.belongsTo(PriceGroup, { foreignKey: 'price_group_id', as: 'price_group' });
+ProductFamilies.hasMany(ProductLines, { foreignKey: 'family_id', as: 'lines' });
 
 export default ProductLines;

@@ -15,6 +15,9 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
    store_name: {
       type: Sequelize.STRING,
    },
+   store_url: {
+      type: Sequelize.STRING,
+   },
    language_id: {
       type: Sequelize.INTEGER,
    },
@@ -39,7 +42,7 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
    latitude: {
       type: Sequelize.FLOAT,
    },
-   longitutde: {
+   longitude: {
       type: Sequelize.FLOAT,
    },
    phone_number: {

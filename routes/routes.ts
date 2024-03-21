@@ -53,6 +53,7 @@ import {
   saveProductCategory,
   deleteProductCategory,
   getProductFamiliesData,
+  getProductFamiliesDataByDisplayName,
   createProductFamily,
   updateProductFamily,
   deleteProductFamily,
@@ -124,6 +125,7 @@ import {
   updateTimeformat,
   deleteTimeformat,
   getStoreDetail,
+  getStoreDetailByStoreURL,
   updateStoreDetail,
   getDiscountCodesData,
   createDiscountCode,
@@ -269,6 +271,10 @@ router.get(
   "/product/getproductfamiliesdata/:categoryId",
   getProductFamiliesData
 );
+router.get(
+  "/product/getproductfamiliesdatabydiplayname/:categoryId",
+  getProductFamiliesDataByDisplayName
+);
 router.post(
   "/product/createproductfamily",
   upload.array("img", 3),
@@ -380,6 +386,7 @@ router.post("/settings/deletetimeformat", deleteTimeformat);
 
 // Settings store detail
 router.get("/settings/getstoredetail/:brandId", getStoreDetail);
+router.post("/settings/getstoredetailbyurl/", getStoreDetailByStoreURL);
 router.post(
   "/settings/updatestoredetail",
   upload.array("img", 3),
