@@ -532,8 +532,8 @@ export const quickAddProduct = (req, res, next) => {
   for (let i = 0; i < rowcounts; i++) {
     let newRow = productData;
     newRow.product = `${newRow.line.line} ${newRow.line.size ?? ''} ${newRow.line.category.category}`;
-    newRow.serial_number = `${newRow?.line?.line??''}-${(i+1).toString().padStart(3, '0')}`;
-    newRow.barcode = `${newRow?.line?.shortcode??''}-${(i+1).toString().padStart(3, '0')}`;
+    newRow.serial_number = `${newRow?.line?.line??''}${(i+1).toString().padStart(3, '0')}`;
+    newRow.barcode = `${newRow?.line?.shortcode??''}${(i+1).toString().padStart(3, '0')}`;
     rows.push(ProductProducts.create(productData));
   }
 
