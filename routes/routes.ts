@@ -10,7 +10,11 @@ import {
   verifyChangePass,
   newPass,
   refreshToken,
-} from "../controllers/auth.js";
+  getTestToken,
+} from "../controllers/auth";
+import {
+  getDrivers,
+} from "../controllers/user";
 import {
   createPriceGroup,
   addPricePoint,
@@ -41,7 +45,7 @@ import {
   deletePriceLogic,
   getPriceGroupActiveDataByTableId,
   setActiveGroup,
-} from "../controllers/price.js";
+} from "../controllers/price";
 import {
   getProductCategoriesData,
   createProductCategory,
@@ -49,10 +53,12 @@ import {
   saveProductCategory,
   deleteProductCategory,
   getProductFamiliesData,
+  getProductFamiliesDataByDisplayName,
   createProductFamily,
   updateProductFamily,
   deleteProductFamily,
   getProductLinesData,
+  getProductLinesDataByCategory,
   createProductLine,
   updateProductLine,
   deleteProductLine,
@@ -64,7 +70,7 @@ import {
   getProductQuantitiesByFamily,
   getProductQuantitiesByCategory,
   quickAddProduct,
-} from "../controllers/product.js";
+} from "../controllers/product";
 import {
   getManufacturesData,
   createManufacture,
@@ -119,6 +125,7 @@ import {
   updateTimeformat,
   deleteTimeformat,
   getStoreDetail,
+  getStoreDetailByStoreURL,
   updateStoreDetail,
   getDiscountCodesData,
   createDiscountCode,
@@ -138,7 +145,7 @@ import {
   createColorcombination,
   updateColorcombination,
   deleteColorcombination,
-} from "../controllers/settings.js";
+} from "../controllers/settings";
 import {
   getCustomersData,
   createCustomer,
@@ -149,7 +156,7 @@ import {
   updateDeliveryAddress,
   deleteDeliveryAddress,
   deleteDeliveryAddressByCustomerId,
-} from "../controllers/customer.js";
+} from "../controllers/customer";
 import {
   getReservationsData,
   createReservation,
@@ -160,7 +167,7 @@ import {
   getTransactionsData,
   removeReservationItem,
   verifyQuantity,
-} from "../controllers/reservations.js";
+} from "../controllers/reservations";
 
 import {
   createCustomerStripe,
@@ -173,7 +180,7 @@ import {
   makePayment,
   listPaymentMethods,
 } from "../controllers/stripe.js";
-import { getOrders } from "../controllers/orders.js";
+import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
 
 
 const router = express.Router();
@@ -197,6 +204,10 @@ router.get("/changepass/:id", verifyChangePass);
 router.post("/newpassword", newPass);
 router.get("/private", isAuth);
 router.post("/refresh-token", refreshToken);
+router.get("/auth/ttt", getTestToken);
+
+// user
+router.get("/user/getdrivers", getDrivers);
 
 /* ----- price ----- */
 // price table detail
@@ -260,6 +271,10 @@ router.get(
   "/product/getproductfamiliesdata/:categoryId",
   getProductFamiliesData
 );
+router.get(
+  "/product/getproductfamiliesdatabydiplayname/:categoryId",
+  getProductFamiliesDataByDisplayName
+);
 router.post(
   "/product/createproductfamily",
   upload.array("img", 3),
@@ -274,6 +289,7 @@ router.post("/product/deleteproductfamily", deleteProductFamily);
 
 // Product Line
 router.get("/product/getproductlinesdata/:familyId", getProductLinesData);
+router.get("/product/getproductlinesdata2/:categoryId", getProductLinesDataByCategory);
 router.post("/product/createproductline", createProductLine);
 router.post("/product/updateproductline", updateProductLine);
 router.post("/product/deleteproductline", deleteProductLine);
@@ -370,6 +386,7 @@ router.post("/settings/deletetimeformat", deleteTimeformat);
 
 // Settings store detail
 router.get("/settings/getstoredetail/:brandId", getStoreDetail);
+router.post("/settings/getstoredetailbyurl/", getStoreDetailByStoreURL);
 router.post(
   "/settings/updatestoredetail",
   upload.array("img", 3),
@@ -459,6 +476,8 @@ router.post("/stripe/listpaymentmethods/", listPaymentMethods);
 
 // Orders
 router.get("/orders", getOrders)
+router.get("/orders/:id", getOrdersById)
+router.get("/order/getordersdata/", getOrdersData);
 
 router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });

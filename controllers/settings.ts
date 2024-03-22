@@ -813,6 +813,24 @@ export const getStoreDetail = (req, res, next) => {
   });
 };
 
+export const getStoreDetailByStoreURL = (req, res, next) => {
+  SettingsStoreDetails.findOne({
+    where: {
+      store_url: req.body.store_url
+    }
+  })
+  .then((storeDetails) => {
+    if (storeDetails) {
+      res.status(200).json(storeDetails);
+    } else {
+      res.status(404).json({ error: "Store details not found" });
+    }
+  })
+  .catch(err => {
+    res.status(502).json({ error: "An error occurred" });
+  });
+};
+
 export const updateStoreDetail = (req, res, next) => {
   const imgUrl = generateFileUrl(req.files);
   const updateFields = req.body;
@@ -839,6 +857,7 @@ export const updateStoreDetail = (req, res, next) => {
     }
   })
   .catch(error => {
+    console.log(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);

@@ -1,5 +1,3 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import sgMail from '@sendgrid/mail';
@@ -172,6 +170,47 @@ export const getProductFamiliesData = (req, res, next) => {
   });
 };
 
+export const getProductFamiliesDataByDisplayName = (req, res, next) => {
+  let categoryId = req.params.categoryId;
+  let queryOptions = {
+    include: [
+      {
+        model: ProductCategories,
+        as: 'category',
+        attributes: ['category'],
+      },
+      {
+        model: ProductLines,
+        as: 'lines',
+      }
+    ],
+    order: [
+      [{ model: ProductCategories, as: 'category' }, 'category'],
+      'family',
+    ],
+    group: 'display_name'
+  };
+
+  if (categoryId > 0) {
+    queryOptions.where = {
+      category_id: categoryId,
+    };
+  }
+
+  ProductFamilies.findAll(queryOptions)
+  .then((productFamilies) => {
+    let productFamiliesJSON = [];
+    for (let i = 0; i < productFamilies.length; i++) {
+      productFamiliesJSON.push(productFamilies[i].dataValues);
+    }   
+    res.status(200).json(productFamiliesJSON);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
 export const createProductFamily = (req, res, next) => {
   const { family, category_id, display_name, summary, notes } = req.body;
   const imgUrl = generateFileUrl(req.files);
@@ -318,6 +357,53 @@ export const getProductLinesData = (req, res, next) => {
   });
 };
 
+export const getProductLinesDataByCategory = (req, res, next) => {
+  let categoryId = req.params.categoryId;
+
+  let queryOptions = {
+    include: [
+      {
+        model: ProductCategories,
+        as: 'category',
+        attributes: ['category'],
+      },
+      {
+        model: ProductFamilies,
+        as: 'family',
+        attributes: ['family', 'display_name', 'img_url'],
+      },
+      {
+        model: PriceGroup,
+        as: 'price_group',
+        attributes: ['id', 'price_group'],
+      },
+    ],
+    order: [
+      [{ model: ProductCategories, as: 'category' }, 'category'],
+      [{ model: ProductFamilies, as: 'family' }, 'family'],
+      'line',
+    ],
+  };
+
+  if (categoryId > 0) {
+    queryOptions.where = {
+      category_id: categoryId,
+    };
+  }
+  ProductLines.findAll(queryOptions)
+  .then((productLines) => {
+    // let productLinesJSON = [];
+    // for (let i = 0; i < productLines.length; i++) {
+    //   productLinesJSON.push(productLines[i].dataValues);
+    // }
+    res.status(200).json(productLines);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
 export const deleteProductLine = (req, res, next) => {
   ProductLines.destroy({ where: { id: req.body.id } })
   .then((result) => {
@@ -408,6 +494,7 @@ export const getProductsData = (req, res, next) => {
       [{ model: ProductFamilies, as: 'family' }, 'family'],
       [{ model: ProductLines, as: 'line' }, 'line'],
       'product',
+      'barcode',
     ],
     where: whereCondition,
   };
@@ -444,8 +531,9 @@ export const quickAddProduct = (req, res, next) => {
 
   for (let i = 0; i < rowcounts; i++) {
     let newRow = productData;
-    newRow.serial_number = `${newRow.line}-${(i+1).toString().padStart(4, '0')}`;
-    newRow.barcode = `${newRow.shortcode}-${(i+1).toString().padStart(4, '0')}`;
+    newRow.product = `${newRow.line.line} ${newRow.line.size ?? ''} ${newRow.line.category.category}`;
+    newRow.serial_number = `${newRow?.line?.line??''}-${(i+1).toString().padStart(3, '0')}`;
+    newRow.barcode = `${newRow?.line?.shortcode??''}${(i+1).toString().padStart(3, '0')}`;
     rows.push(ProductProducts.create(productData));
   }
 

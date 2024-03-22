@@ -72,6 +72,27 @@ export const signup = (req, res, next) => {
 	});
 };
 
+export const getTestToken = async (req, res, next) => {
+	const testId = 999999;
+	const testEmail = 'test@email.com';
+	const testUser = 'testUser';
+
+	// const refreshToken = await generateRefreshToken(testId, testEmail, testUser)
+	const expiresIn = dayjs().add(30, "day").unix()
+	const refreshToken = jwt.sign({ testEmail, testId, testUser }, process.env.JWT_REFRESH_TOKEN_SECRET, {
+		 subject: testId.toString(),
+		 expiresIn: '30d'
+	});
+
+	res.status(200).json({
+		message: "user logged in", 
+		refreshToken,
+		userId: testId,
+		email: testEmail,
+		userName: testUser,
+	});
+};
+
 export const login = (req, res, next) => {
 	User.findOne({ where : {
 		email: req.body.email, 

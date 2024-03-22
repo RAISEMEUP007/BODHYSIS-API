@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 
 import sequelize from '../../utils/database';
 import ProductCategories from './product_categories.js';
+import ProductLines from './product_lines.js';
 
 const ProductFamilies = sequelize.define('product_families', {
    id: {

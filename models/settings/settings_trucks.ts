@@ -18,6 +18,30 @@ const SettingsTrucks = sequelize.define('settings_trucks', {
    barcode: {
       type: Sequelize.STRING,
    },
+   license_plate: {
+      type: Sequelize.STRING,
+   },
+   max_capacity: {
+      type: Sequelize.INTEGER,
+   },
+   hhi_resort: {
+      type: Sequelize.STRING,
+   },
+   ocean1: {
+      type: Sequelize.STRING,
+   },
+   pd_pass: {
+      type: Sequelize.STRING,
+   },
+   sp_pass: {
+      type: Sequelize.STRING,
+   },
+   sy_pass: {
+      type: Sequelize.STRING,
+   },
+   notes: {
+      type: Sequelize.STRING,
+   },
 }, {
    timestamps: false
 });
