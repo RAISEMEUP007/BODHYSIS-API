@@ -21,7 +21,7 @@ export const createReservation = (req, res, next) => {
       const reservationItemsPromises = req.body.items.map(item => {
         return ReservationItems.create({
           reservation_id: newReservation.id,
-          line_id: item.id,
+          family_id: item.id,
           quantity: item.quantity,
           price_group_id: item.price_group_id,
           price: item.price,
