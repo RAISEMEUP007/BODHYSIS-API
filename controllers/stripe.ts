@@ -189,3 +189,55 @@ export const listPaymentMethods = async (req, res, next) => {
     res.status(500).json({error: error.message});
   }
 }
+
+export const getSecret = async (req, res, next) => {
+  const { amount } = req.body;
+
+  try {
+    const intent = await stripe.paymentIntents.create({
+      amount: amount,
+      currency: 'usd',
+      automatic_payment_methods: {enabled: true},
+    });
+
+    res.json({ client_secret: intent.client_secret });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const chargeStripeCard = async (req, res, next) => {
+  try {
+    let paymentMethod = await stripe.paymentMethods.create({
+      type: 'card',
+      card: {
+        number: req.body.card_number,
+        exp_month: req.body.exp_month,
+        exp_year: req.body.exp_year,
+        cvc: req.body.cvc,
+      },
+      billing_details: {
+        name: req.body.name,
+        email: req.body.email,
+        line1: req.body.address,
+        line2: req.body.address2,
+        city: req.body.city,
+        state: req.body.state,
+        postalCode: req.body.postal_code,
+        country: "US"
+      }
+    });
+
+    paymentIntent = await stripe.paymentIntents.create({
+      payment_method: paymentMethods.id,
+      amount: req.body.amount,
+      currency: 'USD',
+      payment_method_types: ['card'],
+      receipt_email: req.body.email,
+    });
+
+    res.send(paymentIntent);
+  } catch (error) {
+    console.log(error);
+  }
+}

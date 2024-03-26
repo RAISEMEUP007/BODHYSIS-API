@@ -179,6 +179,8 @@ import {
   addPaymentMethodToCustomer,
   makePayment,
   listPaymentMethods,
+  getSecret,
+  chargeStripeCard,
 } from "../controllers/stripe.js";
 import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
 
@@ -473,6 +475,8 @@ router.post("/stripe/addcardtokentocustomer/", addCardTokenToCustomer);
 router.post("/stripe/detachcardtokentocustomer/", detachCardTokenToCustomer);
 router.post("/stripe/makepayment/", makePayment);
 router.post("/stripe/listpaymentmethods/", listPaymentMethods);
+router.post("/stripe/getsecret/", getSecret);
+router.post("/stripe/chargeStripeCard/", chargeStripeCard);
 
 // Orders
 router.get("/orders", getOrders)
