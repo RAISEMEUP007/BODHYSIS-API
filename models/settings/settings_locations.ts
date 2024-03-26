@@ -12,7 +12,7 @@ const SettingsLocations = sequelize.define(
       primaryKey: true,
     },
     location: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
     },
   },
