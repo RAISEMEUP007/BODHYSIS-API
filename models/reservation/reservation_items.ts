@@ -16,7 +16,7 @@ const ReservationItems = sequelize.define(
     reservation_id: {
       type: DataTypes.INTEGER,
     },
-    line_id: {
+    family_id: {
       type: DataTypes.INTEGER,
     },
     price_group_id: {

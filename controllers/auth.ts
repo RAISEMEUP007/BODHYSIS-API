@@ -2,12 +2,12 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
-import sgMail from '@sendgrid/mail';
 import dayjs from 'dayjs';
 import User from '../models/user.js';
 import UserForgotPassword from '../models/users_forgot_password.js';
 import UserRefreshToken from '../models/user_refresh_token.js';
 import { NextFunction ,Request, Response} from 'express';
+import { sendEmail } from '../utils/sendgrid.js';
 
 type JwtVerifyPayload = {
   email: string;
@@ -160,18 +160,16 @@ export const resetPass = async (req, res, next) => {
 			fields: ['user_id', 'recover_id', 'client_direction', 'expire_date']
 		});
 
-		sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 		const msg = {
 		  to: dbUser.email,
-		  from: process.env.SENDGRID_SENDER,
-		  templateId: process.env.SENDGRID_TEMPLATE_ID,
 		  dynamic_template_data: {
 			subject: 'Reset Your Password',
 			name: dbUser.name,
 			link: verifyLink,
 		  },
 		};
-		await sgMail.send(msg);
+		await sendEmail(msg);
 		return res.status(200).json({ message: "Reset password link is sent. Please check your email" });
 	  }
 	} catch (err) {
