@@ -55,7 +55,7 @@ const Reservations = sequelize.define(
       type: DataTypes.INTEGER,
     },
     color_id: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.INTEGER,
     },
     paid: {
       type: DataTypes.FLOAT,
