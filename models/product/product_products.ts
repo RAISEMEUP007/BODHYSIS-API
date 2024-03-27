@@ -80,6 +80,6 @@ ProductProducts.belongsTo(ProductFamilies, { foreignKey: 'family_id', as: 'famil
 ProductProducts.belongsTo(ProductLines, { foreignKey: 'line_id', as: 'line' });
 ProductProducts.belongsTo(SettingsLocations, { foreignKey: 'home_location', as: 'home_location_tbl' });
 ProductProducts.belongsTo(SettingsLocations, { foreignKey: 'current_location', as: 'current_location_tbl' });
-
+ProductFamilies.hasMany(ProductProducts, { foreignKey: 'family_id', as: 'products' });
 
 export default ProductProducts;

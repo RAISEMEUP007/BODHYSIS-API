@@ -164,9 +164,9 @@ export const resetPass = async (req, res, next) => {
 		const msg = {
 		  to: dbUser.email,
 		  dynamic_template_data: {
-			subject: 'Reset Your Password',
-			name: dbUser.name,
-			link: verifyLink,
+				subject: 'Reset Your Password',
+				name: dbUser.name,
+				link: verifyLink,
 		  },
 		};
 		await sendEmail(msg);
