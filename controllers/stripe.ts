@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import dotenv from "dotenv";
+import { sendReservationConfirmEmail } from '../utils/sendgrid.js';
 dotenv.config();
 
 import Stripe from 'stripe';
@@ -198,6 +199,19 @@ export const getSecret = async (req, res, next) => {
       amount: amount,
       currency: 'usd',
       automatic_payment_methods: {enabled: true},
+      receipt_email: req.body.email,
+      shipping: {
+        name: req.body.name,
+        address: {
+          line1: req.body.address,
+          line2: req.body.address2,
+          city: req.body.city,
+          country: 'US',
+          postal_code: req.body.postal_code,
+          state: req.body.state,
+        },
+        phone: req.body.phone_number,
+      },
     });
 
     res.json({ client_secret: intent.client_secret });
@@ -239,5 +253,23 @@ export const chargeStripeCard = async (req, res, next) => {
     res.send(paymentIntent);
   } catch (error) {
     console.log(error);
+  }
+}
+
+export const sendReservationConfirmationEmail = async (req, res, next) => {
+  try {
+    const msg = {
+      to: req.body.email,
+      dynamic_template_data: {
+        subject: 'Your reservation confirmed',
+        name: req.body.name,
+        time: new Date().toString(),
+      },
+    };
+    await sendReservationConfirmEmail(msg);
+    return res.status(200).json();
+  } catch (err) {
+    console.error('An error occurred:', err);
+    return res.status(500).send("An error occurred");
   }
 }

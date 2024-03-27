@@ -181,6 +181,7 @@ import {
   listPaymentMethods,
   getSecret,
   chargeStripeCard,
+  sendReservationConfirmationEmail,
 } from "../controllers/stripe.js";
 import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
 
@@ -477,6 +478,7 @@ router.post("/stripe/makepayment/", makePayment);
 router.post("/stripe/listpaymentmethods/", listPaymentMethods);
 router.post("/stripe/getsecret/", getSecret);
 router.post("/stripe/chargeStripeCard/", chargeStripeCard);
+router.post("/stripe/sendreservationconfirmationemail/", sendReservationConfirmationEmail);
 
 // Orders
 router.get("/orders", getOrders)
