@@ -184,6 +184,7 @@ import {
   sendReservationConfirmationEmail,
 } from "../controllers/stripe.js";
 import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
+import { getSettingsTemplate, getSettingsTemplateByType, postSettingsTemplate, putSettingsTemplate } from "../controllers/settings_templates";
 
 
 const router = express.Router();
@@ -484,6 +485,12 @@ router.post("/stripe/sendreservationconfirmationemail/", sendReservationConfirma
 router.get("/orders", getOrders)
 router.get("/orders/:id", getOrdersById)
 router.get("/order/getordersdata/", getOrdersData);
+
+// Templates
+router.post("/settings/templates", postSettingsTemplate)
+router.get("/settings/templates", getSettingsTemplate)
+router.put("/settings/templates", putSettingsTemplate)
+router.get("/settings/templates/:typeTemplate", getSettingsTemplateByType)
 
 router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });
