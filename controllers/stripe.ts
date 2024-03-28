@@ -217,6 +217,7 @@ export const getSecret = async (req, res, next) => {
     res.json({ client_secret: intent.client_secret });
   } catch (error) {
     console.log(error);
+    res.status(500).json(error);
   }
 }
 
@@ -253,6 +254,7 @@ export const chargeStripeCard = async (req, res, next) => {
     res.send(paymentIntent);
   } catch (error) {
     console.log(error);
+    res.status(500).json(error);
   }
 }
 
