@@ -106,12 +106,18 @@ const calculateMilliseconds = (duration, durationType) => {
   switch (durationType) {
     case 'Hour(s)':
     case 'hour(s)':
+    case '1':
+    case 1:
       return duration * 60 * 60 * 1000;
     case 'Day(s)':
     case 'day(s)':
+    case '2':
+    case 2:
       return duration * 24 * 60 * 60 * 1000;
     case 'Week(s)':
     case 'week(s)':
+    case '3':
+    case 3:
       return duration * 7 * 24 * 60 * 60 * 1000;
     default:
       return 0;
@@ -122,12 +128,18 @@ const calculateHours = (duration, durationType) => {
   switch (durationType) {
     case 'Hour(s)':
     case 'hour(s)':
+    case '1':
+    case 1:
       return duration;
     case 'Day(s)':
     case 'day(s)':
+    case '2':
+    case 2:
       return duration * 24;
     case 'Week(s)':
     case 'week(s)':
+   	case '3':
+    case 3:
       return duration * 7 * 24;
     default:
       return 0;
