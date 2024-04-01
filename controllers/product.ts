@@ -452,7 +452,11 @@ export const createProduct = (req, res, next) => {
   })
   .catch(error => {
     console.error('Error creating product:', error);
-    res.status(500).json({ error: 'Failed to create product' });
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
   });
 }
 
@@ -518,7 +522,6 @@ export const getProductsData = (req, res, next) => {
       [{ model: ProductCategories, as: 'category' }, 'category'],
       [{ model: ProductFamilies, as: 'family' }, 'family'],
       [{ model: ProductLines, as: 'line' }, 'line'],
-      'product',
       'barcode',
     ],
     where: whereCondition,
@@ -532,6 +535,7 @@ export const getProductsData = (req, res, next) => {
     res.status(200).json(productsJSON);
   })
   .catch(err => {
+    console.log(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -550,26 +554,41 @@ export const deleteProduct = (req, res, next) => {
     });
 };
 
-export const quickAddProduct = (req, res, next) => {
-  const { rowcounts, ...productData } = req.body;
-  const rows = [];
+export const quickAddProduct = async (req, res, next) => {
+  try {
+    const { rowcounts, ...productData } = req.body;
+    const rows = [];
 
-  for (let i = 0; i < rowcounts; i++) {
-    let newRow = productData;
-    newRow.product = `${newRow.line.line} ${newRow.line.size ?? ''} ${newRow.line.category.category}`;
-    newRow.serial_number = `${newRow?.line?.line??''}-${(i+1).toString().padStart(3, '0')}`;
-    newRow.barcode = `${newRow?.line?.shortcode??''}${(i+1).toString().padStart(3, '0')}`;
-    rows.push(ProductProducts.create(productData));
-  }
-
-  Promise.all(rows)
-    .then(newProduts => {
-      res.status(201).json({ message: 'Products created successfully', products: newProduts });
-    })
-    .catch(error => {
-      console.error('Error creating products:', error);
-      res.status(500).json({ error: 'Failed to create products' });
+    const lastProduct = await ProductProducts.findOne({
+      where:{
+        category_id: req.body.category_id,
+        family_id: req.body.family_id,
+        line_id: req.body.line_id
+      },
+      order: [['barcode', 'DESC']]
     });
+
+    let startingIndex = 0;
+    if (lastProduct && !isNaN(parseInt(lastProduct.barcode.substr(-3)))) {
+      startingIndex = parseInt(lastProduct.barcode.substr(-3));
+    }
+
+    for (let i = 0; i < rowcounts; i++) {
+      let newRow = { ...productData };
+      newRow.barcode = `${newRow?.line?.shortcode??''}${(startingIndex+i+1).toString().padStart(3, '0')}`;
+      rows.push(ProductProducts.create(newRow));
+    }
+
+    // Transaction handling
+    const newProducts = await sequelize.transaction(async (t) => {
+      return Promise.all(rows, { transaction: t });
+    });
+
+    res.status(201).json({ message: 'Products created successfully', products: newProducts });
+  } catch (error) {
+    console.error('Error creating products:', error);
+    res.status(500).json({ error: 'Failed to create products', reason: error.message });
+  }
 }
 
 export const getProductQuantitiesByLine = (req, res, next) => {
