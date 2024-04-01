@@ -13,10 +13,6 @@ const ProductProducts = sequelize.define('product_products', {
       allowNull: false,
       primaryKey: true,
    },
-   product: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-   },
    category_id: {
       type: DataTypes.INTEGER,
    },
@@ -31,17 +27,11 @@ const ProductProducts = sequelize.define('product_products', {
    },
    quantity: {
       type: DataTypes.STRING, 
-   }, 
-   description: {
-      type: DataTypes.STRING,
    },
    item_id: {
       type: DataTypes.STRING,
    },
    barcode: {
-      type: DataTypes.STRING,
-   },
-   serial_number: {
       type: DataTypes.STRING,
    },
    home_location: {
@@ -59,16 +49,13 @@ const ProductProducts = sequelize.define('product_products', {
 
 export interface ProductType {
    id: number;
-   product: string
    category_id: number
    family_id: number
    line_id: number
    size: number
    quantity: number
-   description: number
    item_id: number
    barcode: string
-   serial_number: string
    home_location: number
    current_location: number
    price_group_id: number
