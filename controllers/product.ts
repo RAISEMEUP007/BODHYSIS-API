@@ -680,3 +680,31 @@ export const getAvaliableQuantitiesByLine = (line_id = null) =>{
     throw new Error('An error occurred while fetching stage amounts');
   });
 }
+
+export const updateBulkLocation = (req, res, next) => {
+  ProductProducts.update(req.body, { where: { id: req.body.ids } })
+  .then(newProducts => {
+    res.status(201).json({ message: 'Product locations updated successfully', products: newProducts });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateBulkStatus = (req, res, next) => {
+  ProductProducts.update(req.body, { where: { id: req.body.ids } })
+  .then(newProducts => {
+    res.status(201).json({ message: 'Product status updated successfully', products: newProducts });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}

@@ -70,6 +70,8 @@ import {
   getProductQuantitiesByFamily,
   getProductQuantitiesByCategory,
   quickAddProduct,
+  updateBulkLocation,
+  updateBulkStatus,
 } from "../controllers/product";
 import {
   getManufacturesData,
@@ -306,6 +308,8 @@ router.post("/product/deleteproduct", deleteProduct);
 router.get("/product/getquantitiesbyline", getProductQuantitiesByLine);
 router.get("/product/getquantitiesbyfamily", getProductQuantitiesByFamily);
 router.get("/product/getquantitiesbycategory", getProductQuantitiesByCategory);
+router.post("/product/updatebulklocation", updateBulkLocation);
+router.post("/product/updatebulkstatus", updateBulkStatus);
 
 /* ----- settings ----- */
 // Settings/Manufactures
