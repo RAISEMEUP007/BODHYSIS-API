@@ -15,6 +15,9 @@ const Reservations = sequelize.define(
       allowNull: false,
       primaryKey: true,
     },
+    order_number: {
+      type: DataTypes.STRING,
+    },
     brand_id: {
       type: DataTypes.INTEGER,
     },
