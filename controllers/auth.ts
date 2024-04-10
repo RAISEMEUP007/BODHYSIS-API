@@ -18,21 +18,27 @@ type JwtVerifyPayload = {
 
 dotenv.config();
 
-const generateRefreshToken =async(userId:number|string, email:string,  userName:string)=>{
-	const expiresIn = dayjs().add(30, "day").unix()
-	const refreshToken = jwt.sign({ email, userId, userName }, process.env.JWT_REFRESH_TOKEN_SECRET, {
-		 subject: userId.toString(),
-		 expiresIn: '30d'
-	});
+const generateRefreshToken = async (userId, email, userName) => {
+  try {
+    const expiresIn = dayjs().add(30, "day").unix();
+    const refreshToken = jwt.sign({ email, userId, userName }, process.env.JWT_REFRESH_TOKEN_SECRET, {
+        subject: userId.toString(),
+        expiresIn: '30d'
+    });
 
-	await UserRefreshToken.create({
-		user_id: userId,
-		expires_in: expiresIn,
-		refresh_token: refreshToken
-	})
+    await UserRefreshToken.create({
+        user_id: userId,
+        expires_in: expiresIn,
+        refresh_token: refreshToken
+    });
 
-	return refreshToken
-}
+    return refreshToken;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to generate refresh token");
+  }
+};
+
 
 export const signup = (req, res, next) => {
 	User.findOne({ where : {

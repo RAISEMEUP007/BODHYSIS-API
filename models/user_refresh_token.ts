@@ -1,4 +1,4 @@
-import { DataTypes,UUIDV4 } from 'sequelize';
+import { DataTypes, } from 'sequelize';
 
 import sequelize from '../utils/database';
 import User from './user';
@@ -11,8 +11,7 @@ interface RefreshToken {
 }
 const UserRefreshToken = sequelize.define('user_refresh_token', {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: UUIDV4,
+    type: DataTypes.INTEGER,
     primaryKey: true,
  },
   user_id: {
