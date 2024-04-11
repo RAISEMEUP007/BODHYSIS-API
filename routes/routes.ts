@@ -461,6 +461,7 @@ router.post("/settings/deleteextra", deleteExtra);
 /* ----- Reservations ----- */
 // Reservations
 router.get("/reservations/getreservationsdata/", getReservationsData);
+router.post("/reservations/getreservationsdata/", getReservationsData);
 router.post("/reservations/createreservation/", createReservation);
 router.get("/reservations/getreservationslist/", getReservationsList);
 router.get("/reservations/getreservationdetails/:id", getReservationDetails);

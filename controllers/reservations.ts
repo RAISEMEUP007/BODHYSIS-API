@@ -76,6 +76,9 @@ export const createReservation = async (req, res, next) => {
 };
 
 export const getReservationsData = (req, res, next) => {
+  const searchOptions = req.body.searchOptions;
+  console.log(searchOptions);
+
   const query = `
     SELECT
     t1.id,
@@ -120,14 +123,30 @@ export const getReservationsData = (req, res, next) => {
     ON t1.delivery_address_id = t7.id
     LEFT JOIN reservation_items AS t8
     ON t1.id = t8.reservation_id
+  WHERE
+    t1.start_date >= :start_date
+    AND t1.start_date <= :end_date
+    ${searchOptions.customer ? `AND CONCAT(t2.first_name, ' ', t2.last_name) LIKE :customer` : ''}
+    ${searchOptions.brand ? `AND t3.brand LIKE :brand` : ''}
+    ${searchOptions.order_number ? `AND t1.order_number LIKE :order_number` : ''}
+    ${searchOptions.stage ? `AND (t1.stage = :stage OR :stage IS NULL OR :stage = '')` : ''}
   GROUP BY t1.id
   ORDER BY t1.createdAt DESC
-  LIMIT 200
   `;
 
   sequelize.query(
     query,
-    { type: sequelize.QueryTypes.SELECT }
+    { 
+      replacements: {
+        start_date: searchOptions.start_date,
+        end_date: searchOptions.end_date,
+        customer: `%${searchOptions.customer}%`,
+        brand: `%${searchOptions.brand}%`,
+        order_number: `%${searchOptions.order_number}%`,
+        stage: searchOptions.stage,
+      },
+      type: sequelize.QueryTypes.SELECT 
+    }
   )
   .then((reservations) => {
     res.status(200).json(reservations);
