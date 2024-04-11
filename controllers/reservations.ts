@@ -4,66 +4,92 @@ import Reservations, {
   ReservationProductType,
   ReservationType,
 } from "../models/reservation/reservations";
-import { getAvaliableQuantitiesByLine } from "./product";
+import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds } from "./product";
 
 import ReservationPayments from '../models/reservation/reservation_payments';
 import ReservationItems from '../models/reservation/reservation_items';
 import ReservationItemsExtras from '../models/reservation/reservation_items_extras';
 import ProductLines from '../models/product/product_lines';
+import ProductFamilies from '../models/product/product_families';
 import SettingsExtras from '../models/settings/settings_extras';
 import CustomerCustomers from '../models/customer/customer_customers';
+import CustomerDeliveryAddress from '../models/customer/customer_delivery_address';
 import SettingsColorcombinations from '../models/settings/settings_colorcombinations';
 
-export const createReservation = (req, res, next) => {
-  Reservations.create(req.body)
-  .then(newReservation => {
-    if(req.body.items){
-      const reservationItemsPromises = req.body.items.map(item => {
-        return ReservationItems.create({
+export const createReservation = async (req, res, next) => {
+  try {
+    const lastReservation = await Reservations.findOne({
+      order: [['order_number', 'DESC']]
+    });
+
+    let orderIndex = 1;
+
+    const today = new Date();
+    const currentYear = today.getFullYear().toString().slice(-2);
+    const currentMonth = (today.getMonth() + 1).toString().padStart(2, '0');
+
+    if (lastReservation && lastReservation.order_number && lastReservation.order_number.substr(0, 4) === `${currentYear}${currentMonth}`) {
+      if (!isNaN(parseInt(lastReservation.order_number.substr(-4)))) {
+        orderIndex = parseInt(lastReservation.order_number.substr(-4)) + 1;
+      }
+    }
+
+    const orderNumber = `${currentYear}${currentMonth}-${orderIndex.toString().padStart(4, '0')}`;
+
+    const newReservation = await Reservations.create({
+      ...req.body,
+      order_number: orderNumber,
+    });
+
+    if (req.body.items && req.body.items.length > 0) {
+      const reservationItemsPromises = req.body.items.map(async (item) => {
+        const newItem = await ReservationItems.create({
           reservation_id: newReservation.id,
           family_id: item.id,
           quantity: item.quantity,
           price_group_id: item.price_group_id,
           price: item.price,
-        })
-        .then(newItem => {
-          item.id = newItem.id;
-          return saveReservationItemsExtras(item.id, item.extras);
         });
+
+        item.id = newItem.id;
+        await saveReservationItemsExtras(item.id, item.extras);
+
+        return item;
       });
 
-      return Promise.all(reservationItemsPromises)
-      .then(newItems => {
-        res.status(201).json({ message: 'Reservation created successfully', reservation: newReservation, items: newItems });
-      });
-    }else{
+      const newItems = await Promise.all(reservationItemsPromises);
+
+      res.status(201).json({ message: 'Reservation created successfully', reservation: newReservation, items: newItems });
+    } else {
       res.status(201).json({ message: 'Reservation created successfully', reservation: newReservation });
     }
-  })
-  .catch(error => {
-    console.log(error);
-    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
-      const message = error.errors[0].message;
-      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
-      res.status(409).json({ error: capitalizedMessage});
-    }else res.status(500).json({ error: "Internal server error" });
-  });
-}
+  } catch (error) {
+    console.error(error);
+
+    if (error.errors && error.errors[0].validatorKey === 'not_unique') {
+      const message = error.errors[0].message.charAt(0).toUpperCase() + error.errors[0].message.slice(1);
+      res.status(409).json({ error: message });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+};
 
 export const getReservationsData = (req, res, next) => {
   const query = `
     SELECT
     t1.id,
+    t1.order_number,
     -- t1.customer_id,
     -- t2.first_name,
     -- t2.last_name,
     CONCAT(t2.first_name, ' ', t2.last_name) AS full_name,
     -- t1.brand_id,
-    -- t3.brand,
+    t3.brand,
     -- t1.start_location_id,
     t4.location AS start_location,
     -- t1.end_location_id,
-    t5.location AS end_location,
+    -- t5.location AS end_location,
     t1.start_date,
     t1.end_date,
     -- t1.promo_code,
@@ -74,19 +100,27 @@ export const getReservationsData = (req, res, next) => {
     -- t1.tax_rate,
     -- t1.tax_amount,
     -- t1.total_price,
+    -- CONCAT(t7.address1, ' ', t7.address2, ' ', t7.city, ' ', t7.state) as delivery_address,
+    t7.address1 as delivery_address,
+    SUM(t8.quantity) as quantity,
     t1.stage
   FROM
     reservations AS t1
     LEFT JOIN customer_customers AS t2
     ON t1.customer_id = t2.id
-    -- LEFT JOIN price_brands AS t3
-    -- ON t1.brand_id = t3.id
+    LEFT JOIN price_brands AS t3
+    ON t1.brand_id = t3.id
     LEFT JOIN settings_locations AS t4
     ON t1.start_location_id = t4.id
-    LEFT JOIN settings_locations AS t5
-    ON t1.end_location_id = t5.id
+    -- LEFT JOIN settings_locations AS t5
+    -- ON t1.end_location_id = t5.id
     LEFT JOIN settings_discountcodes AS t6
     ON t1.promo_code = t6.id
+    LEFT JOIN customer_delivery_address AS t7
+    ON t1.delivery_address_id = t7.id
+    LEFT JOIN reservation_items AS t8
+    ON t1.id = t8.reservation_id
+  GROUP BY t1.id
   ORDER BY t1.createdAt DESC
   LIMIT 200
   `;
@@ -126,9 +160,9 @@ export const getReservationDetails = async (req: Request, res: Response) => {
       as: 'items',
       include: [
         { 
-          model: ProductLines, 
-          as: 'lines', 
-          attributes: ['line', 'price_group_id', 'size'],
+          model: ProductFamilies, 
+          as: 'families', 
+          attributes: ['family', 'display_name'],
         },
         {
           model: ReservationItemsExtras,
@@ -145,6 +179,11 @@ export const getReservationDetails = async (req: Request, res: Response) => {
       as: 'customer',
     },
     {
+      model: CustomerDeliveryAddress,
+      as: 'delivery_address',
+      attributes: ['address1', 'address2', 'city', 'state', 'postal_code'],
+    },
+    {
       model: SettingsColorcombinations,
       as: 'color',
     }],
@@ -159,17 +198,17 @@ export const getReservationDetails = async (req: Request, res: Response) => {
       ...reservation.toJSON(),
       items: reservation.items.map(item => ({
         ...item.toJSON(),
-        line: item.lines.line,
-        price_group_id: item.lines.price_group_id,
-        size: item.lines.size,
+        family: item.families.family,
+        display_name: item.families.display_name,
+        price_group_id: item.price_group_id,
         extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
       }))
       .map(item => ({
         ...item,
-        lines: undefined,
+        families: undefined,
         item_extras: undefined
       }))
-      .sort((a, b) => a.line.localeCompare(b.line)) 
+      .sort((a, b) => a.display_name.localeCompare(b.display_name)) 
     };
     res.status(200).json(transformedReservation);
   })
@@ -337,6 +376,8 @@ export const getTransactionsData = (req, res, next) => {
 
 export const verifyQuantity = async (req, res, next) => {
   const { start_date, end_date, items } = req.body;
+
+  console.log(req.body);
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Request body must have a non-empty array of items' });

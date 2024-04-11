@@ -681,6 +681,43 @@ export const getAvaliableQuantitiesByLine = (line_id = null) =>{
   });
 }
 
+export const getAvaliableQuantitiesByFamilyIds = (family_id = null) =>{
+  let lineIdCondition = '';
+  let replacements = {};
+
+  if (Array.isArray(family_id)) {
+    lineIdCondition = 'AND family_id IN (:family_id)';
+    replacements.family_id = family_id;
+  } else if (Number.isInteger(family_id)) {
+    lineIdCondition = 'AND t1.family_id = :family_id';
+    replacements.family_id = family_id;
+  }
+
+  const query = `
+    SELECT
+      family_id,
+      COUNT(id) AS quantity
+    FROM
+      product_products
+    WHERE STATUS IN (0)
+      ${lineIdCondition}
+    GROUP BY family_id
+  `;
+
+  return sequelize.query(query, {
+    replacements,
+    type: sequelize.QueryTypes.SELECT
+  }).then(results => {
+    return results.reduce((acc, cur) => {
+      acc[cur.line_id] = cur.quantity;
+      return acc;
+    }, {});
+  }).catch(error => {
+    console.error(error);
+    throw new Error('An error occurred while fetching stage amounts');
+  });
+}
+
 export const updateBulkLocation = (req, res, next) => {
   ProductProducts.update(req.body, { where: { id: req.body.ids } })
   .then(newProducts => {

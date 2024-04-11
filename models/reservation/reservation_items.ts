@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 
 import sequelize from "../../utils/database";
 import Reservations from './reservations.ts';
-import ProductLines from '../product/product_lines.ts';
+import ProductFamilies from '../product/product_families.ts';
 
 const ReservationItems = sequelize.define(
   "reservation_items",
@@ -37,6 +37,6 @@ const ReservationItems = sequelize.define(
 ReservationItems.belongsTo(Reservations, { foreignKey: 'reservation_id', as: 'reservations' });
 Reservations.hasMany(ReservationItems, { foreignKey: 'reservation_id', as: 'items' });
 
-ReservationItems.belongsTo(ProductLines, { foreignKey: 'line_id', as: 'lines' });
+ReservationItems.belongsTo(ProductFamilies, { foreignKey: 'family_id', as: 'families' });
 
 export default ReservationItems;

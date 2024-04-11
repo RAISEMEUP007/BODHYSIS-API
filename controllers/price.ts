@@ -154,10 +154,26 @@ export const getHeaderData = (req, res, next) => {
 	}})
 	.then((points) => {
     let pointsJSON = [];
+
     for (let i = 0; i < points.length; i++) {
+	    let headerStr = "";
+	    switch(points[i].dataValues.duration_type){
+	    	case 1: case '1':
+					headerStr = points[i].dataValues.duration + " Hour(s)";
+					break;
+				case 2: case '2':
+					headerStr = points[i].dataValues.duration + " Day(s)";
+					break;
+				case 1: case '1':
+					headerStr = points[i].dataValues.duration + " Week(s)";
+					break;
+				default:
+					headerStr = points[i].dataValues.duration + " " + points[i].dataValues.duration_type;
+					break;
+	    }
       pointsJSON.push({ 
       	id: points[i].id, 
-      	header: points[i].dataValues.duration + " " + points[i].dataValues.duration_type,
+      	header: headerStr,
       	duration_type: points[i].dataValues.duration_type,
       	duration: points[i].dataValues.duration,
       	milliseconds: calculateMilliseconds(points[i].dataValues.duration, points[i].dataValues.duration_type),
