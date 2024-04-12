@@ -12,6 +12,8 @@ interface RefreshToken {
 const UserRefreshToken = sequelize.define('user_refresh_token', {
   id: {
     type: DataTypes.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
     primaryKey: true,
  },
   user_id: {

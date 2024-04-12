@@ -35,7 +35,7 @@ const generateRefreshToken = async (userId, email, userName) => {
     return refreshToken;
   } catch (error) {
     console.error(error);
-    throw new Error("Failed to generate refresh token");
+    // throw new Error("Failed to generate refresh token");
   }
 };
 
