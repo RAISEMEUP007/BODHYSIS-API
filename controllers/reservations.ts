@@ -217,8 +217,8 @@ export const getReservationDetails = async (req: Request, res: Response) => {
       ...reservation.toJSON(),
       items: reservation.items.map(item => ({
         ...item.toJSON(),
-        family: item.families.family,
-        display_name: item.families.display_name,
+        family: item?.families?.family??'',
+        display_name: item?.families?.display_name??'',
         price_group_id: item.price_group_id,
         extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
       }))
