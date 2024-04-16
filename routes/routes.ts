@@ -13,6 +13,9 @@ import {
   getTestToken,
 } from "../controllers/auth";
 import {
+  customerLogin,
+} from "../controllers/customerauth";
+import {
   getDrivers,
 } from "../controllers/user";
 import {
@@ -210,10 +213,13 @@ router.get("/changepass/:id", verifyChangePass);
 router.post("/newpassword", newPass);
 router.get("/private", isAuth);
 router.post("/refresh-token", refreshToken);
-router.get("/auth/ttt", getTestToken);
+// router.get("/auth/ttt", getTestToken);
 
 // user
 router.get("/user/getdrivers", getDrivers);
+
+// customer
+router.post("/customer/login", customerLogin);
 
 /* ----- price ----- */
 // price table detail
