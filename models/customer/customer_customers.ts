@@ -76,6 +76,10 @@ const CustomerCustomers = sequelize.define('customer_customers', {
       type: Sequelize.STRING,
       allowNull: false,
    },
+   password: {
+      type: Sequelize.STRING,
+      allowNull: false,
+   },
 },);
 
 CustomerCustomers.belongsTo(SettingsCountries, { foreignKey: 'country_id', as: 'country' });

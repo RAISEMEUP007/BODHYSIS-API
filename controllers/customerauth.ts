@@ -8,6 +8,7 @@ import UserForgotPassword from '../models/users_forgot_password.js';
 import UserRefreshToken from '../models/user_refresh_token.js';
 import { NextFunction ,Request, Response} from 'express';
 import { sendEmail } from '../utils/sendgrid.js';
+import CustomerCustomers from '../models/customer/customer_customers.js';
 
 type JwtVerifyPayload = {
   email: string;
@@ -18,26 +19,26 @@ type JwtVerifyPayload = {
 
 dotenv.config();
 
-const generateRefreshToken = async (userId, email, userName) => {
-  try {
-    const expiresIn = dayjs().add(30, "day").unix();
-    const refreshToken = jwt.sign({ email, userId, userName }, process.env.JWT_REFRESH_TOKEN_SECRET, {
-        subject: userId.toString(),
-        expiresIn: '1d'
-    });
+// const generateRefreshToken = async (userId, email, userName) => {
+//   try {
+//     const expiresIn = dayjs().add(30, "day").unix();
+//     const refreshToken = jwt.sign({ email, userId, userName }, process.env.JWT_REFRESH_TOKEN_SECRET, {
+//         subject: userId.toString(),
+//         expiresIn: '1d'
+//     });
 
-    await UserRefreshToken.create({
-        user_id: userId,
-        expires_in: expiresIn,
-        refresh_token: refreshToken
-    });
+//     await UserRefreshToken.create({
+//         user_id: userId,
+//         expires_in: expiresIn,
+//         refresh_token: refreshToken
+//     });
 
-    return refreshToken;
-  } catch (error) {
-    console.error(error);
-    // throw new Error("Failed to generate refresh token");
-  }
-};
+//     return refreshToken;
+//   } catch (error) {
+//     console.error(error);
+//     // throw new Error("Failed to generate refresh token");
+//   }
+// };
 
 
 export const signup = (req, res, next) => {
@@ -100,32 +101,47 @@ export const getTestToken = async (req, res, next) => {
 	});
 };
 
-export const login = (req, res, next) => {
-	User.findOne({ where : {
+export const customerLogin = (req, res, next) => {
+	CustomerCustomers.findOne({ where : {
 		email: req.body.email, 
 	}})
-	.then(dbUser => {
-		if (!dbUser) {
-			return res.status(404).json({message: "user not found"});
+	.then(dbCustomer => {
+		if (!dbCustomer) {
+			return res.status(404).json({message: "customer not found"});
 		} else {
-			bcrypt.compare(req.body.password, dbUser.password, async (err, compareRes) => {
+			bcrypt.compare(req.body.password, dbCustomer.password, async (err, compareRes) => {
 				if (err) {
-					res.status(502).json({message: "error while checking user password"});
+					res.status(502).json({message: "error while checking customer password"});
 				} else if (compareRes) {				
-					await UserRefreshToken.destroy({
-						where: {
-							user_id: dbUser.id,
-						}
-					})
+					// await UserRefreshToken.destroy({
+					// 	where: {
+					// 		user_id: dbCustomer.id,
+					// 	}
+					// })
 
-					const refreshToken = await generateRefreshToken(dbUser.id, req.body.email)
+					// const refreshToken = await generateRefreshToken(dbCustomer.id, req.body.email)
+
+					const expiresIn = dayjs().add(30, "day").unix();
+			    const refreshToken = jwt.sign(
+	    	    { 
+			        email: dbCustomer.email, 
+			        id: dbCustomer.id, 
+			        name: dbCustomer.first_name + ' ' + dbCustomer.last_name 
+				    }, 
+			    	process.env.JWT_REFRESH_TOKEN_SECRET, 
+			    	{
+			        subject: dbCustomer.id.toString(),
+			        expiresIn: '1d'
+				    });
 
 					res.status(200).json({
-						message: "user logged in", 
+						message: "customer logged in", 
 						refreshToken,
-						email: dbUser.email,
-						userId: dbUser.id,
-						userName: dbUser.name
+						email: dbCustomer.email,
+						customerId: dbCustomer.id,
+						firstName: dbCustomer.first_name,
+						lastName: dbCustomer.last_name,
+						fullName: dbCustomer.first_name + ' ' + dbCustomer.last_name,
 					});
 				} else {
 					res.status(403).json({message: "invalid credentials"});
@@ -134,6 +150,7 @@ export const login = (req, res, next) => {
 		};
 	})
 	.catch(err => {
+		console.log(err);
 		console.log('error', err);
 	});
 };
