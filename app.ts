@@ -64,7 +64,7 @@ app.use("/uploads", express.static("uploads"));
 const verifyToken = (req, res, next) => {
   let token = req.headers.authorization;
 
-  const excludedRoutes = ['/login', '/signup', '/resetpass', '/changepass', '/newpassword', '/auth/ttt', '/stripe/sendreservationconfirmationemail/'];
+  const excludedRoutes = ['/login', '/signup', '/resetpass', '/changepass', '/newpassword', '/getstoredetailbyurl', '/stripe/sendreservationconfirmationemail/'];
 
   const path = req.originalUrl.split('?')[0];
 
