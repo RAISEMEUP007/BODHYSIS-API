@@ -190,7 +190,7 @@ import {
 } from "../controllers/stripe.js";
 import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
 import { getSettingsTemplate, getSettingsTemplateByType, postSettingsTemplate, putSettingsTemplate } from "../controllers/settings_templates";
-
+import { searchAddress } from "../controllers/alladdresses.js";
 
 const router = express.Router();
 
@@ -502,6 +502,9 @@ router.post("/settings/templates", postSettingsTemplate)
 router.get("/settings/templates", getSettingsTemplate)
 router.put("/settings/templates", putSettingsTemplate)
 router.get("/settings/templates/:typeTemplate", getSettingsTemplateByType)
+
+//add addresses
+router.get("/address/search/:str", searchAddress)
 
 router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });
