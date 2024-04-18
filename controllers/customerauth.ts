@@ -137,11 +137,9 @@ export const customerLogin = (req, res, next) => {
 					res.status(200).json({
 						message: "customer logged in", 
 						refreshToken,
-						email: dbCustomer.email,
-						customerId: dbCustomer.id,
-						firstName: dbCustomer.first_name,
-						lastName: dbCustomer.last_name,
 						fullName: dbCustomer.first_name + ' ' + dbCustomer.last_name,
+						customerId: dbCustomer.id,
+						...dbCustomer
 					});
 				} else {
 					res.status(403).json({message: "invalid credentials"});

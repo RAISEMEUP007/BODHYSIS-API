@@ -67,6 +67,21 @@ const Reservations = sequelize.define(
     delivery_address_id: {
       type: DataTypes.INTEGER,
     },
+    address_id: {
+      type: DataTypes.INTEGER,
+    },
+    use_manual: {
+      type: DataTypes.BOOLEAN,
+    },
+    manual_address: {
+      type: DataTypes.STRING,
+    },
+    email: {
+      type: DataTypes.STRING,
+    },
+    phone_number: {
+      type: DataTypes.STRING,
+    },
   },
   {
     timestamps: true,
