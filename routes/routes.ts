@@ -13,6 +13,7 @@ import {
   getTestToken,
 } from "../controllers/auth";
 import {
+  customerSignUp,
   customerLogin,
 } from "../controllers/customerauth";
 import {
@@ -219,6 +220,7 @@ router.post("/refresh-token", refreshToken);
 router.get("/user/getdrivers", getDrivers);
 
 // customer
+router.post("/customer/signup", customerSignUp);
 router.post("/customer/login", customerLogin);
 
 /* ----- price ----- */

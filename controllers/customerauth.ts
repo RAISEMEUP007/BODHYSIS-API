@@ -40,31 +40,55 @@ dotenv.config();
 //   }
 // };
 
-
-export const signup = (req, res, next) => {
-	User.findOne({ where : {
+export const customerSignUp = (req, res, next) => {
+	console.log(req);
+	CustomerCustomers.findOne({ where : {
 		email: req.body.email, 
 	}})
-	.then(dbUser => {
-		if (dbUser) {
-			return res.status(409).json({message: "email already exists"});
+	.then(dbCustomer => {
+		if (dbCustomer) {
+			return res.status(409).json({message: "This email already exists"});
 		} else if (req.body.email && req.body.password) {
 			// password hash
 			bcrypt.hash(req.body.password, 12, (err, passwordHash) => {
 				if (err) {
 					return res.status(500).json({message: "couldnt hash the password"}); 
 				} else if (passwordHash) {
-					return User.create(({
+					return CustomerCustomers.create(({
 						email: req.body.email,
-						name: req.body.name,
+						first_name: req.body.first_name,
+						last_name: req.body.last_name,
+						phone_number: req.body.phone_number,
+						home_address: req.body.home_address,
+						address2: req.body.address2,
+						city: req.body.city,
+						state: req.body.state,
+						zipcode: req.body.zipcode,
 						password: passwordHash,
 					}))
-					.then(() => {
-						res.status(200).json({message: "user created"});
+					.then((newUser) => {
+				    const refreshToken = jwt.sign(
+	    	    { 
+			        email: newUser.email, 
+			        id: newUser.id, 
+			        name: newUser.first_name + ' ' + newUser.last_name 
+				    }, 
+			    	process.env.JWT_REFRESH_TOKEN_SECRET, 
+			    	{
+			        subject: newUser.id.toString(),
+			        expiresIn: '1d'
+				    });
+						res.status(200).json({
+							message: "customer account created",
+							refreshToken,
+							fullName: newUser.first_name + ' ' + newUser.last_name,
+							customerId: newUser.id,
+							...newUser
+						});
 					})
 					.catch(err => {
 						console.log(err);
-						res.status(502).json({message: "error while creating the user"});
+						res.status(502).json({message: "error while creating the customer account"});
 					});
 				};
 			});
