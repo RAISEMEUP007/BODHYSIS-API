@@ -27,7 +27,7 @@ cache:
 build:
   script:
     - yarn
-    - yarn start
+#    - yarn start
 
 deploy:
   stage: deploy
