@@ -512,9 +512,11 @@ router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });
 });
 
+router.get("/testtokenvalid", (req, res, next) => {
+  res.status(200).json({ message: 'Token is valid' });
+});
+
 router.use("/", (req, res, next) => {
-  console.log("..");
-  console.log(req.body);
   res.status(404).json({ error: "page not found" });
 });
 
