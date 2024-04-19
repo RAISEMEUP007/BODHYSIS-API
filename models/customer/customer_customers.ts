@@ -18,7 +18,6 @@ const CustomerCustomers = sequelize.define('customer_customers', {
    },
    last_name: {
       type: Sequelize.STRING,
-      allowNull: false,
    },
    email: {
       type: Sequelize.STRING,
@@ -26,55 +25,45 @@ const CustomerCustomers = sequelize.define('customer_customers', {
    },
    phone_number: {
       type: Sequelize.STRING,
-      allowNull: false,
    },
    home_address: {
       type: Sequelize.STRING,
-      allowNull: false,
+   },
+   address2: {
+      type: Sequelize.STRING,
    },
    city: {
       type: Sequelize.STRING,
-      allowNull: false,
    },
    state: {
       type: Sequelize.STRING,
-      allowNull: false,
    },
    zipcode: {
       type: Sequelize.STRING,
-      allowNull: false,
    },
    mobile_phone: {
       type: Sequelize.STRING,
-      allowNull: false,
    },
    country_id: {
       type: Sequelize.INTEGER,
-      allowNull: false,
    },
    language_id: {
       type: Sequelize.INTEGER,
-      allowNull: false,
    },
    home_location: {
       type: Sequelize.INTEGER,
-      allowNull: false,
    },
    delivery_street_number: {
       type: Sequelize.STRING,
-      allowNull: false,
    },
    delivery_street_property_name: {
       type: Sequelize.STRING,
-      allowNull: false,
    },
    delivery_area_plantation: {
       type: Sequelize.STRING,
-      allowNull: false,
    },
    marketing_opt_in: {
       type: Sequelize.STRING,
-      allowNull: false,
    },
    password: {
       type: Sequelize.STRING,
