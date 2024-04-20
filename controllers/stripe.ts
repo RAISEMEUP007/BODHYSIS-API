@@ -259,15 +259,22 @@ export const chargeStripeCard = async (req, res, next) => {
 }
 
 export const sendReservationConfirmationEmail = async (req, res, next) => {
+  console.log(req.body);
   try {
     const msg = {
       to: req.body.email,
       dynamic_template_data: {
         subject: 'Your reservation confirmed',
+        store_logo_path : req.body.store_logo_path,
+        store_name : req.body.store_name,
         name: req.body.name,
-        time: new Date().toString(),
+        start_time : req.body.start_time,
+        end_time : req.body.end_time,
+        support_phone : "1-800-555-5555",
+        support_email : "support@islandcruisers.com",
       },
     };
+    console.log(msg);
     await sendReservationConfirmEmail(msg);
     return res.status(200).json();
   } catch (err) {
