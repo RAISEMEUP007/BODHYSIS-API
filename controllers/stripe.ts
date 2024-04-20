@@ -259,6 +259,7 @@ export const chargeStripeCard = async (req, res, next) => {
 }
 
 export const sendReservationConfirmationEmail = async (req, res, next) => {
+  console.log(req.body);
   try {
     const msg = {
       to: req.body.email,
