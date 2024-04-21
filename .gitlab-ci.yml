@@ -24,15 +24,13 @@ cache:
   paths:
     - node_modules/
 
-before_script:
-    - cp ${PRODUCTION_ENV_FILE} .env
-    - cp ${PRODUCTION_ENV_FILE} .env.production
-
 build:
   script:
+    - cp ${PRODUCTION_ENV_FILE} .env
+    - cp ${PRODUCTION_ENV_FILE} .env.production
     - yarn
     - yarn start
-
+    
 deploy:
   stage: deploy
   script: echo "Define your deployment script!"
