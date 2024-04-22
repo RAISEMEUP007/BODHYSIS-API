@@ -9,6 +9,7 @@ export const sendSMSTwilio=async(to:string, body:string)=>{
     to,
     from: process.env.TWILIO_NUMBER
   }
+  console.log(msgConfig);
   try {    
     await client.messages.create(msgConfig)
   } catch (error) {

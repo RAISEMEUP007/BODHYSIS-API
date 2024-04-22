@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import dotenv from "dotenv";
-import { sendReservationConfirmEmail } from '../utils/sendgrid.js';
+import { sendReservationConfirmEmail } from '../utils/sendgrid';
+import { sendSMSTwilio } from '../utils/twilio';
 dotenv.config();
 
 import Stripe from 'stripe';
@@ -259,7 +260,6 @@ export const chargeStripeCard = async (req, res, next) => {
 }
 
 export const sendReservationConfirmationEmail = async (req, res, next) => {
-  console.log(req.body);
   try {
     const msg = {
       to: req.body.email,
@@ -274,8 +274,21 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
         support_email : "support@islandcruisers.com",
       },
     };
-    console.log(msg);
     await sendReservationConfirmEmail(msg);
+
+    const templateText = `${req.body.name},
+
+Your reservation has been confirmed.
+
+Your equipment will be delivered on the date of your reservation. Please remember, we will pickup your equipment on the last date of your reservation at 8:30 am.
+
+Confirmation Details
+${req.body.start_time} at 08:30 am - ${req.body.end_time} at 08:30 am.
+
+
+If you need to cancel or make any changes to your reservation please contact us at 1-800-555-5555, you can also send an email to support@islandcruisers.com`
+
+    await sendSMSTwilio(req.body.phone_number, templateText);
     return res.status(200).json();
   } catch (err) {
     console.error('An error occurred:', err);
