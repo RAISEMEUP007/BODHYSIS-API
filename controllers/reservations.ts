@@ -77,7 +77,20 @@ export const createReservation = async (req, res, next) => {
 
 export const getReservationsData = (req, res, next) => {
   const searchOptions = req.body.searchOptions;
-  console.log(searchOptions);
+  switch(searchOptions.status_filter){
+    case 1:
+      searchOptions.stage = 3;
+      break;
+    case 2:
+      searchOptions.stage = 3;
+      break;
+    case 3:
+      searchOptions.stage = 1;
+      break;
+    case 4:
+      searchOptions.stage = 2;
+      break;
+  }
 
   const query = `
     SELECT
@@ -139,7 +152,7 @@ export const getReservationsData = (req, res, next) => {
     { 
       replacements: {
         start_date: searchOptions.start_date,
-        end_date: searchOptions.end_date,
+        end_date: searchOptions.end_date + ' 23:59:59',
         customer: `%${searchOptions.customer}%`,
         brand: `%${searchOptions.brand}%`,
         order_number: `%${searchOptions.order_number}%`,
