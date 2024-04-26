@@ -24,6 +24,8 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.6.3",
     "nodemon": "^3.0.1",
+    "pdfkit": "^0.15.0",
+    "puppeteer": "^22.7.1",
     "sequelize": "^6.35.0",
     "stripe": "^14.16.0",
     "twilio": "^5.0.1",

@@ -546,6 +546,21 @@ export const getBrandsData = (req, res, next) => {
 	});
 };
 
+export const getBrandDetail = (req, res, next) => {
+	PriceBrands.findOne({
+		where:{
+			id:req.body.id
+		}
+	})
+	.then((brand) => {
+    res.status(200).json(brand);
+	})
+	.catch(err => {
+		console.log(err);
+		res.status(502).json({error: "An error occurred"});
+	});
+};
+
 export const saveBrandCell = (req, res, next) => {
   const { id, column, value } = req.body;
   PriceBrands.findOrCreate({

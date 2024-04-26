@@ -38,6 +38,7 @@ import {
   saveSeasonCell,
   deleteSeason,
   getBrandsData,
+  getBrandDetail,
   saveBrandCell,
   deleteBrand,
   getPriceTablesData,
@@ -173,6 +174,7 @@ import {
   getTransactionsData,
   removeReservationItem,
   verifyQuantity,
+  exportReservation,
 } from "../controllers/reservations";
 
 import {
@@ -249,6 +251,7 @@ router.post("/price/deleteseason", deleteSeason);
 
 // Brands management
 router.get("/price/getbrandsdata", getBrandsData);
+router.post("/price/getbranddetail", getBrandDetail);
 router.post("/price/savebrandcell", saveBrandCell);
 router.post("/price/deletebrand", deleteBrand);
 
@@ -479,6 +482,7 @@ router.post("/reservation/createtransaction/", createTransaction);
 router.post("/reservation/gettransactionsdata/", getTransactionsData);
 router.post("/reservation/removereservationitem/", removeReservationItem);
 router.post("/reservation/verifyQuantity/", verifyQuantity);
+router.get("/reservations/exportpdf/", exportReservation);
 
 /* ----- Stripe ----- */
 router.post("/createcustomerstripe/", createCustomerStripe);
