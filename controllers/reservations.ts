@@ -510,26 +510,80 @@ const getStageAmount = (startDate, endDate, line_id = null) => {
 }
 
 export const exportReservation = async (req, res, next) => {
+  const id = req.params.id;
+
+    let queryOptions = {
+    include: [{ 
+      model: ReservationItems, 
+      as: 'items',
+      include: [
+        { 
+          model: ProductFamilies, 
+          as: 'families', 
+          attributes: ['family', 'display_name'],
+        },
+        {
+          model: ReservationItemsExtras,
+          as: 'item_extras',
+          include: {
+            model: SettingsExtras,
+            as: 'extras'
+          }
+        }
+      ],
+    },
+    {
+      model: CustomerCustomers,
+      as: 'customer',
+    },
+    {
+      model: SettingsColorcombinations,
+      as: 'color',
+    }],
+    where: {
+      id: id
+    },
+  };
+  
+  const reservationRow = await Reservations.findOne(queryOptions);
+
+  const reservation = {
+    ...reservationRow.toJSON(),
+    items: reservationRow.items.map(item => ({
+      ...item.toJSON(),
+      family: item?.families?.family??'',
+      display_name: item?.families?.display_name??'',
+      price_group_id: item.price_group_id,
+      extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
+    }))
+    .map(item => ({
+      ...item,
+      families: undefined,
+      item_extras: undefined
+    }))
+    .sort((a, b) => a.display_name.localeCompare(b.display_name)) 
+  };
+
   try {
     const htmlContent = ` 
       <h1 style="text-align: center;">HHI Rentals LLC</h1>
       <h4 style="text-align: center;">59B New Orleans Road, Hilton Head, SC, 29928, US 843.785.2730</h4>
       <table>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Reservation</td><td>Mar0104-23</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Invoice</td><td>INV-202300264 (03/11/2023)</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Stage</td><td>CHECKEDIN</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Type</td><td>rental</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">First Name</td><td>Leith</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Last Name</td><td>Stetson</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Email</td><td>lstetson@paradynamix.com</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Phone Number</td><td>7402363743</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Delivery Street / Unit Number</td><td>Canceled - 3030</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Delivery Street / Property Name</td><td>seascape</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">From</td><td>03/11/2023 @ 02:35 PM</td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">Reservation</td><td>${reservation.order_number}</td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">Invoice</td><td></td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">Stage</td><td>${reservation.stage}</td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">Type</td><td></td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">First Name</td><td>${reservation.customer?.first_name??''}</td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">Last Name</td><td>${reservation.customer?.last_name??''}</td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">Email</td><td>${reservation.customer?.email??''}</td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">Phone Number</td><td>${reservation.customer?.phone_number??''}</td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">Delivery Street / Unit Number</td><td></td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">Delivery Street / Property Name</td><td></td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">From</td><td>${reservation.start_date??''}</td></tr>
         <tr><td width="150" style="padding-right:30px; font-weight:700;">From Location</td><td>CHECKEDIN</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">To</td><td>03/19/2023 @ 08:00 AM</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Duration</td><td>8 Days</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Total Price</td><td>$0.00</td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">To</td><td>${reservation.end_date??''}</td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">Duration</td><td></td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">Total Price</td><td>${reservation.total_price}</td></tr>
         <tr><td width="150" style="padding-right:30px; font-weight:700;">Total Rec'd</td><td>$0.00</td></tr>
         <tr><td width="150" style="padding-right:30px; font-weight:700;">Balance</td><td>$0.00</td></tr>
       </table>
