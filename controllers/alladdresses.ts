@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import sequelize from '../utils/database';
 import { Op } from 'sequelize';
 
-import AllAddresses from '../models/all_addresses.js';
+import AllAddresses from '../models/all_addresses';
 
 dotenv.config();
 
@@ -24,7 +24,7 @@ export const searchAddress = async (req, res, next) => {
             { plantation: { [Op.like]: `%${str}%` } }
           ]
         },
-        limit: 10 // Limit the results to 10 addresses
+        limit: 10
       }),
       ...searchWords.map(async (word) => {
         return await AllAddresses.findAll({

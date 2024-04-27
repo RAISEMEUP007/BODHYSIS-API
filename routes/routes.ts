@@ -155,6 +155,7 @@ import {
 } from "../controllers/settings";
 import {
   getCustomersData,
+  getUsedDeliveryAddress,
   createCustomer,
   updateCustomer,
   deleteCustomer,
@@ -445,6 +446,7 @@ router.get("/customer/getcustomersdata", getCustomersData);
 router.post("/customer/createcustomer", createCustomer);
 router.post("/customer/updatecustomer", updateCustomer);
 router.post("/customer/deletecustomer", deleteCustomer);
+router.post("/customer/getuseddeliveryaddress", getUsedDeliveryAddress);
 
 // Customer/Customers
 router.post("/customer/getdeliveryaddressesdata", getDeliveryAddressData);

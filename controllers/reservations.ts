@@ -115,7 +115,7 @@ export const getReservationsData = (req, res, next) => {
     -- t1.tax_amount,
     -- t1.total_price,
     -- CONCAT(t7.address1, ' ', t7.address2, ' ', t7.city, ' ', t7.state) as delivery_address,
-    t7.address1 as delivery_address,
+    -- t7.address1 as delivery_address,
     SUM(t8.quantity) as quantity,
     t1.stage
   FROM
