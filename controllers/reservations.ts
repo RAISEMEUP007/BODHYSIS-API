@@ -5,7 +5,6 @@ import Reservations, {
   ReservationType,
 } from "../models/reservation/reservations";
 import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds } from "./product";
-// import PDFDocument from 'pdfkit';
 import puppeteer from 'puppeteer';
 
 import ReservationPayments from '../models/reservation/reservation_payments';
@@ -719,7 +718,7 @@ export const exportReservation = async (req, res, next) => {
       <p style="padding-top:8px; border-top:1px solid black; text-align:center;">bikerentalmanager.com - Printed: 04/22/2024 @ 05:06 PM - Language: en</p>
     `;
 
-    const outputPath = `reservation.pdf`;
+    const outputPath = `uploads/reservation.pdf`;
 
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
@@ -740,7 +739,7 @@ export const exportReservation = async (req, res, next) => {
 
     await browser.close();
 
-    res.download(outputPath); // Trigger the download of the generated PDF
+    res.download(outputPath);
   } catch (error) {
     console.error('Error exporting reservation:', error);
     res.status(500).send('Error exporting reservation');

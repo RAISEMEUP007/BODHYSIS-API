@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 import dotenv from "dotenv";
 import { sendReservationConfirmEmail } from '../utils/sendgrid';
 import { sendSMSTwilio } from '../utils/twilio';
-dotenv.config();
-
 import Stripe from 'stripe';
-// const stripe = new Stripe('sk_test_4eC39HqLyjWDarjtT1zdp7dc');
+import ReservationPayments from '../models/reservation/reservation_payments';
+
+dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const createCustomerStripe = async (req, res, next) => {
@@ -120,7 +120,6 @@ export const addCardTokenToCustomer = async (req, res, next) => {
 }
 
 export const makePayment = async (req, res, next) => {
-  console.log(req.body);
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: req.body.amount,
@@ -293,5 +292,35 @@ If you need to cancel or make any changes to your reservation please contact us 
   } catch (err) {
     console.error('An error occurred:', err);
     return res.status(500).send("An error occurred");
+  }
+}
+
+export const refundStripe = async (req, res, next) => {
+  try {
+    let refundAmount = {};
+    if (req.body.option != 1) {
+      refundAmount = { amount: req.body.manual_amount * 100 };
+    }
+
+    const refund = await stripe.refunds.create({
+      payment_intent: req.body.payment_intent,
+      ...refundAmount
+    });
+
+    ReservationPayments.update(
+      { refunded: req.body.option == 1? req.body.amount: req.body.manual_amount },
+      { where: { 
+        id: req.body.id,
+      } }
+    ).then((result) => {
+      console.log("=======================result");
+      console.log(result);
+      res.json(refund);
+    }).catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+
+  } catch (error) {
+    res.status(500).json({error: error.message});
   }
 }
