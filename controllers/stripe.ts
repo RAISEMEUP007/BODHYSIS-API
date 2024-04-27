@@ -4,6 +4,7 @@ import { sendReservationConfirmEmail } from '../utils/sendgrid';
 import { sendSMSTwilio } from '../utils/twilio';
 import Stripe from 'stripe';
 import ReservationPayments from '../models/reservation/reservation_payments';
+import Reservations from "../models/reservation/reservations";
 
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -307,15 +308,26 @@ export const refundStripe = async (req, res, next) => {
       ...refundAmount
     });
 
+    console.log(req.body);
     ReservationPayments.update(
-      { refunded: req.body.option == 1? req.body.amount: req.body.manual_amount },
+      { 
+        refunded: req.body.old_refunded + refund.amount/100,
+        charge: refund.charge
+      },
       { where: { 
         id: req.body.id,
       } }
     ).then((result) => {
-      console.log("=======================result");
-      console.log(result);
-      res.json(refund);
+      Reservations.update(
+        { paid: req.body.reservation_paid - refund.amount/100 },
+        { where: { 
+          id: req.body.reservation_id,
+        } }
+      ).then((result, a) => {
+        res.json(refund);
+      }).catch((error) => {
+        res.status(500).json({ error: "Internal server error" });
+      });
     }).catch((error) => {
       res.status(500).json({ error: "Internal server error" });
     });

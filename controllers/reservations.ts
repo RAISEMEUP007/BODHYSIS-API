@@ -1,9 +1,6 @@
 import { Request, Response } from "express";
 import sequelize from '../utils/database';
-import Reservations, {
-  ReservationProductType,
-  ReservationType,
-} from "../models/reservation/reservations";
+import Reservations from "../models/reservation/reservations";
 import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds } from "./product";
 import puppeteer from 'puppeteer';
 
