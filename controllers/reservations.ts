@@ -208,11 +208,11 @@ export const getReservationDetails = async (req: Request, res: Response) => {
       model: CustomerCustomers,
       as: 'customer',
     },
-    {
-      model: CustomerDeliveryAddress,
-      as: 'delivery_address',
-      attributes: ['address1', 'address2', 'city', 'state', 'postal_code'],
-    },
+    // {
+    //   model: CustomerDeliveryAddress,
+    //   as: 'delivery_address',
+    //   attributes: ['address1', 'address2', 'city', 'state', 'postal_code'],
+    // },
     {
       model: SettingsColorcombinations,
       as: 'color',
