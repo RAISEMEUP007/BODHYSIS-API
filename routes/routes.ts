@@ -38,6 +38,7 @@ import {
   saveSeasonCell,
   deleteSeason,
   getBrandsData,
+  getBrandDetail,
   saveBrandCell,
   deleteBrand,
   getPriceTablesData,
@@ -154,6 +155,7 @@ import {
 } from "../controllers/settings";
 import {
   getCustomersData,
+  getUsedDeliveryAddress,
   createCustomer,
   updateCustomer,
   deleteCustomer,
@@ -173,6 +175,7 @@ import {
   getTransactionsData,
   removeReservationItem,
   verifyQuantity,
+  exportReservation,
 } from "../controllers/reservations";
 
 import {
@@ -187,11 +190,12 @@ import {
   listPaymentMethods,
   getSecret,
   chargeStripeCard,
+  refundStripe,
   sendReservationConfirmationEmail,
 } from "../controllers/stripe.js";
 import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
 import { getSettingsTemplate, getSettingsTemplateByType, postSettingsTemplate, putSettingsTemplate } from "../controllers/settings_templates";
-import { searchAddress } from "../controllers/alladdresses.js";
+import { searchAddress, getAddressesData, createAddress, updateAddress, deleteAddress } from "../controllers/alladdresses";
 
 const router = express.Router();
 
@@ -249,6 +253,7 @@ router.post("/price/deleteseason", deleteSeason);
 
 // Brands management
 router.get("/price/getbrandsdata", getBrandsData);
+router.post("/price/getbranddetail", getBrandDetail);
 router.post("/price/savebrandcell", saveBrandCell);
 router.post("/price/deletebrand", deleteBrand);
 
@@ -441,6 +446,7 @@ router.get("/customer/getcustomersdata", getCustomersData);
 router.post("/customer/createcustomer", createCustomer);
 router.post("/customer/updatecustomer", updateCustomer);
 router.post("/customer/deletecustomer", deleteCustomer);
+router.post("/customer/getuseddeliveryaddress", getUsedDeliveryAddress);
 
 // Customer/Customers
 router.post("/customer/getdeliveryaddressesdata", getDeliveryAddressData);
@@ -479,6 +485,7 @@ router.post("/reservation/createtransaction/", createTransaction);
 router.post("/reservation/gettransactionsdata/", getTransactionsData);
 router.post("/reservation/removereservationitem/", removeReservationItem);
 router.post("/reservation/verifyQuantity/", verifyQuantity);
+router.get("/reservations/exportpdf/:id", exportReservation);
 
 /* ----- Stripe ----- */
 router.post("/createcustomerstripe/", createCustomerStripe);
@@ -493,6 +500,7 @@ router.post("/stripe/listpaymentmethods/", listPaymentMethods);
 router.post("/stripe/getsecret/", getSecret);
 router.post("/stripe/chargeStripeCard/", chargeStripeCard);
 router.post("/stripe/sendreservationconfirmationemail/", sendReservationConfirmationEmail);
+router.post("/stripe/refund/", refundStripe);
 
 // Orders
 router.get("/orders", getOrders)
@@ -506,7 +514,11 @@ router.put("/settings/templates", putSettingsTemplate)
 router.get("/settings/templates/:typeTemplate", getSettingsTemplateByType)
 
 //add addresses
-router.get("/address/search/:str", searchAddress)
+router.get("/address/search/:str", searchAddress);
+router.get("/alladdresses/getaddressesdata/", getAddressesData);
+router.post("/alladdresses/createaddress", createAddress);
+router.post("/alladdresses/updateaddress", updateAddress);
+router.post("/alladdresses/deleteaddress", deleteAddress);
 
 router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });

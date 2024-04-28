@@ -60,6 +60,7 @@ const verifyToken = (req, res, next) => {
     '/address/search',
     '/stripe/sendreservationconfirmationemail/',
     '/uploads',
+    '/exportpdf',
   ];
 
   const path = req.originalUrl.split('?')[0];

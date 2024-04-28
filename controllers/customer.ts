@@ -10,6 +10,7 @@ import SettingsCountries from '../models/settings/settings_countries.js';
 import SettingsLanguages from '../models/settings/settings_languages.js';
 import CustomerCustomers from '../models/customer/customer_customers.js';
 import CustomerDeliveryAddress from '../models/customer/customer_delivery_address.js';
+import AllAddresses from '../models/all_addresses';
 
 dotenv.config();
 
@@ -97,21 +98,40 @@ export const deleteCustomer = (req, res, next) => {
   });
 };
 
-export const createDeliveryAddress = (req, res, next) => {
-  console.log(req.body);
-  
-  CustomerDeliveryAddress.create(req.body)
-  .then(newdeliveryAddress => {
-    res.status(201).json({ message: 'Delivery Address created successfully', deliveryAddress: newdeliveryAddress });
-  })
-  .catch(error => {
-    console.log(error);
-    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
-      const message = error.errors[0].message;
-      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
-      res.status(409).json({ error: capitalizedMessage});
-    }else res.status(500).json({ error: "Internal server error" });
-  });
+export const createDeliveryAddress = async (req, res, next) => {
+  try {
+    const isExist = await AllAddresses.findOne({
+      where: {
+        number: req.body.number,
+        street: req.body.street,
+        plantation: req.body.plantation,
+        property_name: req.body.property_name,
+      }
+    });
+
+    let addressId;
+
+    if(!isExist){
+      const newAddress = await AllAddresses.create(req.body);
+      addressId = newAddress.id;
+    }else addressId = isExist.id;
+
+    const newDeliveryAddress = await CustomerDeliveryAddress.create({
+      ...req.body,
+      address_id: addressId
+    })
+
+    res.status(201).json({ message: 'Delivery Address created successfully' });
+
+  } catch (error) {
+    console.error(error);
+    if (error.errors && error.errors[0].validatorKey === 'not_unique') {
+      const message = error.errors[0].message.charAt(0).toUpperCase() + error.errors[0].message.slice(1);
+      res.status(409).json({ error: message });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 }
 
 export const updateDeliveryAddress = (req, res, next) => {
@@ -131,18 +151,43 @@ export const updateDeliveryAddress = (req, res, next) => {
 
 export const getDeliveryAddressData = (req, res, next) => {
   let queryOptions = {
+    include: {
+      model: AllAddresses,
+      as: 'all_addresses',
+      attributes: ['number', 'street', 'plantation', 'property_name', 'property_type']
+    },
     where: {}
   };
   if(req.body.customer_id) queryOptions.where.customer_id = req.body.customer_id;
   CustomerDeliveryAddress.findAll(queryOptions)
-  .then((deliveryAddresss) => {
-    let deliveryAddresssJSON = [];
-    for (let i = 0; i < deliveryAddresss.length; i++) {
-      deliveryAddresssJSON.push(deliveryAddresss[i].dataValues);
-    }   
-    res.status(200).json(deliveryAddresssJSON);
+  .then((deliveryAddresss) => {  
+    res.status(200).json(deliveryAddresss);
   })
   .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const getUsedDeliveryAddress = (req, res, next) => {
+  let queryOptions = {
+    include: {
+      model: AllAddresses,
+      as: 'all_addresses',
+      attributes: ['number', 'street', 'plantation', 'property_name', 'property_type']
+    },
+    where: {
+      customer_id: req.body.customer_id,
+      is_used: true,
+    }
+  };
+  
+  CustomerDeliveryAddress.findOne(queryOptions)
+  .then((deliveryAddresss) => {  
+    res.status(200).json(deliveryAddresss);
+  })
+  .catch(err => {
+    console.log(err);
     res.status(502).json({error: "An error occurred"});
   });
 };

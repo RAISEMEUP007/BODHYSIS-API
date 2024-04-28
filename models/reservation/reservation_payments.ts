@@ -9,6 +9,9 @@ const ReservationPayments = sequelize.define('reservation_payments', {
       allowNull: false,
       primaryKey: true,
    },
+   is_refund: {
+      type: Sequelize.BOOLEAN,
+   },
    reservation_id: {
       type: Sequelize.INTEGER,
    },
@@ -22,6 +25,15 @@ const ReservationPayments = sequelize.define('reservation_payments', {
       type: Sequelize.FLOAT,
    },
    note: {
+      type: Sequelize.STRING,
+   },
+   payment_intent: {
+      type: Sequelize.STRING,
+   },
+   refunded: {
+      type: Sequelize.FLOAT,
+   },
+   charge: {
       type: Sequelize.STRING,
    },
 }, {

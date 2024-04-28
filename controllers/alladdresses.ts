@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import sequelize from '../utils/database';
 import { Op } from 'sequelize';
 
-import AllAddresses from '../models/all_addresses.js';
+import AllAddresses from '../models/all_addresses';
 
 dotenv.config();
 
@@ -24,7 +24,7 @@ export const searchAddress = async (req, res, next) => {
             { plantation: { [Op.like]: `%${str}%` } }
           ]
         },
-        limit: 10 // Limit the results to 10 addresses
+        limit: 10
       }),
       ...searchWords.map(async (word) => {
         return await AllAddresses.findAll({
@@ -50,3 +50,64 @@ export const searchAddress = async (req, res, next) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 }
+
+export const createAddress = (req, res, next) => {
+  AllAddresses.create(req.body)
+  .then(newAddress => {
+    res.status(201).json({ message: 'Address created successfully', address: newAddress });
+  })
+  .catch(error => {
+    console.log(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateAddress = (req, res, next) => {
+  const updateFields = req.body;
+
+  AllAddresses.update(updateFields, { where: { id: req.body.id } })
+  .then(newAddress => {
+    res.status(201).json({ message: 'Address updated successfully', address: newAddress });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getAddressesData = (req, res, next) => {
+  AllAddresses.findAll()
+  .then((addresses) => {
+    // let addressesJSON = [];
+    // for (let i = 0; i < addresses.length; i++) {
+    //   addressesJSON.push(addresses[i].dataValues);
+    // }   
+    res.status(200).json(addresses);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+export const deleteAddress = (req, res, next) => {
+  AllAddresses.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Address deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Address not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
