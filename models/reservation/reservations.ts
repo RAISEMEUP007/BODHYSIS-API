@@ -83,6 +83,9 @@ const Reservations = sequelize.define(
     phone_number: {
       type: DataTypes.STRING,
     },
+    driver_tip: {
+      type: DataTypes.FLOAT,
+    },
   },
   {
     timestamps: true,
