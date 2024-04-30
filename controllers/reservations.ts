@@ -569,8 +569,6 @@ export const exportReservation = async (req, res, next) => {
     .sort((a, b) => a.display_name.localeCompare(b.display_name)) 
   };
 
-  // console.log(reservation);
-
   const stage = [
     'DRAFT',
     'PROVISIONAL',
@@ -579,36 +577,39 @@ export const exportReservation = async (req, res, next) => {
     'CHECKEDIN',
   ];
 
+  const totalHours = (reservation.end_date.getTime() - reservation.start_date.getTime()) / (1000 * 60 * 60);
+  const days = Math.floor(totalHours / 24);
+
   try {
     let htmlContent = ` 
       <h1 style="text-align: center;">HHI Rentals LLC</h1>
       <h4 style="text-align: center;">59B New Orleans Road, Hilton Head, SC, 29928, US 843.785.2730</h4>
       <table>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Reservation</td><td>${reservation.order_number}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Invoice</td><td></td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Stage</td><td>${stage[reservation.stage]}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Type</td><td></td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">First Name</td><td>${reservation.customer?.first_name??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Last Name</td><td>${reservation.customer?.last_name??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Email</td><td>${reservation.customer?.email??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Phone Number</td><td>+1 ${reservation.customer?.phone_number??''}</td></tr>
-        // <tr><td width="150" style="padding-right:30px; font-weight:700;">Delivery Street / Unit Number</td><td>${reservation.all_addresses?.number??''} ${reservation.all_addresses?.street??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Delivery Street / Property Name</td><td>${reservation.all_addresses?.property_name??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">From</td><td>${new Date(reservation.start_date).toLocaleString('en-US', {
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Reservation</td><td>${reservation.order_number}</td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Invoice</td><td></td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Stage</td><td>${stage[reservation.stage]}</td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Type</td><td></td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">First Name</td><td>${reservation.customer?.first_name??''}</td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Last Name</td><td>${reservation.customer?.last_name??''}</td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Email</td><td>${reservation.customer?.email??''}</td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Phone Number</td><td>+1 ${reservation.customer?.phone_number??''}</td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Delivery Street / Unit Number</td><td>${reservation.all_addresses?.number??''} ${reservation.all_addresses?.street??''}</td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Delivery Street / Property Name</td><td>${reservation.all_addresses?.property_name??''}</td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">From</td><td>${new Date(reservation.start_date).toLocaleString('en-US', {
                   year: 'numeric',
                   month: '2-digit',
                   day: '2-digit',
                 }) + ' @ 08:00 AM'??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">From Location</td><td></td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">To</td><td>${new Date(reservation.end_date).toLocaleString('en-US', {
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">From Location</td><td></td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">To</td><td>${new Date(reservation.end_date).toLocaleString('en-US', {
                   year: 'numeric',
                   month: '2-digit',
                   day: '2-digit',
                 }) + ' @ 08:30 AM'??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Duration</td><td></td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Total Price</td><td>${reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Total Rec'd</td><td></td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Balance</td><td></td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Duration</td><td>${days} Day(s)</td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Total Price</td><td>${reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Total Rec'd</td><td></td></tr>
+        <tr><td width="150" style="padding:4px 30px 4px 0; font-weight:700;">Balance</td><td></td></tr>
       </table>
       <table style="border-collapse: collapse; margin-top:50px;">
         <thead>
@@ -623,14 +624,14 @@ export const exportReservation = async (req, res, next) => {
         <tbody>`;
 
     htmlContent += reservation.items.map(item=>(
-      `<tr style="border-bottom: 1px solid #999; ">
+      `<tr style="border-bottom: 1px solid #999;">
         <td style="padding: 10px 4px;">${item.display_name}</td>
         <td style="padding: 10px 4px;">${item.summary}</td>
         <td style="padding: 10px 4px;">${item.size || ''}</td>
         <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
         <td style="text-align:right;">${item.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
       </tr>`
-    ));
+    )).join('');;
 
     htmlContent += `</tbody>
       </table>
