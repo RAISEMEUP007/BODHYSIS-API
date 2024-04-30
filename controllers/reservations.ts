@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import sequelize from '../utils/database';
-import Reservations from "../models/reservation/reservations";
-import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds } from "./product";
 import puppeteer from 'puppeteer';
 
+import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds } from "./product";
+import Reservations from "../models/reservation/reservations";
 import ReservationPayments from '../models/reservation/reservation_payments';
 import ReservationItems from '../models/reservation/reservation_items';
 import ReservationItemsExtras from '../models/reservation/reservation_items_extras';
@@ -13,6 +13,7 @@ import SettingsExtras from '../models/settings/settings_extras';
 import CustomerCustomers from '../models/customer/customer_customers';
 import CustomerDeliveryAddress from '../models/customer/customer_delivery_address';
 import SettingsColorcombinations from '../models/settings/settings_colorcombinations';
+import AllAddresses from '../models/all_addresses';
 
 export const createReservation = async (req, res, next) => {
   try {
@@ -208,11 +209,10 @@ export const getReservationDetails = async (req: Request, res: Response) => {
       model: CustomerCustomers,
       as: 'customer',
     },
-    // {
-    //   model: CustomerDeliveryAddress,
-    //   as: 'delivery_address',
-    //   attributes: ['address1', 'address2', 'city', 'state', 'postal_code'],
-    // },
+    {
+      model: AllAddresses,
+      as: 'all_addresses',
+    },
     {
       model: SettingsColorcombinations,
       as: 'color',
@@ -537,6 +537,10 @@ export const exportReservation = async (req, res, next) => {
       as: 'customer',
     },
     {
+      model: AllAddresses,
+      as: 'all_addresses',
+    },
+    {
       model: SettingsColorcombinations,
       as: 'color',
     }],
@@ -588,8 +592,8 @@ export const exportReservation = async (req, res, next) => {
         <tr><td width="150" style="padding-right:30px; font-weight:700;">Last Name</td><td>${reservation.customer?.last_name??''}</td></tr>
         <tr><td width="150" style="padding-right:30px; font-weight:700;">Email</td><td>${reservation.customer?.email??''}</td></tr>
         <tr><td width="150" style="padding-right:30px; font-weight:700;">Phone Number</td><td>+1 ${reservation.customer?.phone_number??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Delivery Street / Unit Number</td><td></td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Delivery Street / Property Name</td><td></td></tr>
+        // <tr><td width="150" style="padding-right:30px; font-weight:700;">Delivery Street / Unit Number</td><td>${reservation.all_addresses?.number??''} ${reservation.all_addresses?.street??''}</td></tr>
+        <tr><td width="150" style="padding-right:30px; font-weight:700;">Delivery Street / Property Name</td><td>${reservation.all_addresses?.property_name??''}</td></tr>
         <tr><td width="150" style="padding-right:30px; font-weight:700;">From</td><td>${new Date(reservation.start_date).toLocaleString('en-US', {
                   year: 'numeric',
                   month: '2-digit',

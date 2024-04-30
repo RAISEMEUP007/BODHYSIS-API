@@ -6,6 +6,7 @@ import CustomerCustomers from '../customer/customer_customers';
 import CustomerDeliveryAddress from '../customer/customer_delivery_address';
 import SettingsColorcombinations from '../settings/settings_colorcombinations';
 import SettingsLocations from "../settings/settings_locations";
+import AllAddresses from '../all_addresses';
 
 const Reservations = sequelize.define(
   "reservations",
@@ -102,25 +103,9 @@ Reservations.belongsTo(SettingsLocations,{
   foreignKey: 'start_location_id',
   as : 'location'
 })
-// export interface ReservationProductType {
-//   quantity: number;
-//   product_id: number;
-//   price: number;
-//   product_name: string;
-// }
-
-// export interface ReservationType {
-//   id: number;
-//   start_date: Date;
-//   end_date: Date;
-//   promo_code?: string;
-//   start_location_id: number;
-//   end_location_id: number;
-//   price_index: number;
-//   duration: number;
-//   products: Array<ReservationProductType>;
-//   customer_id: number;
-//   total_price: number;
-// }
+Reservations.belongsTo(AllAddresses,{
+  foreignKey: 'address_id',
+  as : 'all_addresses'
+})
 
 export default Reservations;
