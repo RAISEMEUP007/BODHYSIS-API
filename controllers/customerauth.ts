@@ -83,7 +83,7 @@ export const customerSignUp = (req, res, next) => {
 							refreshToken,
 							fullName: newUser.first_name + ' ' + newUser.last_name,
 							customerId: newUser.id,
-							...newUser
+							...newUser.dataValues
 						});
 					})
 					.catch(err => {
