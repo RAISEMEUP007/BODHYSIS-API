@@ -15,33 +15,34 @@ export const searchAddress = async (req, res, next) => {
     const searchWords = str.split(' ');
 
     const addressResults = await Promise.all([
-      AllAddresses.findAll({
-        where: {
-          [Op.or]: [
-            { number: { [Op.like]: `%${str}%` } },
-            { property_name: { [Op.like]: `%${str}%` } },
-            { street: { [Op.like]: `%${str}%` } },
-            { plantation: { [Op.like]: `%${str}%` } }
-          ]
-        },
-        limit: 10
-      }),
+      // AllAddresses.findAll({
+      //   where: {
+      //     [Op.or]: [
+      //       { number: { [Op.like]: `%${str}%` } },
+      //       { property_name: { [Op.like]: `%${str}%` } },
+      //       { street: { [Op.like]: `%${str}%` } },
+      //       { plantation: { [Op.like]: `%${str}%` } }
+      //     ]
+      //   },
+      //   limit: 10
+      // }),
       ...searchWords.map(async (word) => {
         return await AllAddresses.findAll({
           where: {
             [Op.or]: [
-              { number: { [Op.like]: `%${word}%` } },
+              { number: { [Op.like]: `${word}%` } },
               { property_name: { [Op.like]: `%${word}%` } },
               { street: { [Op.like]: `%${word}%` } },
               { plantation: { [Op.like]: `%${word}%` } }
             ]
           },
-          limit: 10 // Limit the results to 10 addresses
+          order: ['number', 'street', 'property_name', 'plantation'],
+          limit: 10
         });
       })
     ]);
 
-    let addresses = addressResults.flat(); // Flatten the array of arrays
+    let addresses = addressResults.flat();
     addresses = addresses.slice(0, 10);
 
     res.json(addresses);
