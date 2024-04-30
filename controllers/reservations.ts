@@ -717,7 +717,7 @@ export const exportReservation = async (req, res, next) => {
         <p> Customer understands and agrees to its acceptance of HHI Rentals, LLC's Terms and Conditions by either checking the acceptance box during online or kiosk ordering; having the Terms and Conditions link emailed to Customer with their confirmation email; and/or through their use of equipment constitutes the equivalent of a legal signature confirming their agreement to all Terms and Conditions set forth in this agreement. Should Customer not agree with these Terms and Conditions, Customer shall not utilize any equipment and immediately contact HHI Rentals, LLC at the number listed in its rental communications.  </p>
       </Section>
       <p><span>Signed:</span><span style="display:inline-block; margin-left:12px; width:200px; border-bottom:1px dotted gray;"></span></p>
-      <p style="padding-top:8px; border-top:1px solid black; text-align:center;">bikerentalmanager.com - Printed: 04/22/2024 @ 05:06 PM - Language: en</p>
+      <p style="padding-top:8px; border-top:1px solid black; text-align:center;">bikerentalmanager.com - Printed: ${new Date().toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })} - Language: en</p>
     `;
 
     const outputPath = `uploads/${reservation.order_number}.pdf`;
