@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import sequelize from '../utils/database';
-import Reservations from "../models/reservation/reservations";
-import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds } from "./product";
 import puppeteer from 'puppeteer';
 
+import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds } from "./product";
+import Reservations from "../models/reservation/reservations";
 import ReservationPayments from '../models/reservation/reservation_payments';
 import ReservationItems from '../models/reservation/reservation_items';
 import ReservationItemsExtras from '../models/reservation/reservation_items_extras';
@@ -13,6 +13,7 @@ import SettingsExtras from '../models/settings/settings_extras';
 import CustomerCustomers from '../models/customer/customer_customers';
 import CustomerDeliveryAddress from '../models/customer/customer_delivery_address';
 import SettingsColorcombinations from '../models/settings/settings_colorcombinations';
+import AllAddresses from '../models/all_addresses';
 
 export const createReservation = async (req, res, next) => {
   try {
@@ -208,11 +209,10 @@ export const getReservationDetails = async (req: Request, res: Response) => {
       model: CustomerCustomers,
       as: 'customer',
     },
-    // {
-    //   model: CustomerDeliveryAddress,
-    //   as: 'delivery_address',
-    //   attributes: ['address1', 'address2', 'city', 'state', 'postal_code'],
-    // },
+    {
+      model: AllAddresses,
+      as: 'all_addresses',
+    },
     {
       model: SettingsColorcombinations,
       as: 'color',
@@ -537,6 +537,10 @@ export const exportReservation = async (req, res, next) => {
       as: 'customer',
     },
     {
+      model: AllAddresses,
+      as: 'all_addresses',
+    },
+    {
       model: SettingsColorcombinations,
       as: 'color',
     }],
@@ -553,6 +557,7 @@ export const exportReservation = async (req, res, next) => {
       ...item.toJSON(),
       family: item?.families?.family??'',
       display_name: item?.families?.display_name??'',
+      summary: item?.families?.summary??'',
       price_group_id: item.price_group_id,
       extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
     }))
@@ -564,28 +569,47 @@ export const exportReservation = async (req, res, next) => {
     .sort((a, b) => a.display_name.localeCompare(b.display_name)) 
   };
 
+  const stage = [
+    'DRAFT',
+    'PROVISIONAL',
+    'CONFIRMED',
+    'CHECKEDOUT',
+    'CHECKEDIN',
+  ];
+
+  const totalHours = (reservation.end_date.getTime() - reservation.start_date.getTime()) / (1000 * 60 * 60);
+  const days = Math.floor(totalHours / 24);
+
   try {
-    const htmlContent = ` 
+    let htmlContent = ` 
       <h1 style="text-align: center;">HHI Rentals LLC</h1>
       <h4 style="text-align: center;">59B New Orleans Road, Hilton Head, SC, 29928, US 843.785.2730</h4>
       <table>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Reservation</td><td>${reservation.order_number}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Invoice</td><td></td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Stage</td><td>${reservation.stage}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Type</td><td></td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">First Name</td><td>${reservation.customer?.first_name??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Last Name</td><td>${reservation.customer?.last_name??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Email</td><td>${reservation.customer?.email??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Phone Number</td><td>${reservation.customer?.phone_number??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Delivery Street / Unit Number</td><td></td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Delivery Street / Property Name</td><td></td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">From</td><td>${reservation.start_date??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">From Location</td><td>CHECKEDIN</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">To</td><td>${reservation.end_date??''}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Duration</td><td></td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Total Price</td><td>${reservation.total_price}</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Total Rec'd</td><td>$0.00</td></tr>
-        <tr><td width="150" style="padding-right:30px; font-weight:700;">Balance</td><td>$0.00</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Reservation</td><td>${reservation.order_number}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Invoice</td><td></td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Stage</td><td>${stage[reservation.stage]}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Type</td><td></td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">First Name</td><td>${reservation.customer?.first_name??''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Last Name</td><td>${reservation.customer?.last_name??''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Email</td><td>${reservation.customer?.email??''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Phone Number</td><td>+1 ${reservation.customer?.phone_number??''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Unit Number</td><td>${reservation.all_addresses?.number??''} ${reservation.all_addresses?.street??''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Property Name</td><td>${reservation.all_addresses?.property_name??''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">From</td><td>${new Date(reservation.start_date).toLocaleString('en-US', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                }) + ' @ 08:00 AM'??''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">From Location</td><td></td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">To</td><td>${new Date(reservation.end_date).toLocaleString('en-US', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                }) + ' @ 08:30 AM'??''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Duration</td><td>${days} Day(s)</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Price</td><td>${reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Rec'd</td><td></td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Balance</td><td></td></tr>
       </table>
       <table style="border-collapse: collapse; margin-top:50px;">
         <thead>
@@ -597,106 +621,33 @@ export const exportReservation = async (req, res, next) => {
             <th width="80" style="text-align:left;">Price</th>
           </tr>
         </thead>
-        <tbody>
-          <tr style="border-bottom: 1px solid #999">
-            <td>Backpack Beach Chairs</td>
-            <td></td>
-            <td>Cooler Backpack Chair</td>
-            <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
-            <td style="text-align:right;">$40.00*</td>
-          </tr>
-          <tr style="border-bottom: 1px solid #999">
-            <td>Corn Hole - South Carolina</td>
-            <td></td>
-            <td>2' x 4'</td>
-            <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
-            <td style="text-align:right;">$70.00*</td>
-          </tr>
-          <tr style="border-bottom: 1px solid #999">
-            <td>Beach Wagon</td>
-            <td></td>
-            <td>Wagon</td>
-            <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
-            <td style="text-align:right;">$70.00*</td>
-          </tr>
-          <tr style="border-bottom: 1px solid #999">
-            <td>Beach Umbrella</td>
-            <td></td>
-            <td>Umbrella</td>
-            <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
-            <td style="text-align:right;">$25.00*</td>
-          </tr>
-          <tr style="border-bottom: 1px solid #999">
-            <td>Beach Umbrella</td>
-            <td></td>
-            <td>Umbrella</td>
-            <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
-            <td style="text-align:right;">$25.00*</td>
-          </tr>
-          <tr style="border-bottom: 1px solid #999">
-            <td>Tumbling Tower</td>
-            <td></td>
-            <td>5'</td>
-            <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
-            <td style="text-align:right;">$25.00*</td>
-          </tr>
-          <tr style="border-bottom: 1px solid #999">
-            <td>Backpack Beach Chairs</td>
-            <td></td>
-            <td>Cooler Backpack Chair</td>
-            <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
-            <td style="text-align:right;">$40.00*</td>
-          </tr>
-          <tr style="border-bottom: 1px solid #999">
-            <td>Premium Mid Crossbar</td>
-            <td></td>
-            <td>26" Pre A</td>
-            <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
-            <td style="text-align:right;">$75.00*</td>
-          </tr>
-          <tr style="border-bottom: 1px solid #999">
-            <td>Tumbling Tower</td>
-            <td></td>
-            <td>5'</td>
-            <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
-            <td style="text-align:right;">$25.00*</td>
-          </tr>
-          <tr style="border-bottom: 1px solid #999">
-            <td>Backpack Beach Chairs</td>
-            <td></td>
-            <td>Cooler Backpack Chair</td>
-            <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
-            <td style="text-align:right;">$40.00*</td>
-          </tr>
-          <tr style="border-bottom: 1px solid #999">
-            <td>Premium Mid Crossbar</td>
-            <td></td>
-            <td>26" Pre A</td>
-            <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
-            <td style="text-align:right;">$75.00*</td>
-          </tr>
-          <tr style="border-bottom: 2px solid #999;">
-            <td>dddd</td>
-            <td></td>
-            <td>26" Pre A</td>
-            <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
-            <td style="text-align:right;">$75.00*</td>
-          </tr>
-        </tbody>
+        <tbody>`;
+
+    htmlContent += reservation.items.map(item=>(
+      `<tr style="border-bottom: 1px solid #999;">
+        <td style="padding: 10px 4px;">${item.display_name}</td>
+        <td style="padding: 10px 4px;">${item.summary}</td>
+        <td style="padding: 10px 4px;">${item.size || ''}</td>
+        <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
+        <td style="text-align:right;">${item.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+      </tr>`
+    )).join('');;
+
+    htmlContent += `</tbody>
       </table>
-      <div style="display:flex; justify-content:flex-end;">
+      <div style="display:flex; justify-content:flex-end; border-top: 2px solid #999;">
         <table style="border-collapse: collapse; margin-top:12px;">
           <tr>
             <td style="text-align:right; padding-right:20px;" width="200"><b>Subtotal (excl. tax)</b></td>
-            <td style="text-align:right;">$410.00</td>
+            <td style="text-align:right;">${reservation.subtotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
           <tr>
-            <td style="text-align:right; padding-right:20px;"><sup>*</sup> 100% Discount</td>
-            <td style="text-align:right;">-$410.00</td>
+            <td style="text-align:right; padding-right:20px;"><sup>*</sup> Discount</td>
+            <td style="text-align:right;">-${reservation.discount_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
           <tr>
             <td style="text-align:right; padding-right:20px;"><b>Discounted Subtotal</b></td>
-            <td style="text-align:right;">$0.00</td>
+            <td style="text-align:right;">${(reservation.subtotal - reservation.discount_amount).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
           <tr>
             <td style="text-align:right; padding-right:20px;"><sup>2</sup>delivery</td>
@@ -708,11 +659,11 @@ export const exportReservation = async (req, res, next) => {
           </tr>
           <tr>
             <td style="text-align:right; padding-right:20px;"><b>Total Tax</b></td>
-            <td style="text-align:right;">$0.00</td>
+            <td style="text-align:right;">${reservation.tax_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
           <tr>
-            <td style="text-align:right; padding-right:20px;"><h4>Total</h4></td>
-            <td style="text-align:right;">$0.00</td>
+            <td style="text-align:right; padding-right:20px; padding-top:16px; font-size:18px; font-weight:700;">Total</td>
+            <td style="text-align:right;  padding-top:16px; font-size:18px; font-weight:700;">${reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
         </table>
       </div>
@@ -766,10 +717,10 @@ export const exportReservation = async (req, res, next) => {
         <p> Customer understands and agrees to its acceptance of HHI Rentals, LLC's Terms and Conditions by either checking the acceptance box during online or kiosk ordering; having the Terms and Conditions link emailed to Customer with their confirmation email; and/or through their use of equipment constitutes the equivalent of a legal signature confirming their agreement to all Terms and Conditions set forth in this agreement. Should Customer not agree with these Terms and Conditions, Customer shall not utilize any equipment and immediately contact HHI Rentals, LLC at the number listed in its rental communications.  </p>
       </Section>
       <p><span>Signed:</span><span style="display:inline-block; margin-left:12px; width:200px; border-bottom:1px dotted gray;"></span></p>
-      <p style="padding-top:8px; border-top:1px solid black; text-align:center;">bikerentalmanager.com - Printed: 04/22/2024 @ 05:06 PM - Language: en</p>
+      <p style="padding-top:8px; border-top:1px solid black; text-align:center;">bikerentalmanager.com - Printed: ${new Date().toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })} - Language: en</p>
     `;
 
-    const outputPath = `uploads/reservation.pdf`;
+    const outputPath = `uploads/${reservation.order_number}.pdf`;
 
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
