@@ -48,6 +48,7 @@ export const createReservation = async (req, res, next) => {
           quantity: item.quantity,
           price_group_id: item.price_group_id,
           price: item.price,
+          size: item.size,
         });
 
         item.id = newItem.id;
@@ -278,6 +279,7 @@ export const updateReservation = (req, res, next) => {
                 price_group_id: item.price_group_id,
                 quantity: item.quantity,
                 price: item.price,
+                size: item.size,
               })
               .then(newItem => {
                 item.id = newItem.id;
