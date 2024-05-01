@@ -152,6 +152,8 @@ import {
   createColorcombination,
   updateColorcombination,
   deleteColorcombination,
+  getProductCompatibilitiesData,
+  updateCompatibility,
 } from "../controllers/settings";
 import {
   getCustomersData,
@@ -471,6 +473,10 @@ router.post(
   updateExtra
 );
 router.post("/settings/deleteextra", deleteExtra);
+
+// Settings/ProductCompatibilities
+router.get("/settings/getproductcompatibilitiesdata", getProductCompatibilitiesData);
+router.post("/settings/updatecompatibility", updateCompatibility);
 
 /* ----- Reservations ----- */
 // Reservations

@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import sgMail from '@sendgrid/mail';
 import sequelize from '../utils/database';
 
+import ProductFamilies from '../models/product/product_families';
 import SettingsManufactures from '../models/settings/settings_manufactures.js';
 import SettingsTags from '../models/settings/settings_tags.js';
 import SettingsLocations from '../models/settings/settings_locations.js';
@@ -23,6 +24,7 @@ import SettingsExclusions from '../models/settings/settings_exclusions.js';
 import SettingsTaxcodes from '../models/settings/settings_taxcodes.js';
 import SettingsColorcombinations from '../models/settings/settings_colorcombinations.js';
 import SettingsExtras from '../models/settings/settings_extras.js';
+import SettingsProductCompatibilities from '../models/settings/settings_productcompatibilities';
 
 dotenv.config();
 
@@ -1277,5 +1279,68 @@ export const deleteExtra = (req, res, next) => {
     if(error.original.errno == 1451 || error.original.code == 'ER_ROW_IS_REFERENCED_2' || error.original.sqlState == '23000'){
       res.status(409).json({ error: "It cannot be deleted because it is used elsewhere"});
     }else res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+export const getProductCompatibilitiesData = async (req, res, next) => {
+  try {
+    const extras = await SettingsExtras.findAll();
+    const productFamilies = await ProductFamilies.findAll();
+    const productCompatibilities = await SettingsProductCompatibilities.findAll();
+
+    const extrasArr = extras.map(item=>item.dataValues);
+    const familiesArr = productFamilies.map(item=>item.dataValues);
+    const compatibilitiesArr = productCompatibilities.map(item=>item.dataValues);
+
+
+    let switchedData = {};
+    for (const compatibility of compatibilitiesArr) {
+      if (!switchedData[compatibility.family_id]) {
+        switchedData[compatibility.family_id] = {};
+      }
+      switchedData[compatibility.family_id][compatibility.extra_id] = compatibility.is_connected;
+    }
+
+    for(let i=0; i<familiesArr.length; i++){
+      familiesArr[i].compatibilities = [];
+      for(let j=0; j<extrasArr.length; j++){
+        if(switchedData[familiesArr[i].id] && switchedData[familiesArr[i].id][extrasArr[j].id]) familiesArr[i].compatibilities.push(switchedData[familiesArr[i].id][extrasArr[j].id]);
+        else familiesArr[i].compatibilities.push(false);
+      }
+    }
+
+    res.status(200).json(familiesArr);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred" });
+  }
+};
+
+export const updateCompatibility = (req, res, next) => {
+  SettingsProductCompatibilities.findOrCreate({
+    where: { 
+      family_id: req.body.family_id,
+      extra_id: req.body.extra_id
+    },
+    defaults: req.body
+  }).then(([result, created]) => {
+    if (!created) {
+      SettingsProductCompatibilities.update(
+      { value: req.body.value },
+      { where: { 
+        family_id: req.body.family_id,
+        extra_id: req.body.extra_id
+      }}).then(() => {
+        res.status(200).json({ message: "Set Successfully" });
+      }).catch((error) => {
+        console.log(error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+    } else {
+      res.status(200).json({ message: "Set Successfully" });
+    }
+  }).catch((error) => {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
   });
 };
