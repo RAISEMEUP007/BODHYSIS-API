@@ -1285,7 +1285,7 @@ export const deleteExtra = (req, res, next) => {
 export const getProductCompatibilitiesData = async (req, res, next) => {
   try {
     const extras = await SettingsExtras.findAll();
-    const productFamilies = await ProductFamilies.findAll();
+    const productFamilies = await ProductFamilies.findAll({group:['display_name']});
     const productCompatibilities = await SettingsProductCompatibilities.findAll();
 
     const extrasArr = extras.map(item=>item.dataValues);
@@ -1295,17 +1295,18 @@ export const getProductCompatibilitiesData = async (req, res, next) => {
 
     let switchedData = {};
     for (const compatibility of compatibilitiesArr) {
-      if (!switchedData[compatibility.family_id]) {
-        switchedData[compatibility.family_id] = {};
+      if (!switchedData[compatibility.display_name]) {
+        switchedData[compatibility.display_name] = {};
       }
-      switchedData[compatibility.family_id][compatibility.extra_id] = compatibility.is_connected;
+      switchedData[compatibility.display_name][compatibility.extra_id] = compatibility.is_connected;
     }
 
-    for(let i=0; i<familiesArr.length; i++){
-      familiesArr[i].compatibilities = [];
-      for(let j=0; j<extrasArr.length; j++){
-        if(switchedData[familiesArr[i].id] && switchedData[familiesArr[i].id][extrasArr[j].id]) familiesArr[i].compatibilities.push(switchedData[familiesArr[i].id][extrasArr[j].id]);
-        else familiesArr[i].compatibilities.push(false);
+    for(const family of familiesArr){
+      family.compatibilities = [];
+      for(const extra of extrasArr){
+        if(switchedData[family.display_name] && switchedData[family.display_name][extra.id])
+         family.compatibilities.push(switchedData[family.display_name][extra.id]);
+        else family.compatibilities.push(false);
       }
     }
 
@@ -1319,7 +1320,7 @@ export const getProductCompatibilitiesData = async (req, res, next) => {
 export const updateCompatibility = (req, res, next) => {
   SettingsProductCompatibilities.findOrCreate({
     where: { 
-      family_id: req.body.family_id,
+      display_name: req.body.display_name,
       extra_id: req.body.extra_id
     },
     defaults: req.body
@@ -1328,7 +1329,7 @@ export const updateCompatibility = (req, res, next) => {
       SettingsProductCompatibilities.update(
       { value: req.body.value },
       { where: { 
-        family_id: req.body.family_id,
+        display_name: req.body.display_name,
         extra_id: req.body.extra_id
       }}).then(() => {
         res.status(200).json({ message: "Set Successfully" });

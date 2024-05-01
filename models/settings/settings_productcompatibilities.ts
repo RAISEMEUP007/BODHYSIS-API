@@ -9,8 +9,8 @@ const SettingsProductCompatibilities = sequelize.define('settings_productcompati
       allowNull: false,
       primaryKey: true,
    },
-   family_id: {
-      type: Sequelize.INTEGER,
+   display_name: {
+      type: Sequelize.STRING,
    },
    extra_id: {
       type: Sequelize.INTEGER,
