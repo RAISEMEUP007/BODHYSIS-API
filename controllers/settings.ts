@@ -1165,6 +1165,27 @@ export const getExtrasData = (req, res, next) => {
   });
 };
 
+export const getExtrasDataByDisplayName = (req, res, next) => {
+  SettingsExtras.findAll({
+    include: { 
+      model: SettingsProductCompatibilities, 
+      as: 'compatibilities',
+      required: false
+    },
+    where: {
+      '$compatibilities.display_name$': req.body.display_name,
+    },
+    raw: true,
+    nest: true
+  }).then((extras) => {
+    res.status(200).json(extras);
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred" });
+  });
+};
+
 export const createExtra = (req, res, next) => {
   const { level,
           name, 

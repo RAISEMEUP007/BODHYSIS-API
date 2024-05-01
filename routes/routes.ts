@@ -108,6 +108,7 @@ import {
   updateReservationType,
   deleteReservationType,
   getExtrasData,
+  getExtrasDataByDisplayName,
   createExtra,
   updateExtra,
   deleteExtra,
@@ -462,6 +463,7 @@ router.post(
 
 // Settings/Extras
 router.get("/settings/getextrasdata", getExtrasData);
+router.post("/settings/getextrasdatabydisplayname", getExtrasDataByDisplayName);
 router.post(
   "/settings/createextra",
   upload.array("img", 3),

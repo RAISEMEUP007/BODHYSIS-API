@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 
 import sequelize from '../../utils/database';
+import SettingsExtras from './settings_extras';
 
 const SettingsProductCompatibilities = sequelize.define('settings_productcompatibilities', {
    id: {
@@ -20,6 +21,11 @@ const SettingsProductCompatibilities = sequelize.define('settings_productcompati
    },
 }, {
    timestamps: false
+});
+SettingsProductCompatibilities.belongsTo(SettingsExtras, { foreignKey: 'extra_id', as: 'compatibilities' });
+SettingsExtras.hasMany(SettingsProductCompatibilities, {
+  foreignKey: 'extra_id',
+  as: 'compatibilities'
 });
 
 export default SettingsProductCompatibilities;
