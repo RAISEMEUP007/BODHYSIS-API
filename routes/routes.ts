@@ -523,7 +523,7 @@ router.get("/settings/templates/:typeTemplate", getSettingsTemplateByType)
 
 //add addresses
 router.get("/address/search/:str", searchAddress);
-router.get("/alladdresses/getaddressesdata/", getAddressesData);
+router.post("/alladdresses/getaddressesdata/", getAddressesData);
 router.post("/alladdresses/createaddress", createAddress);
 router.post("/alladdresses/updateaddress", updateAddress);
 router.post("/alladdresses/deleteaddress", deleteAddress);
