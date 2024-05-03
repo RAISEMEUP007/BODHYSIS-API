@@ -7,6 +7,7 @@ import ProductCategories from '../models/product/product_categories.js';
 import ProductFamilies from '../models/product/product_families.js';
 import ProductLines from '../models/product/product_lines.js';
 import ProductProducts from '../models/product/product_products.js';
+import ProductDisplayGroupOrder from '../models/product/product_display_group_orders.js';
 import SettingsLocations from '../models/settings/settings_locations.js';
 import PriceGroup from '../models/price_group';
 
@@ -206,14 +207,16 @@ export const getProductFamiliesDataByDisplayName = (req, res, next) => {
         model: ProductLines,
         as: 'lines',
       },
-      // {
-      //   model: ProductProducts,
-      //   as: 'products',
-      // }
+      {
+        model: ProductDisplayGroupOrder,
+        as: 'group_orders',
+      }
     ],
     group: 'display_name',
     order: [
       [{ model: ProductCategories, as: 'category' }, 'category'],
+      [sequelize.literal('(group_orders.order_index IS NOT NULL) DESC')],
+      [{ model: ProductDisplayGroupOrder, as: 'group_orders' }, 'order_index', 'ASC'],
       'display_name',
     ],
   };
@@ -747,3 +750,60 @@ export const updateBulkStatus = (req, res, next) => {
     }else res.status(500).json({ error: "Internal server error" });
   });
 }
+
+export const getDisplayGroupOrder = async (req, res, next) => {
+  try {
+    const query = `
+      SELECT
+        t2.category,
+        t1.display_name,
+        t3.order_index
+      FROM
+        product_families AS t1
+        LEFT JOIN product_categories AS t2
+          ON t1.category_id = t2.id
+        left join product_display_group_orders as t3
+          on t1.display_name = t3.display_name
+      GROUP BY t1.display_name
+      ORDER BY t2.category,
+        (t3.order_index IS NOT NULL) DESC,
+        t3.order_index,
+        t1.display_name;
+    `;
+    const results = await sequelize.query(query, {
+      type: sequelize.QueryTypes.SELECT
+    });
+
+    res.status(200).json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred" });
+  }
+};
+
+export const updateOrderIndex = (req, res, next) => {
+  ProductDisplayGroupOrder.findOrCreate({
+    where: { 
+      display_name: req.body.display_name,
+    },
+    defaults: req.body
+  }).then(([result, created]) => {
+    if (!created) {
+      ProductDisplayGroupOrder.update(
+      { order_index: req.body.order_index },
+      { where: { 
+        display_name: req.body.display_name,
+      }}).then(() => {
+        res.status(200).json({ message: "Set Successfully" });
+      }).catch((error) => {
+        console.log(error);
+        res.status(500).json({ error: "Internal server error" });
+      });
+    } else {
+      res.status(200).json({ message: "Set Successfully" });
+    }
+  }).catch((error) => {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  });
+};

@@ -77,6 +77,8 @@ import {
   quickAddProduct,
   updateBulkLocation,
   updateBulkStatus,
+  getDisplayGroupOrder,
+  updateOrderIndex,
 } from "../controllers/product";
 import {
   getManufacturesData,
@@ -287,6 +289,8 @@ router.post(
 router.post("/product/saveproductcategory", saveProductCategory);
 router.post("/product/deleteproductcategory", deleteProductCategory);
 router.post("/product/quickaddproduct", quickAddProduct);
+router.get("/product/getdisplaygrouporder", getDisplayGroupOrder);
+router.post("/product/updateorderindex", updateOrderIndex);
 
 // Product family
 router.get(
