@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 
 import sequelize from '../../utils/database';
+import SettingsTaxcodes from './settings_taxcodes';
 
 const SettingsStoreDetails = sequelize.define('settings_storedetails', {
    id: {
@@ -69,8 +70,8 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
    week_start_day: {
       type: Sequelize.STRING,
    },
-   sales_tax: {
-      type: Sequelize.FLOAT,
+   taxcode_id: {
+      type: Sequelize.INTEGER,
    },
    store_wavier: {
       type: Sequelize.STRING,
@@ -84,6 +85,6 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
 }, {
    timestamps: false
 });
-
+SettingsStoreDetails.belongsTo(SettingsTaxcodes, { foreignKey: 'taxcode_id', as: 'taxcodes' });
 
 export default SettingsStoreDetails;

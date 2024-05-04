@@ -77,6 +77,8 @@ import {
   quickAddProduct,
   updateBulkLocation,
   updateBulkStatus,
+  getDisplayGroupOrder,
+  updateOrderIndex,
 } from "../controllers/product";
 import {
   getManufacturesData,
@@ -287,6 +289,8 @@ router.post(
 router.post("/product/saveproductcategory", saveProductCategory);
 router.post("/product/deleteproductcategory", deleteProductCategory);
 router.post("/product/quickaddproduct", quickAddProduct);
+router.get("/product/getdisplaygrouporder", getDisplayGroupOrder);
+router.post("/product/updateorderindex", updateOrderIndex);
 
 // Product family
 router.get(
@@ -523,7 +527,7 @@ router.get("/settings/templates/:typeTemplate", getSettingsTemplateByType)
 
 //add addresses
 router.get("/address/search/:str", searchAddress);
-router.get("/alladdresses/getaddressesdata/", getAddressesData);
+router.post("/alladdresses/getaddressesdata/", getAddressesData);
 router.post("/alladdresses/createaddress", createAddress);
 router.post("/alladdresses/updateaddress", updateAddress);
 router.post("/alladdresses/deleteaddress", deleteAddress);

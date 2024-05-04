@@ -799,6 +799,10 @@ export const deleteTimeformat = (req, res, next) => {
 
 export const getStoreDetail = (req, res, next) => {
   SettingsStoreDetails.findOne({
+    include: {
+      model: SettingsTaxcodes,
+      as: 'taxcodes',
+    },
     where: {
       brand_id: req.params.brandId
     }
@@ -817,12 +821,19 @@ export const getStoreDetail = (req, res, next) => {
 
 export const getStoreDetailByStoreURL = (req, res, next) => {
   SettingsStoreDetails.findOne({
+    include: {
+      model: SettingsTaxcodes,
+      as: 'taxcodes',
+      attributes: ['rate']
+    },
     where: {
       store_url: req.body.store_url
     }
   })
   .then((storeDetails) => {
     if (storeDetails) {
+      if(storeDetails.dataValues.taxcodes && storeDetails.dataValues.taxcodes.rate) 
+        storeDetails.dataValues.sales_tax = storeDetails.dataValues.taxcodes.rate;
       res.status(200).json(storeDetails);
     } else {
       res.status(404).json({ error: "Store details not found" });

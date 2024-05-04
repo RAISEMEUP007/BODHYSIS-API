@@ -84,12 +84,22 @@ export const updateAddress = (req, res, next) => {
 }
 
 export const getAddressesData = (req, res, next) => {
-  AllAddresses.findAll()
+ const { searchKey } = req.body;
+ const queryOptions = {
+   order: ['number', 'street', 'plantation', 'property_name']
+ };
+ if (searchKey) {
+   queryOptions.where = {
+     [Op.or]: [
+       { number: { [Op.like]: `%${searchKey}%` } },
+       { street: { [Op.like]: `%${searchKey}%` } },
+       { plantation: { [Op.like]: `%${searchKey}%` } },
+       { property_name: { [Op.like]: `%${searchKey}%` } }
+     ]
+   };
+ }
+ AllAddresses.findAll(queryOptions)
   .then((addresses) => {
-    // let addressesJSON = [];
-    // for (let i = 0; i < addresses.length; i++) {
-    //   addressesJSON.push(addresses[i].dataValues);
-    // }   
     res.status(200).json(addresses);
   })
   .catch(err => {
