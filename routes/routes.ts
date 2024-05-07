@@ -68,6 +68,7 @@ import {
   updateProductLine,
   deleteProductLine,
   getProductsData,
+  getProductDetailByBarcode,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -181,6 +182,8 @@ import {
   removeReservationItem,
   verifyQuantity,
   exportReservation,
+  scanBarcode,
+  checkedInBarcode,
 } from "../controllers/reservations";
 
 import {
@@ -322,6 +325,7 @@ router.post("/product/deleteproductline", deleteProductLine);
 
 // Products
 router.post("/product/getproductsdata/", getProductsData);
+router.post("/product/getproductdetailbybarcode/", getProductDetailByBarcode);
 router.post("/product/createproduct", createProduct);
 router.post("/product/updateproduct", updateProduct);
 router.post("/product/deleteproduct", deleteProduct);
@@ -498,6 +502,8 @@ router.post("/reservation/gettransactionsdata/", getTransactionsData);
 router.post("/reservation/removereservationitem/", removeReservationItem);
 router.post("/reservation/verifyQuantity/", verifyQuantity);
 router.get("/reservations/exportpdf/:id", exportReservation);
+router.post("/reservation/scanbarcode/", scanBarcode);
+router.post("/reservation/checkedinbarcode/", checkedInBarcode);
 
 /* ----- Stripe ----- */
 router.post("/createcustomerstripe/", createCustomerStripe);

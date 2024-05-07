@@ -6,7 +6,7 @@ import sequelize from '../utils/database';
 import ProductCategories from '../models/product/product_categories.js';
 import ProductFamilies from '../models/product/product_families.js';
 import ProductLines from '../models/product/product_lines.js';
-import ProductProducts from '../models/product/product_products.js';
+import ProductProducts from '../models/product/product_products';
 import ProductDisplayGroupOrder from '../models/product/product_display_group_orders.js';
 import SettingsLocations from '../models/settings/settings_locations.js';
 import PriceGroup from '../models/price_group';
@@ -543,6 +543,49 @@ export const getProductsData = (req, res, next) => {
     console.log(err);
     res.status(502).json({error: "An error occurred"});
   });
+};
+
+export const getProductDetailByBarcode = (req, res, next) => {
+  let barcode = req.body.barcode;
+
+  let queryOptions = {
+    include: [
+      {
+        model: ProductCategories,
+        as: 'category',
+        attributes: ['category'],
+      },
+      {
+        model: ProductFamilies,
+        as: 'family',
+        attributes: ['family', 'display_name'],
+      },
+      {
+        model: ProductLines,
+        as: 'line',
+        attributes: ['line', 'size', 'price_group_id'],
+        include: {
+          model: PriceGroup,
+          as: 'price_group',
+          attributes: ['id', 'price_group'],
+        },
+      },
+    ],
+    where: { barcode: barcode },
+  };
+
+  ProductProducts.findOne(queryOptions)
+    .then((product) => {
+      if (product) {
+        res.status(200).json(product.toJSON());
+      } else {
+        res.status(404).json({ error: "Product not found" });
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({ error: "An error occurred" });
+    });
 };
 
 export const deleteProduct = (req, res, next) => {

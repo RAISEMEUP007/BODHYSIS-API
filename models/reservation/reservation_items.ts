@@ -19,6 +19,9 @@ const ReservationItems = sequelize.define(
     family_id: {
       type: DataTypes.INTEGER,
     },
+    display_name: {
+      type: DataTypes.STRING,
+    },
     size: {
       type: DataTypes.STRING,
     },
@@ -30,6 +33,12 @@ const ReservationItems = sequelize.define(
     },
     price: {
       type: DataTypes.FLOAT,
+    },
+    barcode: {
+      type: DataTypes.STRING,
+    },
+    status: {
+      type: DataTypes.INTEGER,
     },
   },
   {

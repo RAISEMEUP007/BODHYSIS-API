@@ -14,6 +14,7 @@ import CustomerCustomers from '../models/customer/customer_customers';
 import CustomerDeliveryAddress from '../models/customer/customer_delivery_address';
 import SettingsColorcombinations from '../models/settings/settings_colorcombinations';
 import AllAddresses from '../models/all_addresses';
+import ProductProducts from '../models/product/product_products';
 
 export const createReservation = async (req, res, next) => {
   try {
@@ -45,6 +46,7 @@ export const createReservation = async (req, res, next) => {
         const newItem = await ReservationItems.create({
           reservation_id: newReservation.id,
           family_id: item.id,
+          display_name: item.display_name,
           quantity: item.quantity,
           price_group_id: item.price_group_id,
           price: item.price,
@@ -144,7 +146,7 @@ export const getReservationsData = (req, res, next) => {
     ${searchOptions.order_number ? `AND t1.order_number LIKE :order_number` : ''}
     ${searchOptions.stage ? `AND (t1.stage = :stage OR :stage IS NULL OR :stage = '')` : ''}
   GROUP BY t1.id
-  ORDER BY t1.createdAt DESC
+  ORDER BY t1.order_number DESC
   `;
 
   sequelize.query(
@@ -230,7 +232,7 @@ export const getReservationDetails = async (req: Request, res: Response) => {
       items: reservation.items.map(item => ({
         ...item.toJSON(),
         family: item?.families?.family??'',
-        display_name: item?.families?.display_name??'',
+        // display_name: item?.families?.display_name??'',
         price_group_id: item.price_group_id,
         extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
       }))
@@ -260,7 +262,8 @@ export const updateReservation = (req, res, next) => {
           .then(foundItem => {
             if (foundItem) {
               foundItem.update({
-                line_id: item.line_id,
+                family_id: item.family_id,
+                display_name: item.display_name,
                 price_group_id: item.price_group_id,
                 quantity: item.quantity,
                 price: item.price,
@@ -275,7 +278,8 @@ export const updateReservation = (req, res, next) => {
             } else {
               ReservationItems.create({
                 reservation_id: req.body.id,
-                line_id: item.line_id,
+                display_name: item.display_name,
+                family_id: item.family_id,
                 price_group_id: item.price_group_id,
                 quantity: item.quantity,
                 price: item.price,
@@ -747,5 +751,147 @@ export const exportReservation = async (req, res, next) => {
   } catch (error) {
     console.error('Error exporting reservation:', error);
     res.status(500).send('Error exporting reservation');
+  }
+};
+
+export const scanBarcode = async (req, res, next) => {
+  try {
+    let barcode = req.body.barcode;
+    let reservation_id = req.body.reservation_id;
+    let queryOptions = {
+      include: [
+        {
+          model: ProductFamilies,
+          as: 'family',
+          attributes: ['family', 'display_name'],
+        },
+      ],
+      where: { 
+        barcode: barcode,
+      },
+    };
+
+    const product = await ProductProducts.findOne(queryOptions);
+ 
+    if(!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    console.log("product.status---------------------------------------------");
+    console.log(product.status);
+    if(product.status != 0 && product.status != 1 && product.status != 3){
+      return res.status(403).json({ error: "This product is currently unavailable" });
+    }
+    
+    const displayName = product.family.display_name;
+
+    console.log("product---------------------------------");
+    console.log(product.status);
+    console.log(displayName);
+
+    const availableProductItem = await ReservationItems.findOne({
+      where:{
+        reservation_id: reservation_id,
+        display_name: displayName,
+        barcode: null,
+        status: null
+      }
+    })
+
+    console.log("availableProductItem---------------------------------");
+    console.log(availableProductItem);
+
+    if(!availableProductItem) {
+      return res.status(404).json({ error: "This product is not associated with this reservation" });
+    }
+
+    await product.update({
+      status: 2,
+    });
+
+    await availableProductItem.update({
+      barcode: product.barcode,
+      status: 3
+    });
+
+    res.status(200).json({ 
+      item_id: availableProductItem.id,
+      barcode: product.barcode,
+      message: "Updated the item status successfully" 
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "An error occurred" });
+  }
+};
+
+export const checkedInBarcode = async (req, res, next) => {
+  try {
+    let barcode = req.body.barcode;
+    let reservation_id = req.body.reservation_id;
+    let queryOptions = {
+      include: [
+        {
+          model: ProductFamilies,
+          as: 'family',
+          attributes: ['family', 'display_name'],
+        },
+      ],
+      where: { 
+        barcode: barcode,
+      },
+    };
+
+    const product = await ProductProducts.findOne(queryOptions);
+ 
+    if(!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    if(product.status == 3){
+      return res.status(403).json({ error: "This product is already checked in" });
+    }else if(product.status != 2){
+      return res.status(403).json({ error: "This product is not checked out. Only checked in product can be checked out." });
+    }
+    
+    const displayName = product.family.display_name;
+
+    console.log("product---------------------------------");
+    console.log(product.status);
+    console.log(displayName);
+
+    const availableProductItem = await ReservationItems.findOne({
+      where:{
+        reservation_id: reservation_id,
+        display_name: displayName,
+        barcode: barcode,
+        status: 3
+      }
+    })
+
+    console.log("availableProductItem---------------------------------");
+    console.log(availableProductItem);
+
+    if(!availableProductItem) {
+      return res.status(404).json({ error: "This product is not associated with this reservation" });
+    }
+
+    await product.update({
+      status: 3,
+    });
+
+    await availableProductItem.update({
+      barcode: product.barcode,
+      status: 4
+    });
+
+    res.status(200).json({ 
+      item_id: availableProductItem.id,
+      barcode: product.barcode,
+      message: "Updated the item status successfully" 
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "An error occurred" });
   }
 };
