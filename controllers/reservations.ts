@@ -144,7 +144,7 @@ export const getReservationsData = (req, res, next) => {
     ${searchOptions.customer ? `AND CONCAT(t2.first_name, ' ', t2.last_name) LIKE :customer` : ''}
     ${searchOptions.brand ? `AND t3.brand LIKE :brand` : ''}
     ${searchOptions.order_number ? `AND t1.order_number LIKE :order_number` : ''}
-    ${searchOptions.stage ? `AND (t1.stage = :stage OR :stage IS NULL OR :stage = '')` : ''}
+    ${Array.isArray(searchOptions.stage) ? `AND t1.stage IN (:stage)` : searchOptions.stage ? `AND (t1.stage = :stage OR :stage IS NULL OR :stage = '')` : ''}
   GROUP BY t1.id
   ORDER BY t1.order_number DESC
   `;
@@ -518,7 +518,7 @@ const getStageAmount = (startDate, endDate, line_id = null) => {
 export const exportReservation = async (req, res, next) => {
   const id = req.params.id;
 
-    let queryOptions = {
+  let queryOptions = {
     include: [{ 
       model: ReservationItems, 
       as: 'items',
@@ -779,7 +779,9 @@ export const scanBarcode = async (req, res, next) => {
 
     console.log("product.status---------------------------------------------");
     console.log(product.status);
-    if(product.status != 0 && product.status != 1 && product.status != 3){
+    if(product.status == 2){
+      return res.status(403).json({ error: "This product is already checked out" });
+    }else if(product.status != 0 && product.status != 1 && product.status != 3){
       return res.status(403).json({ error: "This product is currently unavailable" });
     }
     
