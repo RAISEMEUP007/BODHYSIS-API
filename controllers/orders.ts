@@ -66,12 +66,13 @@ export const getOrdersData = (req:Request, res:Response, next:NextFunction) => {
   const query = `
     SELECT
     t1.id,
+    t1.order_number,
     -- t1.customer_id,
     -- t2.first_name,
     -- t2.last_name,
     CONCAT(t2.first_name, ' ', t2.last_name) AS full_name,
     -- t1.brand_id,
-    -- t3.brand,
+    t3.brand,
     -- t1.start_location_id,
     t4.location AS start_location,
     -- t1.end_location_id,
@@ -91,15 +92,15 @@ export const getOrdersData = (req:Request, res:Response, next:NextFunction) => {
   FROM
     reservations AS t1
     LEFT JOIN customer_customers AS t2
-    ON t1.customer_id = t2.id
-    -- LEFT JOIN price_brands AS t3
-    -- ON t1.brand_id = t3.id
+      ON t1.customer_id = t2.id
+    LEFT JOIN price_brands AS t3
+      ON t1.brand_id = t3.id
     LEFT JOIN settings_locations AS t4
-    ON t1.start_location_id = t4.id
+      ON t1.start_location_id = t4.id
     LEFT JOIN settings_locations AS t5
-    ON t1.end_location_id = t5.id
+      ON t1.end_location_id = t5.id
     LEFT JOIN settings_discountcodes AS t6
-    ON t1.promo_code = t6.id
+      ON t1.promo_code = t6.id
   WHERE t1.stage IN (2, 3, 4)
   ORDER BY t1.createdAt DESC
   LIMIT 200
