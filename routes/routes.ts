@@ -183,6 +183,7 @@ import {
   verifyQuantity,
   exportReservation,
   scanBarcode,
+  checkedInBarcode,
 } from "../controllers/reservations";
 
 import {
@@ -502,6 +503,7 @@ router.post("/reservation/removereservationitem/", removeReservationItem);
 router.post("/reservation/verifyQuantity/", verifyQuantity);
 router.get("/reservations/exportpdf/:id", exportReservation);
 router.post("/reservation/scanbarcode/", scanBarcode);
+router.post("/reservation/checkedinbarcode/", checkedInBarcode);
 
 /* ----- Stripe ----- */
 router.post("/createcustomerstripe/", createCustomerStripe);

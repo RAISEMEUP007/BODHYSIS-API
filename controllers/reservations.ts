@@ -777,7 +777,9 @@ export const scanBarcode = async (req, res, next) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    if(product.status != 0){
+    console.log("product.status---------------------------------------------");
+    console.log(product.status);
+    if(product.status != 0 && product.status != 1 && product.status != 3){
       return res.status(403).json({ error: "This product is currently unavailable" });
     }
     
@@ -810,6 +812,77 @@ export const scanBarcode = async (req, res, next) => {
     await availableProductItem.update({
       barcode: product.barcode,
       status: 3
+    });
+
+    res.status(200).json({ 
+      item_id: availableProductItem.id,
+      barcode: product.barcode,
+      message: "Updated the item status successfully" 
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "An error occurred" });
+  }
+};
+
+export const checkedInBarcode = async (req, res, next) => {
+  try {
+    let barcode = req.body.barcode;
+    let reservation_id = req.body.reservation_id;
+    let queryOptions = {
+      include: [
+        {
+          model: ProductFamilies,
+          as: 'family',
+          attributes: ['family', 'display_name'],
+        },
+      ],
+      where: { 
+        barcode: barcode,
+      },
+    };
+
+    const product = await ProductProducts.findOne(queryOptions);
+ 
+    if(!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    if(product.status == 3){
+      return res.status(403).json({ error: "This product is already checked in" });
+    }else if(product.status != 2){
+      return res.status(403).json({ error: "This product is not checked out. Only checked in product can be checked out." });
+    }
+    
+    const displayName = product.family.display_name;
+
+    console.log("product---------------------------------");
+    console.log(product.status);
+    console.log(displayName);
+
+    const availableProductItem = await ReservationItems.findOne({
+      where:{
+        reservation_id: reservation_id,
+        display_name: displayName,
+        barcode: barcode,
+        status: 3
+      }
+    })
+
+    console.log("availableProductItem---------------------------------");
+    console.log(availableProductItem);
+
+    if(!availableProductItem) {
+      return res.status(404).json({ error: "This product is not associated with this reservation" });
+    }
+
+    await product.update({
+      status: 3,
+    });
+
+    await availableProductItem.update({
+      barcode: product.barcode,
+      status: 4
     });
 
     res.status(200).json({ 
