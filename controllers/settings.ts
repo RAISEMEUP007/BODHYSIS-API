@@ -1181,13 +1181,16 @@ export const getExtrasDataByDisplayName = (req, res, next) => {
     include: { 
       model: SettingsProductCompatibilities, 
       as: 'compatibilities',
-      required: false
+      where: {
+        is_connected: true,
+      }
     },
     where: {
       '$compatibilities.display_name$': req.body.display_name,
     },
     raw: true,
-    nest: true
+    nest: true,
+    order: ['id'],
   }).then((extras) => {
     res.status(200).json(extras);
   })
@@ -1350,6 +1353,8 @@ export const getProductCompatibilitiesData = async (req, res, next) => {
 };
 
 export const updateCompatibility = (req, res, next) => {
+  console.log("req.body----------------------------------------------------------");
+  console.log(req.body);
   SettingsProductCompatibilities.findOrCreate({
     where: { 
       display_name: req.body.display_name,
@@ -1359,7 +1364,7 @@ export const updateCompatibility = (req, res, next) => {
   }).then(([result, created]) => {
     if (!created) {
       SettingsProductCompatibilities.update(
-      { value: req.body.value },
+      { is_connected: req.body.is_connected },
       { where: { 
         display_name: req.body.display_name,
         extra_id: req.body.extra_id
