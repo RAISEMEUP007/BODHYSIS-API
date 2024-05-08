@@ -121,7 +121,8 @@ export const getReservationsData = (req, res, next) => {
     -- CONCAT(t7.address1, ' ', t7.address2, ' ', t7.city, ' ', t7.state) as delivery_address,
     -- t7.address1 as delivery_address,
     SUM(t8.quantity) as quantity,
-    t1.stage
+    t1.stage,
+    t1.color_id
   FROM
     reservations AS t1
     LEFT JOIN customer_customers AS t2
