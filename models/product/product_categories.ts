@@ -21,7 +21,10 @@ const ProductCategories = sequelize.define('product_categories', {
    },
    tag_id: {
       type: Sequelize.INTEGER,
-   }
+   },
+   brand_ids: {
+      type: Sequelize.STRING,
+   },
 }, {
    timestamps: false  // Disable timestamps
 });

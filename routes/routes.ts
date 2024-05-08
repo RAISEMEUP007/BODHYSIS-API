@@ -279,6 +279,7 @@ router.post("/price/deletepricelogic", deletePriceLogic);
 /* ----- product ----- */
 // Product category
 router.get("/product/getproductcategoriesdata", getProductCategoriesData);
+router.post("/product/getproductcategoriesdata", getProductCategoriesData);
 router.post(
   "/product/createproductcategory",
   upload.array("img", 3),

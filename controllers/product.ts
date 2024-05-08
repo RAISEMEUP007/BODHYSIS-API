@@ -42,7 +42,7 @@ export const getProductCategoriesData = (req, res, next) => {
 };
 
 export const createProductCategory = (req, res, next) => {
-  const { category, description, tag_id } = req.body;
+  const { category, description, tag_id, brand_ids } = req.body;
   const imgUrl = generateFileUrl(req.files);
 
   ProductCategories.create({
@@ -50,6 +50,7 @@ export const createProductCategory = (req, res, next) => {
     img_url: imgUrl,
     description: description,
     tag_id: tag_id,
+    brand_ids: brand_ids,
   })
   .then(newCategory => {
     res.status(201).json({ message: 'Product category created successfully', category: newCategory });
@@ -64,13 +65,14 @@ export const createProductCategory = (req, res, next) => {
 }
 
 export const updateProductCategory = (req, res, next) => {
-  const { id, category, description, tag_id } = req.body;
+  const { id, category, description, tag_id, brand_ids } = req.body;
   const imgUrl = generateFileUrl(req.files);
 
   const updateFields = {
     category: category,
     description: description,
     tag_id: tag_id,
+    brand_ids: brand_ids,
   };
 
   if (imgUrl) {
@@ -183,6 +185,7 @@ export const getProductFamiliesDataByDisplayName = (req, res, next) => {
       'notes',
       'summary',
       'description',
+      'brand_ids',
       [sequelize.fn('GROUP_CONCAT', sequelize.col('product_families.id')), 'familiesIds']
     ],
     include: [
@@ -242,7 +245,7 @@ export const getProductFamiliesDataByDisplayName = (req, res, next) => {
 };
 
 export const createProductFamily = (req, res, next) => {
-  const { family, category_id, display_name, summary, notes } = req.body;
+  const { family, category_id, display_name, summary, notes, brand_ids } = req.body;
   const imgUrl = generateFileUrl(req.files);
 
   ProductFamilies.create({
@@ -251,6 +254,7 @@ export const createProductFamily = (req, res, next) => {
     display_name: display_name,
     img_url: imgUrl,
     summary: summary,
+    brand_ids: brand_ids,
     notes: notes
   })
   .then(newfamily => {
@@ -267,7 +271,7 @@ export const createProductFamily = (req, res, next) => {
 }
 
 export const updateProductFamily = (req, res, next) => {
-  const { id, family, category_id, display_name, summary, notes } = req.body;
+  const { id, family, category_id, display_name, summary, notes, brand_ids } = req.body;
 
   const imgUrl = generateFileUrl(req.files);
 
@@ -276,6 +280,7 @@ export const updateProductFamily = (req, res, next) => {
     category_id: category_id,
     display_name: display_name,
     summary: summary,
+    brand_ids: brand_ids,
     notes: notes
   };
 

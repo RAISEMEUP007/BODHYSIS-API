@@ -34,6 +34,9 @@ const ProductFamilies = sequelize.define('product_families', {
    description: {
       type: Sequelize.STRING,
    },
+   brand_ids: {
+      type: Sequelize.STRING,
+   },
 }, {
    timestamps: false
 });
