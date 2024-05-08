@@ -177,9 +177,47 @@ export const customerLogin = (req, res, next) => {
 	});
 };
 
-export const logout = (req, res, next) => {
-	const token = req.headers.authorization;
-	res.status(200).json({ message: 'success' });
+export const adminTry = async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    const dbUser = await User.findOne({ where: { id: user.userId } });
+
+    if (dbUser) {
+      const dbCustomer = await CustomerCustomers.findOne({ where: { id: req.body.customer_id } });
+
+      if (!dbCustomer) {
+        return res.status(404).json({ message: "customer not found" });
+      } else {
+        const expiresIn = dayjs().add(30, "day").unix();
+        const refreshToken = jwt.sign(
+          {
+            email: dbCustomer.email,
+            id: dbCustomer.id,
+            name: dbCustomer.first_name + ' ' + dbCustomer.last_name
+          },
+          process.env.JWT_REFRESH_TOKEN_SECRET,
+          {
+            subject: dbCustomer.id.toString(),
+            expiresIn: '1d'
+          }
+        );
+
+        res.status(200).json({
+          message: "customer logged in",
+          refreshToken,
+          fullName: dbCustomer.first_name + ' ' + dbCustomer.last_name,
+          customerId: dbCustomer.id,
+          ...dbCustomer.dataValues
+        });
+      }
+    } else {
+      return res.status(404).json({ message: "User not found" });
+    }
+  } catch (err) {
+    console.log(err);
+    console.log('error', err);
+  }
 };
 
 export const resetPass = async (req, res, next) => {

@@ -15,6 +15,7 @@ import {
 import {
   customerSignUp,
   customerLogin,
+  adminTry,
 } from "../controllers/customerauth";
 import {
   getDrivers,
@@ -234,6 +235,7 @@ router.get("/user/getdrivers", getDrivers);
 // customer
 router.post("/customer/signup", customerSignUp);
 router.post("/customer/login", customerLogin);
+router.post("/customer/admintry", adminTry);
 
 /* ----- price ----- */
 // price table detail
