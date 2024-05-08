@@ -280,10 +280,10 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
 
 Your reservation has been confirmed.
 
-Your equipment will be delivered on the date of your reservation. Please remember, we will pickup your equipment on the last date of your reservation at 8:30 am.
+Your equipment will be delivered on the date of your reservation. Please remember, we will pickup your equipment on the last date of your reservation at 8:00 am.
 
 Confirmation Details
-${req.body.start_time} at 08:30 am - ${req.body.end_time} at 08:30 am.
+${req.body.start_time} at 08:00 am - ${req.body.end_time} at 08:00 am.
 
 
 If you need to cancel or make any changes to your reservation please contact us at 1-800-555-5555, you can also send an email to support@islandcruisers.com`
