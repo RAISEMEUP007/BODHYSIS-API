@@ -611,7 +611,7 @@ export const exportReservation = async (req, res, next) => {
                   year: 'numeric',
                   month: '2-digit',
                   day: '2-digit',
-                }) + ' @ 08:30 AM'??''}</td></tr>
+                }) + ' @ 08:00 AM'??''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Duration</td><td>${days} Day(s)</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Price</td><td>${reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Rec'd</td><td></td></tr>
@@ -743,11 +743,12 @@ export const exportReservation = async (req, res, next) => {
     };
 
     await page.setContent(htmlContent);
-    await page.pdf(pdfOptions);
+    const pdfBuffer = await page.pdf(pdfOptions);
 
     await browser.close();
 
-    res.download(outputPath);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.send(pdfBuffer);
   } catch (error) {
     console.error('Error exporting reservation:', error);
     res.status(500).send('Error exporting reservation');
