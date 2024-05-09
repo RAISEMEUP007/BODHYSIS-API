@@ -601,7 +601,7 @@ export const exportReservation = async (req, res, next) => {
     }
   })
 
-  const storeName = storeDetail.store_name;
+  const storeName = storeDetail?.store_name?"";
 
   const stage = [
     'DRAFT',
