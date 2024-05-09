@@ -534,87 +534,85 @@ const getStageAmount = (startDate, endDate, line_id = null) => {
 }
 
 export const exportReservation = async (req, res, next) => {
-
-  const id = req.params.id;
-  const tc = req.params.tc;
-
-  let queryOptions = {
-    include: [{ 
-      model: ReservationItems, 
-      as: 'items',
-      include: [
-        { 
-          model: ProductFamilies, 
-          as: 'families', 
-          attributes: ['family', 'display_name'],
-        },
-        {
-          model: ReservationItemsExtras,
-          as: 'item_extras',
-          include: {
-            model: SettingsExtras,
-            as: 'extras'
-          }
-        }
-      ],
-    },
-    {
-      model: CustomerCustomers,
-      as: 'customer',
-    },
-    {
-      model: AllAddresses,
-      as: 'all_addresses',
-    },
-    {
-      model: SettingsColorcombinations,
-      as: 'color',
-    }],
-    where: {
-      id: id
-    },
-  };
-  
-  const reservationRow = await Reservations.findOne(queryOptions);
-
-  const reservation = {
-    ...reservationRow.toJSON(),
-    items: reservationRow.items.map(item => ({
-      ...item.toJSON(),
-      family: item?.families?.family??'',
-      display_name: item?.families?.display_name??'',
-      summary: item?.families?.summary??'',
-      price_group_id: item.price_group_id,
-      extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
-    }))
-    .map(item => ({
-      ...item,
-      families: undefined,
-      item_extras: undefined
-    }))
-    .sort((a, b) => a.display_name.localeCompare(b.display_name)) 
-  };
-
-  const storeDetail = await SettingsStoreDetails.findOne({
-    where: {
-      brand_id: reservation.brand_id
-    }
-  })
-
-  const storeName = storeDetail?.store_name?"";
-
-  const stage = [
-    'DRAFT',
-    'PROVISIONAL',
-    'CONFIRMED',
-    'CHECKEDOUT',
-    'CHECKEDIN',
-  ];
-
-  const totalHours = (reservation.end_date.getTime() - reservation.start_date.getTime()) / (1000 * 60 * 60);
-  const days = Math.floor(totalHours / 24);
-
   try {
+    const id = req.params.id;
+    const tc = req.params.tc;
+
+    let queryOptions = {
+      include: [{ 
+        model: ReservationItems, 
+        as: 'items',
+        include: [
+          { 
+            model: ProductFamilies, 
+            as: 'families', 
+            attributes: ['family', 'display_name'],
+          },
+          {
+            model: ReservationItemsExtras,
+            as: 'item_extras',
+            include: {
+              model: SettingsExtras,
+              as: 'extras'
+            }
+          }
+        ],
+      },
+      {
+        model: CustomerCustomers,
+        as: 'customer',
+      },
+      {
+        model: AllAddresses,
+        as: 'all_addresses',
+      },
+      {
+        model: SettingsColorcombinations,
+        as: 'color',
+      }],
+      where: {
+        id: id
+      },
+    };
+    
+    const reservationRow = await Reservations.findOne(queryOptions);
+
+    const reservation = {
+      ...reservationRow.toJSON(),
+      items: reservationRow.items.map(item => ({
+        ...item.toJSON(),
+        family: item?.families?.family??'',
+        display_name: item?.families?.display_name??'',
+        summary: item?.families?.summary??'',
+        price_group_id: item.price_group_id,
+        extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
+      }))
+      .map(item => ({
+        ...item,
+        families: undefined,
+        item_extras: undefined
+      }))
+      .sort((a, b) => a.display_name.localeCompare(b.display_name)) 
+    };
+
+    const storeDetail = await SettingsStoreDetails.findOne({
+      where: {
+        brand_id: reservation.brand_id
+      }
+    })
+
+    const storeName = storeDetail?.store_name??"";
+
+    const stage = [
+      'DRAFT',
+      'PROVISIONAL',
+      'CONFIRMED',
+      'CHECKEDOUT',
+      'CHECKEDIN',
+    ];
+
+    const totalHours = (reservation.end_date.getTime() - reservation.start_date.getTime()) / (1000 * 60 * 60);
+    const days = Math.floor(totalHours / 24);
     const barcodeImage = await bwipjs.toBuffer({
       bcid: 'code128',
       text: reservation.order_number,
