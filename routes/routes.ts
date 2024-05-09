@@ -15,6 +15,7 @@ import {
 import {
   customerSignUp,
   customerLogin,
+  adminTry,
 } from "../controllers/customerauth";
 import {
   getDrivers,
@@ -177,6 +178,7 @@ import {
   getReservationDetails,
   getReservationsList,
   updateReservation,
+  updateReservationItem,
   createTransaction,
   getTransactionsData,
   removeReservationItem,
@@ -234,6 +236,7 @@ router.get("/user/getdrivers", getDrivers);
 // customer
 router.post("/customer/signup", customerSignUp);
 router.post("/customer/login", customerLogin);
+router.post("/customer/admintry", adminTry);
 
 /* ----- price ----- */
 // price table detail
@@ -497,12 +500,13 @@ router.post("/reservations/createreservation/", createReservation);
 router.get("/reservations/getreservationslist/", getReservationsList);
 router.get("/reservations/getreservationdetails/:id", getReservationDetails);
 router.post("/reservations/updatereservation", updateReservation);
+router.post("/reservations/updatereservationitem", updateReservationItem);
 
 router.post("/reservation/createtransaction/", createTransaction);
 router.post("/reservation/gettransactionsdata/", getTransactionsData);
 router.post("/reservation/removereservationitem/", removeReservationItem);
 router.post("/reservation/verifyQuantity/", verifyQuantity);
-router.get("/reservations/exportpdf/:id", exportReservation);
+router.get("/reservations/exportpdf/:id/:tc", exportReservation);
 router.post("/reservation/scanbarcode/", scanBarcode);
 router.post("/reservation/checkedinbarcode/", checkedInBarcode);
 

@@ -705,6 +705,11 @@ busboy@^1.0.0:
   dependencies:
     streamsearch "^1.1.0"
 
+bwip-js@^4.3.2:
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/bwip-js/-/bwip-js-4.3.2.tgz#2fba1c20a63e3efcc184eb0ef24883934c45c51e"
+  integrity sha512-bZ6ufPdYUWN2+on5t3xQ7LR3icg4e5QFbCT+pLVQIQ+WUvSkhwFagSaekrjQ8rkdnuSdDRV9C5PElzihvFRA2g==
+
 bytes@3.1.2:
   version "3.1.2"
   resolved "https://registry.npmjs.org/bytes/-/bytes-3.1.2.tgz"

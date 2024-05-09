@@ -13,6 +13,7 @@ import PriceBrands from '../models/price_brands.js';
 import PriceTables from '../models/price_tables.js';
 import PriceLogic from '../models/price_logic.js';
 import PriceTableGroups from '../models/price_table_groups.js';
+import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
 
 dotenv.config();
 
@@ -532,7 +533,12 @@ export const deleteSeason = (req, res, next) => {
 };
 
 export const getBrandsData = (req, res, next) => {
-	PriceBrands.findAll()
+	PriceBrands.findAll({
+		include: {
+			model:SettingsStoreDetails,
+			as:'storedetail'
+		}
+	})
 	.then((brands) => {
     let brandsJSON = [];
     for (let i = 0; i < brands.length; i++) {

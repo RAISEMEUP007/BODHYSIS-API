@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 
 import sequelize from '../../utils/database';
 import SettingsTaxcodes from './settings_taxcodes';
+import PriceBrands from '../price_brands';
 
 const SettingsStoreDetails = sequelize.define('settings_storedetails', {
    id: {
@@ -86,5 +87,7 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
    timestamps: false
 });
 SettingsStoreDetails.belongsTo(SettingsTaxcodes, { foreignKey: 'taxcode_id', as: 'taxcodes' });
+SettingsStoreDetails.belongsTo(PriceBrands, { foreignKey: 'brand_id', as: 'brands', sourceKey:'id' });
+PriceBrands.hasOne(SettingsStoreDetails, { foreignKey: 'brand_id', as: 'storedetail', sourceKey: 'id' });
 
 export default SettingsStoreDetails;
