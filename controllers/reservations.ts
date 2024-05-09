@@ -405,6 +405,7 @@ export const createTransaction = (req, res, next) => {
     res.status(201).json({ message: 'Transaction created successfully', transaction: newPayment });
   })
   .catch(error => {
+    console.log(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -582,7 +583,6 @@ export const exportReservation = async (req, res, next) => {
       items: reservationRow.items.map(item => ({
         ...item.toJSON(),
         family: item?.families?.family??'',
-        display_name: item?.families?.display_name??'',
         summary: item?.families?.summary??'',
         price_group_id: item.price_group_id,
         extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
@@ -629,6 +629,7 @@ export const exportReservation = async (req, res, next) => {
       <table style="margin-top:30px">
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Reservation</td><td>${reservation.order_number}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Invoice</td><td></td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Note</td><td>${reservation.note}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Stage</td><td>${stage[reservation.stage]}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Type</td><td></td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">First Name</td><td>${reservation.customer?.first_name??''}</td></tr>
@@ -650,8 +651,8 @@ export const exportReservation = async (req, res, next) => {
                 }) + ' @ 08:00 AM'??''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Duration</td><td>${days} Day(s)</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Price</td><td>${reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Rec'd</td><td></td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Balance</td><td></td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Rec'd</td><td>${reservation.paid.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Balance</td><td>${(reservation.paid - reservation.total_price).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td></tr>
       </table>
       <table style="border-collapse: collapse; margin-top:50px;">
         <thead>
@@ -664,7 +665,8 @@ export const exportReservation = async (req, res, next) => {
           </tr>
         </thead>
         <tbody>`;
-
+    console.log("items---------------------------------------------");
+    console.log(reservation.items);
     htmlContent += reservation.items.map(item=>(
       `<tr style="border-bottom: 1px solid #999;">
         <td style="padding: 10px 4px;">${item.display_name}</td>
@@ -692,8 +694,8 @@ export const exportReservation = async (req, res, next) => {
             <td style="text-align:right;">${(reservation.subtotal - reservation.discount_amount).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
           <tr>
-            <td style="text-align:right; padding-right:20px;"><sup>2</sup>delivery</td>
-            <td style="text-align:right;">$0.00</td>
+            <td style="text-align:right; padding-right:20px;"><sup>2</sup>driver tip</td>
+            <td style="text-align:right;">${(reservation.driver_tip).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
           <tr>
             <td style="text-align:right; padding-right:20px;"><sup>1</sup>gst</td>
