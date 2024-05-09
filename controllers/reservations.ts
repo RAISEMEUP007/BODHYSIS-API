@@ -629,7 +629,7 @@ export const exportReservation = async (req, res, next) => {
       <table style="margin-top:30px">
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Reservation</td><td>${reservation.order_number}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Invoice</td><td></td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Note</td><td>${reservation.note}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Note</td><td>${reservation?.note??''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Stage</td><td>${stage[reservation.stage]}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Type</td><td></td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">First Name</td><td>${reservation.customer?.first_name??''}</td></tr>

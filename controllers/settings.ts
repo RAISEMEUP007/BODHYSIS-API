@@ -1192,7 +1192,15 @@ export const getExtrasDataByDisplayName = (req, res, next) => {
     nest: true,
     order: ['id'],
   }).then((extras) => {
-    res.status(200).json(extras);
+    console.log(extras);
+    if(req.body.brand_id){
+      const filteredCategories = extras.filter((item) => {
+        if(!item.brand_ids) return false;
+        const brandsIds = JSON.parse(item.brand_ids);
+        return brandsIds.includes(req.body.brand_id);
+      });
+      res.status(200).json(filteredCategories);
+    }else res.status(200).json(extras);
   })
   .catch(err => {
     console.error(err);
@@ -1212,7 +1220,8 @@ export const createExtra = (req, res, next) => {
           is_default_selected,
           is_online_mandatory,
           is_apply_tax,
-          is_apply_discounts } = req.body;
+          is_apply_discounts,
+          brand_ids } = req.body;
   console.log(req.body);
 
   const imgUrl = generateFileUrl(req.files);
@@ -1229,7 +1238,8 @@ export const createExtra = (req, res, next) => {
     is_default_selected,
     is_online_mandatory,
     is_apply_tax,
-    is_apply_discounts
+    is_apply_discounts,
+    brand_ids
   };
 
   if (imgUrl) {
@@ -1263,7 +1273,8 @@ export const updateExtra = (req, res, next) => {
           is_default_selected,
           is_online_mandatory,
           is_apply_tax,
-          is_apply_discounts } = req.body;
+          is_apply_discounts,
+          brand_ids } = req.body;
   console.log(req.body);
   const imgUrl = generateFileUrl(req.files);
 
@@ -1280,7 +1291,8 @@ export const updateExtra = (req, res, next) => {
     is_default_selected,
     is_online_mandatory,
     is_apply_tax,
-    is_apply_discounts
+    is_apply_discounts,
+    brand_ids
   }
 
   if (imgUrl) {
