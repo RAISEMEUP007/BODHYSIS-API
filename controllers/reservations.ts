@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import sequelize from '../utils/database';
 import puppeteer from 'puppeteer';
+import bwipjs from 'bwip-js'; 
 
 import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds } from "./product";
 import Reservations from "../models/reservation/reservations";
@@ -614,10 +615,20 @@ export const exportReservation = async (req, res, next) => {
   const days = Math.floor(totalHours / 24);
 
   try {
+    const barcodeImage = await bwipjs.toBuffer({
+      bcid: 'code128',
+      text: reservation.order_number,
+      scale: 3,
+      height: 10,
+      includetext: false, 
+      textxalign: 'center',
+    });
+
     let htmlContent = ` 
       <h1 style="text-align: center;">${storeName}</h1>
       <h4 style="text-align: center;">59B New Orleans Road, Hilton Head, SC, 29928, US 843.785.2730</h4>
-      <table>
+      <img src="data:image/png;base64,${barcodeImage.toString('base64')}" alt="Barcode Image" />
+      <table style="margin-top:30px">
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Reservation</td><td>${reservation.order_number}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Invoice</td><td></td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Stage</td><td>${stage[reservation.stage]}</td></tr>
