@@ -50,6 +50,9 @@ const SettingsExtras = sequelize.define('settings_extras', {
    is_apply_discounts: {
       type: Sequelize.BOOLEAN,
    },
+   brand_ids: {
+      type: Sequelize.STRING,
+   },
 }, {
    timestamps: false
 });
