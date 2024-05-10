@@ -244,6 +244,23 @@ export const getProductFamiliesDataByDisplayName = (req, res, next) => {
   });
 };
 
+export const getProductFamilyIdsByDisplayName = async (category_id, display_name) => {
+  try {
+    let queryOptions = {
+      attributes: ['id'],
+      where: {
+        category_id: category_id,
+        display_name: display_name,
+      }
+    };
+    const productFamilies = await ProductFamilies.findAll(queryOptions);
+    return productFamilies.map((family) => family.id);
+  } catch (err) {
+    console.log(err);
+    throw { status: 502, error: "An error occurred" };
+  }
+};
+
 export const createProductFamily = (req, res, next) => {
   const { family, category_id, display_name, summary, notes, brand_ids } = req.body;
   const imgUrl = generateFileUrl(req.files);
@@ -728,6 +745,42 @@ export const getAvaliableQuantitiesByLine = (line_id = null) =>{
       acc[cur.line_id] = cur.quantity;
       return acc;
     }, {});
+  }).catch(error => {
+    console.error(error);
+    throw new Error('An error occurred while fetching stage amounts');
+  });
+}
+
+export const getAvaliableQuantityByfamily = async (family_id = null) =>{
+  let lineIdCondition = '';
+  let replacements = {};
+
+  if (Array.isArray(family_id)) {
+    lineIdCondition = 'AND family_id IN (:family_id)';
+    replacements.family_id = family_id;
+  } else if (Number.isInteger(family_id)) {
+    lineIdCondition = 'AND t1.family_id = :family_id';
+    replacements.family_id = family_id;
+  }
+
+  const query = `
+    SELECT
+      COUNT(id) AS quantity
+    FROM
+      product_products
+    WHERE STATUS IN (0)
+      ${lineIdCondition}
+  `;
+
+  return sequelize.query(query, {
+    replacements,
+    type: sequelize.QueryTypes.SELECT
+  }).then(results => {
+    if (results.length > 0) {
+      return results[0].quantity;
+    } else {
+      return 0;
+    }
   }).catch(error => {
     console.error(error);
     throw new Error('An error occurred while fetching stage amounts');

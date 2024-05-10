@@ -186,6 +186,7 @@ import {
   exportReservation,
   scanBarcode,
   checkedInBarcode,
+  verifyQuantityByDisplayName,
 } from "../controllers/reservations";
 
 import {
@@ -506,6 +507,7 @@ router.post("/reservation/createtransaction/", createTransaction);
 router.post("/reservation/gettransactionsdata/", getTransactionsData);
 router.post("/reservation/removereservationitem/", removeReservationItem);
 router.post("/reservation/verifyQuantity/", verifyQuantity);
+router.post("/reservation/verifyquantitybydisplayname/", verifyQuantityByDisplayName);
 router.get("/reservations/exportpdf/:id/:tc", exportReservation);
 router.post("/reservation/scanbarcode/", scanBarcode);
 router.post("/reservation/checkedinbarcode/", checkedInBarcode);
