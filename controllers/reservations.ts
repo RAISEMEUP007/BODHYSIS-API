@@ -3,7 +3,7 @@ import sequelize from '../utils/database';
 import puppeteer from 'puppeteer';
 import bwipjs from 'bwip-js'; 
 
-import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds } from "./product";
+import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds, getAvaliableQuantityByfamily, getProductFamilyIdsByDisplayName } from "./product";
 import Reservations from "../models/reservation/reservations";
 import ReservationPayments from '../models/reservation/reservation_payments';
 import ReservationItems from '../models/reservation/reservation_items';
@@ -20,6 +20,8 @@ import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
 
 export const createReservation = async (req, res, next) => {
   try {
+    console.log("tax_amount-----------------------------------------------------");
+    console.log(req.body);
     const lastReservation = await Reservations.findOne({
       order: [['order_number', 'DESC']]
     });
@@ -480,6 +482,39 @@ export const verifyQuantity = async (req, res, next) => {
   }
 };
 
+export const verifyQuantityByDisplayName = async (req, res, next) => {
+  const { start_date, end_date, display_name, category_id, quantity, pre_quantity } = req.body;
+
+  if (quantity <= 0) {
+    return res.status(400).json({ error: 'Quantity should be greater than 0' });
+  }
+
+  try {
+    const familyIds = await getProductFamilyIdsByDisplayName(category_id, display_name);
+    const availableQuantity = await getAvaliableQuantityByfamily(familyIds);
+    const stageAmount = await getStageAmountByDisplayName(start_date, end_date, display_name);
+
+    console.log("====================================");
+    console.log(familyIds);
+    console.log(availableQuantity);
+    console.log(stageAmount);
+
+    const inventoryAmount = availableQuantity || 0;
+    const out_amount = stageAmount?.out_amount??0;
+    const remainingQuantity = inventoryAmount - out_amount;
+
+    if (quantity + (pre_quantity || 0) > remainingQuantity) {
+      return res.status(400).json({ error: 'Out of Stock' });
+    }
+
+    res.status(200).json({ message: 'In Stock' });
+    next();
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: 'An error occurred while verifying quantities' });
+  }
+};
+
 const getStageAmount = (startDate, endDate, line_id = null) => {
   let lineIdCondition = '';
   let replacements = { start_date: startDate, end_date: endDate };
@@ -532,6 +567,56 @@ const getStageAmount = (startDate, endDate, line_id = null) => {
     console.error(error);
     throw new Error('An error occurred while fetching stage amounts');
   });
+}
+
+const getStageAmountByDisplayName = async (startDate, endDate, display_name = "") => {
+  let lineIdCondition = '';
+  let replacements = { start_date: startDate, end_date: endDate, display_name };
+ 
+  // if (Array.isArray(family_id)) {
+  //   lineIdCondition = 'AND t1.family_id IN (:family_id)';
+  //   replacements.family_id = family_id;
+  // } else if (Number.isInteger(family_id)) {
+  //   lineIdCondition = 'AND t1.family_id = :family_id';
+  //   replacements.family_id = family_id;
+  // }
+
+  const query = `
+    SELECT
+      SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) AS reserved,
+      SUM(IF(t2.stage = 3, t1.quantity, 0)) AS checked_out,
+      SUM(IF(t2.stage = 4, t1.quantity, 0)) AS checked_in,
+      (SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) + SUM(IF(t2.stage = 3, t1.quantity, 0))) - SUM(IF(t2.stage = 4, t1.quantity, 0)) AS out_amount
+    FROM
+      reservation_items AS t1
+      INNER JOIN reservations AS t2
+        ON t1.reservation_id = t2.id
+    WHERE
+      t2.start_date < :end_date
+      AND t2.end_date > :start_date
+      AND t2.stage IN (1, 2, 3, 4)
+      AND t1.display_name = :display_name
+    GROUP BY t2.stage;
+  `;
+
+  try {
+     const stageAmounts = await sequelize.query(query, {
+       replacements,
+       type: sequelize.QueryTypes.SELECT
+     });
+
+    const formattedResults = stageAmounts.reduce((acc, cur) => {
+      acc.reserved = cur.reserved;
+      acc.checked_out = cur.checked_out;
+      acc.checked_in = cur.checked_in;
+      acc.out_amount = cur.out_amount;
+      return acc;
+    }, {});
+    return formattedResults;
+  } catch (error) {
+    console.error(error);
+    throw new Error('An error occurred while fetching stage amounts');
+  }
 }
 
 export const exportReservation = async (req, res, next) => {
