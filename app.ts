@@ -61,6 +61,7 @@ const verifyToken = (req, res, next) => {
     '/stripe/sendreservationconfirmationemail/',
     '/uploads',
     '/exportpdf',
+    '/forecasting',
   ];
 
   const path = req.originalUrl.split('?')[0];

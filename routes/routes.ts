@@ -206,7 +206,8 @@ import {
 } from "../controllers/stripe.js";
 import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
 import { getSettingsTemplate, getSettingsTemplateByType, postSettingsTemplate, putSettingsTemplate } from "../controllers/settings_templates";
-import { searchAddress, getAddressesData, createAddress, updateAddress, deleteAddress } from "../controllers/alladdresses";
+import { searchAddress, getAddressesData, createAddress, updateAddress, deleteAddress, getForecastingData,
+  createForecasting, updateForecasting, deleteForecasting } from "../controllers/alladdresses";
 
 const router = express.Router();
 
@@ -544,6 +545,11 @@ router.post("/alladdresses/getaddressesdata/", getAddressesData);
 router.post("/alladdresses/createaddress", createAddress);
 router.post("/alladdresses/updateaddress", updateAddress);
 router.post("/alladdresses/deleteaddress", deleteAddress);
+
+router.post("/forecasting/create", createForecasting);
+router.post("/forecasting/update", updateForecasting);
+router.post("/forecasting/delete", deleteForecasting);
+router.get("/forecasting/getsummary", getForecastingData);
 
 router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });
