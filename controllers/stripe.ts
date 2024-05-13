@@ -5,6 +5,14 @@ import { sendSMSTwilio } from '../utils/twilio';
 import Stripe from 'stripe';
 import ReservationPayments from '../models/reservation/reservation_payments';
 import Reservations from "../models/reservation/reservations";
+import Reservations from "../models/reservation/reservations";
+import ReservationItems from '../models/reservation/reservation_items';
+import ReservationItemsExtras from '../models/reservation/reservation_items_extras';
+import ProductFamilies from '../models/product/product_families';
+import CustomerCustomers from '../models/customer/customer_customers';
+import SettingsColorcombinations from '../models/settings/settings_colorcombinations';
+import AllAddresses from '../models/all_addresses';
+import SettingsExtras from '../models/settings/settings_extras';
 
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -261,6 +269,132 @@ export const chargeStripeCard = async (req, res, next) => {
 
 export const sendReservationConfirmationEmail = async (req, res, next) => {
   try {
+
+    const id = req.body.id;
+
+    let queryOptions = {
+      include: [{ 
+        model: ReservationItems, 
+        as: 'items',
+        include: [
+          { 
+            model: ProductFamilies, 
+            as: 'families', 
+            attributes: ['family', 'display_name'],
+          },
+          {
+            model: ReservationItemsExtras,
+            as: 'item_extras',
+            include: {
+              model: SettingsExtras,
+              as: 'extras'
+            }
+          }
+        ],
+      },
+      {
+        model: CustomerCustomers,
+        as: 'customer',
+      },
+      {
+        model: AllAddresses,
+        as: 'all_addresses',
+      },
+      {
+        model: SettingsColorcombinations,
+        as: 'color',
+      }],
+      where: {
+        id: id
+      },
+    };
+
+    const reservationRow = await Reservations.findOne(queryOptions);
+    const reservation = {
+      ...reservationRow.toJSON(),
+      items: reservationRow.items.map(item => ({
+        ...item.toJSON(),
+        family: item?.families?.family??'',
+        summary: item?.families?.summary??'',
+        price_group_id: item.price_group_id,
+        extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
+      }))
+      .map(item => ({
+        ...item,
+        families: undefined,
+        item_extras: undefined
+      }))
+      .sort((a, b) => a.display_name.localeCompare(b.display_name)) 
+    };
+
+    const stage = [
+      'DRAFT',
+      'PROVISIONAL',
+      'CONFIRMED',
+      'CHECKEDOUT',
+      'CHECKEDIN',
+    ];
+
+    const totalHours = (reservation.end_date.getTime() - reservation.start_date.getTime()) / (1000 * 60 * 60);
+    const days = Math.floor(totalHours / 24);
+
+    let htmlContent = `<table style="border-collapse: collapse; margin-top:50px;">
+        <thead>
+          <tr style="border-bottom: 2px solid black">
+            <th width="200" style="text-align:left;">Bike</th>
+            <th width="500" style="text-align:left;">Description</th>
+            <th width="80" style="text-align:left;">Size</th>
+            <th width="50" style="text-align:left;">Tax</th>
+            <th width="80" style="text-align:left;">Price</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+    htmlContent += reservation.items.map(item=>(
+      `<tr style="border-bottom: 1px solid #999;">
+        <td style="padding: 10px 4px;">${item.display_name}</td>
+        <td style="padding: 10px 4px;">${item.summary}</td>
+        <td style="padding: 10px 4px;">${item.size || ''}</td>
+        <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
+        <td style="text-align:right;">${item.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+      </tr>`
+    )).join('');;
+
+    htmlContent += `</tbody>
+      </table>
+      <div style="display:flex; justify-content:flex-end; border-top: 2px solid #999;">
+        <table style="border-collapse: collapse; margin-top:12px;">
+          <tr>
+            <td style="text-align:right; padding-right:20px;" width="200"><b>Subtotal (excl. tax)</b></td>
+            <td style="text-align:right;">${reservation.subtotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+          </tr>
+          <tr>
+            <td style="text-align:right; padding-right:20px;"><sup>*</sup> Discount</td>
+            <td style="text-align:right;">-${reservation.discount_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+          </tr>
+          <tr>
+            <td style="text-align:right; padding-right:20px;"><b>Discounted Subtotal</b></td>
+            <td style="text-align:right;">${(reservation.subtotal - reservation.discount_amount).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+          </tr>
+          <tr>
+            <td style="text-align:right; padding-right:20px;"><sup>2</sup>driver tip</td>
+            <td style="text-align:right;">${(reservation.driver_tip).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+          </tr>
+          <tr>
+            <td style="text-align:right; padding-right:20px;"><sup>1</sup>gst</td>
+            <td style="text-align:right;">$0.00</td>
+          </tr>
+          <tr>
+            <td style="text-align:right; padding-right:20px;"><b>Total Tax</b></td>
+            <td style="text-align:right;">${reservation.tax_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+          </tr>
+          <tr>
+            <td style="text-align:right; padding-right:20px; padding-top:16px; font-size:18px; font-weight:700;">Total</td>
+            <td style="text-align:right;  padding-top:16px; font-size:18px; font-weight:700;">${reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+          </tr>
+        </table>
+      </div>`
+
     const msg = {
       to: req.body.email,
       dynamic_template_data: {
@@ -272,6 +406,31 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
         end_time : req.body.end_time,
         support_phone : "1-800-555-5555",
         support_email : "support@islandcruisers.com",
+        Reservation: reservation.order_number,
+        Invoice: '',
+        Stage: stage[reservation.stage],
+        Type: '',
+        FirstName: reservation.customer?.first_name??'',
+        LastName: reservation.customer?.last_name??'', 
+        Email: reservation.email ? reservation.email : reservation.customer && reservation.customer.email ? reservation.customer.email : '',
+        PhoneNumber: reservation.phone_number ? reservation.phone_number : reservation.customer && reservation.customer.phone_number ? reservation.customer.phone_number : '',
+        UnitNumber: reservation.all_addresses?.number??'' + reservation.all_addresses?.street??'',
+        BuildingName: reservation.all_addresses?.property_name??'',
+        From: new Date(reservation.start_date).toLocaleString('en-US', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                }) + ' @ 08:00 AM'??'',
+        To: new Date(reservation.end_date).toLocaleString('en-US', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                }) + ' @ 10:00 AM'??'',
+        Duration: days,
+        TotalPrice: reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+        TotalRecieved: reservation.paid.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+        Balance: (reservation.paid - reservation.total_price).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+        pricing_table: htmlContent,
       },
     };
     await sendReservationConfirmEmail(msg);
@@ -283,7 +442,7 @@ Your reservation has been confirmed.
 Your equipment will be delivered on the date of your reservation. Please remember, we will pickup your equipment on the last date of your reservation at 8:00 am.
 
 Confirmation Details
-${req.body.start_time} at 08:00 am - ${req.body.end_time} at 08:00 am.
+${req.body.start_time} at 08:00 am - ${req.body.end_time} at 10:00 am.
 
 
 If you need to cancel or make any changes to your reservation please contact us at 1-800-555-5555, you can also send an email to support@islandcruisers.com`
@@ -291,6 +450,7 @@ If you need to cancel or make any changes to your reservation please contact us 
     await sendSMSTwilio(req.body.phone_number, templateText);
     return res.status(200).json();
   } catch (err) {
+    console.log(err);
     console.error('An error occurred:', err);
     return res.status(500).send("An error occurred");
   }
@@ -308,7 +468,7 @@ export const refundStripe = async (req, res, next) => {
       ...refundAmount
     });
 
-    console.log(req.body);
+    // console.log(req.body);
     ReservationPayments.update(
       { 
         refunded: req.body.old_refunded + refund.amount/100,

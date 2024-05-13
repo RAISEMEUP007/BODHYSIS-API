@@ -719,8 +719,8 @@ export const exportReservation = async (req, res, next) => {
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Type</td><td></td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">First Name</td><td>${reservation.customer?.first_name??''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Last Name</td><td>${reservation.customer?.last_name??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Email</td><td>${reservation.customer?.email??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Phone Number</td><td>+1 ${reservation.customer?.phone_number??''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Email</td><td>${reservation.email ? reservation.email : reservation.customer && reservation.customer.email ? reservation.customer.email : ''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Phone Number</td><td>${reservation.phone_number ? reservation.phone_number : reservation.customer && reservation.customer.phone_number ? reservation.customer.phone_number : ''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Unit Number</td><td>${reservation.all_addresses?.number??''} ${reservation.all_addresses?.street??''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Property Name</td><td>${reservation.all_addresses?.property_name??''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">From</td><td>${new Date(reservation.start_date).toLocaleString('en-US', {
@@ -733,7 +733,7 @@ export const exportReservation = async (req, res, next) => {
                   year: 'numeric',
                   month: '2-digit',
                   day: '2-digit',
-                }) + ' @ 08:00 AM'??''}</td></tr>
+                }) + ' @ 10:00 AM'??''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Duration</td><td>${days} Day(s)</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Price</td><td>${reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Rec'd</td><td>${reservation.paid.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td></tr>
@@ -750,8 +750,7 @@ export const exportReservation = async (req, res, next) => {
           </tr>
         </thead>
         <tbody>`;
-    console.log("items---------------------------------------------");
-    console.log(reservation.items);
+
     htmlContent += reservation.items.map(item=>(
       `<tr style="border-bottom: 1px solid #999;">
         <td style="padding: 10px 4px;">${item.display_name}</td>
@@ -823,7 +822,7 @@ export const exportReservation = async (req, res, next) => {
         <p>Delivery and pick-up of equipment is included on all orders over  $50 within the traditional tourist destination areas of Hilton Head. Delivery fee for less than $50 or to areas outside of the traditional tourist areas is $25 each trip plus any applicable gate fees. ${storeName} reserves the right to include delivery at a lower amount or refuse to deliver to non-tourist areas at its sole discretion. ${storeName} may add the Sea Pines bike fee on the invoice, if not added by customer at time of order. Should there be a gate fee associated with entrance to a private neighborhood for which ${storeName} does not have a commercial pass, Customer shall provide a pass or pay the cost associated with obtaining such pass. Customer must provide delivery address at time of order.</p>
         <p>Customer agrees to pay a switch-out fee if they order the wrong size, style, or quantity of equipment. However, they may exchange the equipment at one of HHI Rental, LLC's facilities at no additional charge.</p>
         <p>Customer may ride off from ${storeName}'s facility at 59B New Orleans Road or Hilton Head Beach and Tennis stand only. No ride-off rentals are allowed from any other location. All Customers staying at Hilton Head Resort must pick up from and return items to one of our facilities. We do not provide delivery or pickup at Hilton Head Resort. Failure to return items will result in a $100 charge.</p>
-        <p>All orders end at 8:00 AM on the last day listed on the agreement. We will begin pickup as early as 8:00 AM so please ensure the bikes and equipment are locked where we left them. If we attempt to pick up the items and they are not available, we will charge an amount equal to the current 1 day rental rate on all items listed in the order as a fee for the second trip. During times of high demand, ${storeName} reserves the right to deliver orders for Saturday delivery the following Sunday morning without any discount owed to or right to cancel by Customer.</p>
+        <p>All orders end at 8:00 AM on the last day listed on the agreement. We will begin pickup as early as 10:00 AM so please ensure the bikes and equipment are locked where we left them. If we attempt to pick up the items and they are not available, we will charge an amount equal to the current 1 day rental rate on all items listed in the order as a fee for the second trip. During times of high demand, ${storeName} reserves the right to deliver orders for Saturday delivery the following Sunday morning without any discount owed to or right to cancel by Customer.</p>
         <p>Customer agrees ${storeName} has the right to terminate this agreement and the rental contract at any time due to Customer's actions or improper conduct and re-take possession of equipment. ${storeName} and its DBAs may enter the property or premises where the equipment is located to effect its return without liability for trespassing.  </p>
       </Section>
       <Section style="margin: 50px 0;">
