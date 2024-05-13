@@ -346,6 +346,26 @@ export const getDocumentsData = (req, res, next) => {
   });
 };
 
+export const getDocumentById = (req, res, next) => {
+  const documentId = req.params.id;
+  
+  SettingsDocuments.findOne({
+    where: { id: documentId }
+  })
+  .then((document) => {
+    if (document) {
+      res.status(200).json(document);
+    } else {
+      res.status(404).json({ error: "Document not found" });
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  });
+};
+
+
 export const createDocument = (req, res, next) => {
   const { document_name, document_type, document_content } = req.body;
   const imgUrl = generateFileUrl(req.files);
