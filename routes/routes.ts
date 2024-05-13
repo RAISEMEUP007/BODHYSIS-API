@@ -104,6 +104,7 @@ import {
   updateLanguage,
   deleteLanguage,
   getDocumentsData,
+  getDocumentById,
   createDocument,
   updateDocument,
   deleteDocument,
@@ -374,6 +375,7 @@ router.post("/settings/deletelanguage", deleteLanguage);
 
 // Settings/Document
 router.get("/settings/getdocumentsdata", getDocumentsData);
+router.get("/settings/getdocumentbyid/:id", getDocumentById);
 router.post("/settings/createdocument", upload.array("img", 3), createDocument);
 router.post("/settings/updatedocument", upload.array("img", 3), updateDocument);
 router.post("/settings/deletedocument", deleteDocument);

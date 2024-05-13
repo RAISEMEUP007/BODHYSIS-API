@@ -37,6 +37,9 @@ const ProductLines = sequelize.define('product_lines', {
    price_group_id: {
       type: Sequelize.INTEGER,
    },
+   brand_ids: {
+      type: Sequelize.STRING,
+   },
 }, {
    timestamps: false
 });
