@@ -17,7 +17,8 @@ import SettingsExtras from '../models/settings/settings_extras';
 dotenv.config();
 
 const stripe = (storeName = "") => {
-  if(storeName.toLowerCase().includes('stand')) {
+  if(storeName && storeName.toLowerCase().includes('stand')) {
+    console.log("********************************************************************");
     return new Stripe(process.env.STRIPE_SECRET_KEY_STAND);
   } else {
     return new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -211,11 +212,11 @@ export const getSecret = async (req, res, next) => {
   const { amount } = req.body;
 
   try {
-    const intent = await stripe().paymentIntents.create({
+    const intent = await stripe(req.body.store_name).paymentIntents.create({
       amount: amount,
       currency: 'usd',
       automatic_payment_methods: {enabled: true},
-      receipt_email: req.body.email,
+      // receipt_email: req.body.email,
       shipping: {
         name: req.body.name,
         address: {
