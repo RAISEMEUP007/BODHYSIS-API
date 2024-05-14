@@ -15,11 +15,18 @@ import AllAddresses from '../models/all_addresses';
 import SettingsExtras from '../models/settings/settings_extras';
 
 dotenv.config();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const stripe = (storeName = "") => {
+  if(storeName.toLowerCase().includes('stand')) {
+    return new Stripe(process.env.STRIPE_SECRET_KEY_STAND);
+  } else {
+    return new Stripe(process.env.STRIPE_SECRET_KEY);
+  }
+}
 
 export const createCustomerStripe = async (req, res, next) => {
   try {
-    const customer = await stripe.customers.create({
+    const customer = await stripe().customers.create({
       email: req.body.email,
       name: req.body.name,
       description: req.body.description,
@@ -42,7 +49,7 @@ export const createCustomerStripe = async (req, res, next) => {
 
 export const retriveCustomerStripe = async (req, res, next) => {
   try {
-    const customer = await stripe.customers.retrieve(req.body.customerId);
+    const customer = await stripe().customers.retrieve(req.body.customerId);
 
     res.json(customer);
   } catch (error) {
@@ -52,7 +59,7 @@ export const retriveCustomerStripe = async (req, res, next) => {
 
 export const createCardToCustomer = async (req, res, next) => {
   try {
-    // const paymentMethod = await stripe.paymentMethods.create({
+    // const paymentMethod = await stripe().paymentMethods.create({
     //   type: "card",
     //   card: {
     //     number: req.body.number,
@@ -61,7 +68,7 @@ export const createCardToCustomer = async (req, res, next) => {
     //     cvc: req.body.cvc,
     //   }
     // });
-    const paymentMethod = await stripe.paymentMethods.create({
+    const paymentMethod = await stripe().paymentMethods.create({
       type: "card",
       card: {
         number: "4242424242424242",
@@ -70,7 +77,7 @@ export const createCardToCustomer = async (req, res, next) => {
         cvc: 123,
       }
     });
-    // const paymentMethod = await stripe.paymentMethods.create({
+    // const paymentMethod = await stripe().paymentMethods.create({
     //   type: "card",
     //   card: {
     //     number: "4213550150474327",
@@ -81,7 +88,7 @@ export const createCardToCustomer = async (req, res, next) => {
     // });
 
     const customerId = "cus_PZX06ma31tIVTO";
-    await stripe.paymentMethods.attach('pm_1OkW1nERU8T0qKkfLZlclCuM', {
+    await stripe().paymentMethods.attach('pm_1OkW1nERU8T0qKkfLZlclCuM', {
       customer: customerId
     });
 
@@ -95,7 +102,7 @@ export const addAndSaveCard = async (req, res, next) => {
   try {
     const customerId = "cus_PZX06ma31tIVTO";
 
-    const cardToken = await stripe.tokens.create({
+    const cardToken = await stripe().tokens.create({
       card: {
         number: '5555555555554444',
         exp_month: 12,
@@ -104,7 +111,7 @@ export const addAndSaveCard = async (req, res, next) => {
       }
     });
 
-    const card = await stripe.customers.createSource(customerId, {
+    const card = await stripe().customers.createSource(customerId, {
       source: cardToken.id
     })
 
@@ -118,7 +125,7 @@ export const addCardTokenToCustomer = async (req, res, next) => {
   try {
     const customerId = req.body.customerId;
 
-    const card = await stripe.customers.createSource(customerId, {
+    const card = await stripe().customers.createSource(customerId, {
       source: req.body.cardToken
     })
 
@@ -130,7 +137,7 @@ export const addCardTokenToCustomer = async (req, res, next) => {
 
 export const makePayment = async (req, res, next) => {
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
+    const paymentIntent = await stripe().paymentIntents.create({
       amount: req.body.amount,
       currency: req.body.currency,
       payment_method: req.body.paymentMethod,
@@ -153,7 +160,7 @@ export const detachCardTokenToCustomer = async (req, res, next) => {
   try {
     const customerId = req.body.customerId;
 
-    const customerSource = await stripe.customers.deleteSource(
+    const customerSource = await stripe().customers.deleteSource(
       customerId,
       req.body.cardToken
     );
@@ -166,7 +173,7 @@ export const detachCardTokenToCustomer = async (req, res, next) => {
 
 export const addPaymentMethodToCustomer = async (req, res, next) => {
   try {
-    const result = await stripe.paymentMethods.attach(req.body.paymentId, {
+    const result = await stripe().paymentMethods.attach(req.body.paymentId, {
       customer: req.body.customerId
     });
 
@@ -180,7 +187,7 @@ export const listPaymentMethods = async (req, res, next) => {
   try {
     const customerId = req.body.customerId;
 
-    const paymentMethods = await stripe.paymentMethods.list({
+    const paymentMethods = await stripe().paymentMethods.list({
       customer: customerId,
       type: "card"
     });
@@ -204,7 +211,7 @@ export const getSecret = async (req, res, next) => {
   const { amount } = req.body;
 
   try {
-    const intent = await stripe.paymentIntents.create({
+    const intent = await stripe().paymentIntents.create({
       amount: amount,
       currency: 'usd',
       automatic_payment_methods: {enabled: true},
@@ -232,7 +239,7 @@ export const getSecret = async (req, res, next) => {
 
 export const chargeStripeCard = async (req, res, next) => {
   try {
-    let paymentMethod = await stripe.paymentMethods.create({
+    let paymentMethod = await stripe().paymentMethods.create({
       type: 'card',
       card: {
         number: req.body.card_number,
@@ -252,7 +259,7 @@ export const chargeStripeCard = async (req, res, next) => {
       }
     });
 
-    paymentIntent = await stripe.paymentIntents.create({
+    paymentIntent = await stripe().paymentIntents.create({
       payment_method: paymentMethods.id,
       amount: req.body.amount,
       currency: 'USD',
@@ -416,16 +423,8 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
         PhoneNumber: reservation.phone_number ? reservation.phone_number : reservation.customer && reservation.customer.phone_number ? reservation.customer.phone_number : '',
         UnitNumber: reservation.all_addresses?.number??'' + reservation.all_addresses?.street??'',
         BuildingName: reservation.all_addresses?.property_name??'',
-        From: new Date(reservation.start_date).toLocaleString('en-US', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                }) + ' @ 08:00 AM'??'',
-        To: new Date(reservation.end_date).toLocaleString('en-US', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                }) + ' @ 10:00 AM'??'',
+        From: req.body.start_time,
+        To: req.body.end_time,
         Duration: days,
         TotalPrice: reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
         TotalRecieved: reservation.paid.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
@@ -442,7 +441,7 @@ Your reservation has been confirmed.
 Your equipment will be delivered on the date of your reservation. Please remember, we will pickup your equipment on the last date of your reservation at 8:00 am.
 
 Confirmation Details
-${req.body.start_time} at 08:00 am - ${req.body.end_time} at 10:00 am.
+${req.body.start_time} - ${req.body.end_time}.
 
 
 If you need to cancel or make any changes to your reservation please contact us at 1-800-555-5555, you can also send an email to support@islandcruisers.com`
@@ -463,7 +462,7 @@ export const refundStripe = async (req, res, next) => {
       refundAmount = { amount: req.body.manual_amount * 100 };
     }
 
-    const refund = await stripe.refunds.create({
+    const refund = await stripe().refunds.create({
       payment_intent: req.body.payment_intent,
       ...refundAmount
     });

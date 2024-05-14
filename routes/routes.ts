@@ -204,7 +204,7 @@ import {
   chargeStripeCard,
   refundStripe,
   sendReservationConfirmationEmail,
-} from "../controllers/stripe.js";
+} from "../controllers/stripe";
 import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
 import { getSettingsTemplate, getSettingsTemplateByType, postSettingsTemplate, putSettingsTemplate } from "../controllers/settings_templates";
 import { searchAddress, getAddressesData, createAddress, updateAddress, deleteAddress, getForecastingData,

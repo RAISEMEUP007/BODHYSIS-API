@@ -83,6 +83,12 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
    is_document: {
       type: Sequelize.INTEGER,
    },
+   pickup_time: {
+      type: Sequelize.STRING,
+   },
+   dropoff_time: {
+      type: Sequelize.STRING,
+   },
 }, {
    timestamps: false
 });
