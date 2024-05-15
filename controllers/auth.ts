@@ -84,20 +84,13 @@ export const getTestToken = async (req, res, next) => {
 	const testEmail = 'test@email.com';
 	const testUser = 'testUser';
 
-	// const refreshToken = await generateRefreshToken(testId, testEmail, testUser)
 	const expiresIn = dayjs().add(30, "day").unix()
 	const refreshToken = jwt.sign({ testEmail, testId, testUser }, process.env.JWT_REFRESH_TOKEN_SECRET, {
 		 subject: testId.toString(),
 		 expiresIn: '1d'
 	});
 
-	res.status(200).json({
-		message: "user logged in", 
-		refreshToken,
-		userId: testId,
-		email: testEmail,
-		userName: testUser,
-	});
+	res.status(200).send(refreshToken);
 };
 
 export const login = (req, res, next) => {

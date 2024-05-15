@@ -11,6 +11,7 @@ import {
   newPass,
   refreshToken,
   getTestToken,
+  testToken,
 } from "../controllers/auth";
 import {
   customerSignUp,
@@ -70,6 +71,7 @@ import {
   deleteProductLine,
   getProductsData,
   getProductDetailByBarcode,
+  getProductDetailById,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -231,7 +233,7 @@ router.get("/changepass/:id", verifyChangePass);
 router.post("/newpassword", newPass);
 router.get("/private", isAuth);
 router.post("/refresh-token", refreshToken);
-// router.get("/auth/ttt", getTestToken);
+// router.get("/auth/gettesttoken", getTestToken);
 
 // user
 router.get("/user/getdrivers", getDrivers);
@@ -332,7 +334,9 @@ router.post("/product/deleteproductline", deleteProductLine);
 
 // Products
 router.post("/product/getproductsdata/", getProductsData);
+router.post("/product/list", getProductsData);
 router.post("/product/getproductdetailbybarcode/", getProductDetailByBarcode);
+router.get("/product/:id", getProductDetailById);
 router.post("/product/createproduct", createProduct);
 router.post("/product/updateproduct", updateProduct);
 router.post("/product/deleteproduct", deleteProduct);
@@ -502,7 +506,9 @@ router.get("/reservations/getreservationsdata/", getReservationsData);
 router.post("/reservations/getreservationsdata/", getReservationsData);
 router.post("/reservations/createreservation/", createReservation);
 router.get("/reservations/getreservationslist/", getReservationsList);
+router.get("/reservations/list/", getReservationsList);
 router.get("/reservations/getreservationdetails/:id", getReservationDetails);
+router.get("/reservation/:id", getReservationDetails);
 router.post("/reservations/updatereservation", updateReservation);
 router.post("/reservations/updatereservationitem", updateReservationItem);
 
@@ -557,7 +563,7 @@ router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });
 });
 
-router.get("/testtokenvalid", (req, res, next) => {
+router.get("/testtoken", (req, res, next) => {
   res.status(200).json({ message: 'Token is valid' });
 });
 
