@@ -714,8 +714,8 @@ export const exportReservation = async (req, res, next) => {
       <h4 style="text-align: center;">59B New Orleans Road, Hilton Head, SC, 29928, US 843.785.2730</h4>
       <img src="data:image/png;base64,${barcodeImage.toString('base64')}" alt="Barcode Image" />
       <table style="margin-top:30px">
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Reservation</td><td>${reservation.order_number}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Invoice</td><td></td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Reservation</td><td>${reservation?.order_number??''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Invoice</td><td>${reservation?.order_number??''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Note</td><td>${reservation?.note??''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Stage</td><td>${stage[reservation.stage]}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Type</td><td></td></tr>
@@ -748,7 +748,7 @@ export const exportReservation = async (req, res, next) => {
             <th width="500" style="text-align:left;">Description</th>
             <th width="80" style="text-align:left;">Size</th>
             <th width="50" style="text-align:left;">Tax</th>
-            <th width="80" style="text-align:left;">Price</th>
+            <th width="70" style="text-align:left;">Price</th>
           </tr>
         </thead>
         <tbody>`;
@@ -758,7 +758,7 @@ export const exportReservation = async (req, res, next) => {
         <td style="padding: 10px 4px;">${item.display_name}</td>
         <td style="padding: 10px 4px;">${item.summary}</td>
         <td style="padding: 10px 4px;">${item.size || ''}</td>
-        <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
+        <td style="padding-left: 10px;">${(item.price * reservation.tax_rate/100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
         <td style="text-align:right;">${item.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
       </tr>`
     )).join('');;

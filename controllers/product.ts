@@ -719,6 +719,7 @@ export const getProductQuantitiesByLine = (req, res, next) => {
     res.status(200).json(transformedResults);
   })
   .catch(error => {
+    console.log(error);
     res.status(500).json({ error: error.message });
   });
 };
@@ -736,6 +737,7 @@ export const getProductQuantitiesByFamily = (req, res, next) => {
     res.status(200).json(transformedResults);
   })
   .catch(error => {
+    console.log(error);
     res.status(500).json({ error: error.message });
   });
 };
@@ -753,6 +755,7 @@ export const getProductQuantitiesByCategory = (req, res, next) => {
     res.status(200).json(transformedResults);
   })
   .catch(error => {
+    console.log(error);
     res.status(500).json({ error: error.message });
   });
 };

@@ -154,7 +154,7 @@ paths:
                 properties:
                   error:
                     type: string
-  /product/list:
+  /products/list:
     post:
       summary: Retrieve Products List
       tags:
@@ -195,7 +195,7 @@ paths:
                     type: string
         '500':
           description: Internal server error
-  /product/{id}:
+  /products/{id}:
     get:
       summary: Get Product Detail by id
       tags:
@@ -261,5 +261,5 @@ paths:
 components:
   schemas:
 tags:
-  - name: Login
+  - name: Auth
     description: User authentication API
