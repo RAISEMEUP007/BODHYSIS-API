@@ -346,14 +346,15 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
     const totalHours = (reservation.end_date.getTime() - reservation.start_date.getTime()) / (1000 * 60 * 60);
     const days = Math.floor(totalHours / 24);
 
-    let htmlContent = `<table style="border-collapse: collapse; margin-top:50px;">
+    let htmlContent = `<div>`;
+    htmlContent += `<table style="border-collapse: collapse; margin-top:50px;">
         <thead>
           <tr style="border-bottom: 2px solid black">
             <th width="200" style="text-align:left;">Bike</th>
             <th width="500" style="text-align:left;">Description</th>
             <th width="80" style="text-align:left;">Size</th>
             <th width="50" style="text-align:left;">Tax</th>
-            <th width="80" style="text-align:left;">Price</th>
+            <th width="70" style="text-align:left;">Price</th>
           </tr>
         </thead>
         <tbody>`;
@@ -363,14 +364,14 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
         <td style="padding: 10px 4px;">${item.display_name}</td>
         <td style="padding: 10px 4px;">${item.summary}</td>
         <td style="padding: 10px 4px;">${item.size || ''}</td>
-        <td style="padding-left: 10px;"><sup><i>1</i></sup></td>
+        <td style="padding-left: 10px;">${(item.price * reservation.tax_rate/100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
         <td style="text-align:right;">${item.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
       </tr>`
     )).join('');;
 
     htmlContent += `</tbody>
       </table>
-      <div style="display:flex; justify-content:flex-end; border-top: 2px solid #999;">
+      <div style="display:flex; border-top: 2px solid #999; justify-content:flex-end;">
         <table style="border-collapse: collapse; margin-top:12px;">
           <tr>
             <td style="text-align:right; padding-right:20px;" width="200"><b>Subtotal (excl. tax)</b></td>
@@ -402,6 +403,7 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
           </tr>
         </table>
       </div>`
+    htmlContent += `</div>`;
 
     const msg = {
       to: req.body.email,
@@ -415,9 +417,9 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
         support_phone : "1-800-555-5555",
         support_email : "support@islandcruisers.com",
         Reservation: reservation.order_number,
-        Invoice: '',
+        Invoice: reservation.order_number,
         Stage: stage[reservation.stage],
-        Type: '',
+        Type: 'client',
         FirstName: reservation.customer?.first_name??'',
         LastName: reservation.customer?.last_name??'', 
         Email: reservation.email ? reservation.email : reservation.customer && reservation.customer.email ? reservation.customer.email : '',
@@ -428,7 +430,7 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
         To: req.body.end_time,
         Duration: days,
         TotalPrice: reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
-        TotalRecieved: reservation.paid.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+        TotalReceived: reservation.paid.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
         Balance: (reservation.paid - reservation.total_price).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
         pricing_table: htmlContent,
       },

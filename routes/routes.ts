@@ -334,9 +334,9 @@ router.post("/product/deleteproductline", deleteProductLine);
 
 // Products
 router.post("/product/getproductsdata/", getProductsData);
-router.post("/product/list", getProductsData);
+router.post("/products/list", getProductsData);
 router.post("/product/getproductdetailbybarcode/", getProductDetailByBarcode);
-router.get("/product/:id", getProductDetailById);
+router.get("/products/:id", getProductDetailById);
 router.post("/product/createproduct", createProduct);
 router.post("/product/updateproduct", updateProduct);
 router.post("/product/deleteproduct", deleteProduct);
