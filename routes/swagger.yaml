@@ -1,0 +1,265 @@
+openapi: 3.0.0
+info:
+  title: Example API
+  description: An example API using OpenAPI 3.0
+  version: 1.0.0
+paths:
+  /login:
+    post:
+      summary: Endpoint for user login
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  refreshToken:
+                    type: string
+                  email:
+                    type: string
+                  userId:
+                    type: string
+                  userName:
+                    type: string
+        '403':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '502':
+          description: Error while checking user password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Internal server error
+  /testtoken:
+    get:
+      summary: Endpoint for test token
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+  /reservations/list:
+    get:
+      summary: Retrieve Reservations List
+      tags:
+        - Reservations
+      responses:
+        '200':
+          description: Successful retrieval of reservations data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    // Include properties based on the response data structure
+        '401':
+          description: Unauthorized
+        '502':
+          description: An error occurred during processing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+  /reservation/{id}:
+    get:
+      summary: Get Reservation Detail by id
+      tags:
+        - Reservations
+      parameters:
+        - in: path
+          name: id
+          description: The id of the reservation
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful retrieval of reservation detail
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+        '404':
+          description: Reservation not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /product/list:
+    post:
+      summary: Retrieve Products List
+      tags:
+        - Products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category_id:
+                  type: integer
+                family_id:
+                  type: integer
+                line_id:
+                  type: integer
+      responses:
+        '200':
+          description: Successful retrieval of product data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    // Include properties based on the response data structure
+        '401':
+          description: Unauthorized
+        '502':
+          description: An error occurred during processing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+  /product/{id}:
+    get:
+      summary: Get Product Detail by id
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: id
+          description: The id of the product
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful retrieval of product detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  category:
+                    type: string
+                  family:
+                    type: string
+                    description: 'Family of the product'
+                  display_name:
+                    type: string
+                    description: 'Display name of the family'
+                  line:
+                    type: string
+                    description: 'Product line'
+                  size:
+                    type: string
+                    description: 'Product size'
+                  price_group_id:
+                    type: string
+                    description: 'Price group ID'
+                  id:
+                    type: string
+                    description: 'Price group ID'
+                  price_group:
+                    type: string
+                    description: 'Price group'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+components:
+  schemas:
+tags:
+  - name: Login
+    description: User authentication API

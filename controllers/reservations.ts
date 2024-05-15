@@ -83,19 +83,21 @@ export const createReservation = async (req, res, next) => {
 
 export const getReservationsData = (req, res, next) => {
   const searchOptions = req.body.searchOptions;
-  switch(searchOptions.status_filter){
-    case 1:
-      searchOptions.stage = 3;
-      break;
-    case 2:
-      searchOptions.stage = 3;
-      break;
-    case 3:
-      searchOptions.stage = 1;
-      break;
-    case 4:
-      searchOptions.stage = 2;
-      break;
+  if(searchOptions && searchOptions.status_filter){
+    switch(searchOptions.status_filter){
+      case 1:
+        searchOptions.stage = 3;
+        break;
+      case 2:
+        searchOptions.stage = 3;
+        break;
+      case 3:
+        searchOptions.stage = 1;
+        break;
+      case 4:
+        searchOptions.stage = 2;
+        break;
+    }
   }
 
   const query = `
@@ -146,10 +148,10 @@ export const getReservationsData = (req, res, next) => {
   WHERE
     t1.start_date >= :start_date
     AND t1.start_date <= :end_date
-    ${searchOptions.customer ? `AND CONCAT(t2.first_name, ' ', t2.last_name) LIKE :customer` : ''}
-    ${searchOptions.brand ? `AND t3.brand LIKE :brand` : ''}
-    ${searchOptions.order_number ? `AND t1.order_number LIKE :order_number` : ''}
-    ${Array.isArray(searchOptions.stage) ? `AND t1.stage IN (:stage)` : searchOptions.stage ? `AND (t1.stage = :stage OR :stage IS NULL OR :stage = '')` : ''}
+    ${searchOptions && searchOptions.customer ? `AND CONCAT(t2.first_name, ' ', t2.last_name) LIKE :customer` : ''}
+    ${searchOptions && searchOptions.brand ? `AND t3.brand LIKE :brand` : ''}
+    ${searchOptions && searchOptions.order_number ? `AND t1.order_number LIKE :order_number` : ''}
+    ${searchOptions && searchOptions.stage && Array.isArray(searchOptions.stage) ? `AND t1.stage IN (:stage)` : searchOptions && searchOptions.stage ? `AND (t1.stage = :stage OR :stage IS NULL OR :stage = '')` : ''}
   GROUP BY t1.id
   ORDER BY t1.order_number DESC
   `;
@@ -182,7 +184,7 @@ export const getReservationsList = (_: Request, res: Response) => {
     Reservations.findAll({
       order: [["createdAt", "DESC"]],
     }).then((result: any) => {
-      return res.status(201).json({ reservations: result });
+      return res.status(201).json(result);
     });
   } catch (error) {
     return res.status(409).json({

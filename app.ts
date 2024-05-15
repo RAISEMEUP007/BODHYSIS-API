@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import jwt from 'jsonwebtoken';
 import * as Sentry from "@sentry/node";
+import swaggerjsdoc from "swagger-jsdoc";
+import swaggerui from "swagger-ui-express";
 
 dotenv.config();
 
@@ -18,14 +20,14 @@ app.use(
   })
 );
 
-Sentry.init({
-  dsn: "https://159363fd933eaee705ee9f3d4467ab59@o382651.ingest.us.sentry.io/4507070894833664",
+// Sentry.init({
+//   dsn: "https://159363fd933eaee705ee9f3d4467ab59@o382651.ingest.us.sentry.io/4507070894833664",
 
-  // Set tracesSampleRate to 1.0 to capture 100%
-  // of transactions for performance monitoring.
-  // We recommend adjusting this value in production
-  tracesSampleRate: 1.0,
-});
+//   // Set tracesSampleRate to 1.0 to capture 100%
+//   // of transactions for performance monitoring.
+//   // We recommend adjusting this value in production
+//   tracesSampleRate: 1.0,
+// });
 
 console.log(`Database host is ${process.env.DB_HOST}`);
 console.log(`Database name is ${process.env.DB_NAME}`);
@@ -47,6 +49,46 @@ app.use((_, res, next) => {
 
 app.use("/uploads", express.static("uploads"));
 
+const options = {
+  definition:{
+    openapi: "3.0.0",
+    info: {
+      title: 'Bodhisys API Tests',
+      version: '0.1',
+    },
+    servers:[
+      {
+        url: process.env.BASE_URL,
+      }
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          in: 'header',
+          name: 'Authorization',
+          description: 'Bearer token to access these api endpoints',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  },
+  apis: ["./routes/*.ts", "./routes/*.yaml"]
+}
+
+const spacs = swaggerjsdoc(options);
+app.use(
+  "/api-docs",
+  swaggerui.serve,
+  swaggerui.setup(spacs)
+)
+
 const verifyToken = (req, res, next) => {
   let token = req.headers.authorization;
 
@@ -62,6 +104,7 @@ const verifyToken = (req, res, next) => {
     '/uploads',
     '/exportpdf',
     '/forecasting',
+    // '/auth/gettesttoken',
   ];
 
   const path = req.originalUrl.split('?')[0];

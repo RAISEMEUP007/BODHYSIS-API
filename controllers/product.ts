@@ -610,6 +610,49 @@ export const getProductDetailByBarcode = (req, res, next) => {
     });
 };
 
+export const getProductDetailById = (req, res, next) => {
+  let id = req.params.id;
+
+  let queryOptions = {
+    include: [
+      {
+        model: ProductCategories,
+        as: 'category',
+        attributes: ['category'],
+      },
+      {
+        model: ProductFamilies,
+        as: 'family',
+        attributes: ['family', 'display_name'],
+      },
+      {
+        model: ProductLines,
+        as: 'line',
+        attributes: ['line', 'size', 'price_group_id'],
+        include: {
+          model: PriceGroup,
+          as: 'price_group',
+          attributes: ['id', 'price_group'],
+        },
+      },
+    ],
+    where: { id: id },
+  };
+
+  ProductProducts.findOne(queryOptions)
+    .then((product) => {
+      if (product) {
+        res.status(200).json(product.toJSON());
+      } else {
+        res.status(404).json({ error: "Product not found" });
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({ error: "An error occurred" });
+    });
+};
+
 export const deleteProduct = (req, res, next) => {
   ProductProducts.destroy({ where: { id: req.body.id } })
     .then((result) => {

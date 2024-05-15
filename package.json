@@ -29,6 +29,8 @@
     "puppeteer": "^22.7.1",
     "sequelize": "^6.35.0",
     "stripe": "^14.16.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
     "twilio": "^5.0.1",
     "uuid": "^9.0.1"
   },
