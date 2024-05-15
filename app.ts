@@ -20,14 +20,14 @@ app.use(
   })
 );
 
-// Sentry.init({
-//   dsn: "https://159363fd933eaee705ee9f3d4467ab59@o382651.ingest.us.sentry.io/4507070894833664",
+Sentry.init({
+  dsn: "https://159363fd933eaee705ee9f3d4467ab59@o382651.ingest.us.sentry.io/4507070894833664",
 
-//   // Set tracesSampleRate to 1.0 to capture 100%
-//   // of transactions for performance monitoring.
-//   // We recommend adjusting this value in production
-//   tracesSampleRate: 1.0,
-// });
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 1.0,
+});
 
 console.log(`Database host is ${process.env.DB_HOST}`);
 console.log(`Database name is ${process.env.DB_NAME}`);
@@ -135,6 +135,9 @@ const verifyToken = (req, res, next) => {
 };
 app.use(verifyToken);
 app.use(router);
+
+console.log("process.env.BASE_URL------");
+console.log(process.env.BASE_URL);
 
 sequelize.sync();
 
