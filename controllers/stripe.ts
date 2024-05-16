@@ -13,6 +13,7 @@ import CustomerCustomers from '../models/customer/customer_customers';
 import SettingsColorcombinations from '../models/settings/settings_colorcombinations';
 import AllAddresses from '../models/all_addresses';
 import SettingsExtras from '../models/settings/settings_extras';
+import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
 
 dotenv.config();
 
@@ -318,6 +319,9 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
     };
 
     const reservationRow = await Reservations.findOne(queryOptions);
+    const storeDetail = await SettingsStoreDetails.findOne({
+      where: {brand_id: reservationRow.brand_id}
+    })
     const reservation = {
       ...reservationRow.toJSON(),
       items: reservationRow.items.map(item => ({
@@ -441,13 +445,12 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
 
 Your reservation has been confirmed.
 
-Your equipment will be delivered on the date of your reservation. Please remember, we will pickup your equipment on the last date of your reservation at 8:00 am.
+Your equipment will be delivered on the date of your reservation. Please remember, we will pickup your equipment on the last date of your reservation at ${storeDetail.dropoff_time}.
 
 Confirmation Details
 ${req.body.start_time} - ${req.body.end_time}.
 
-
-If you need to cancel or make any changes to your reservation please contact us at 1-800-555-5555, you can also send an email to support@islandcruisers.com`
+`
 
     await sendSMSTwilio(req.body.phone_number, templateText);
     return res.status(200).json();
