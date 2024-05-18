@@ -99,6 +99,7 @@ const verifyToken = (req, res, next) => {
     '/changepass',
     '/newpassword',
     '/getstoredetailbyurl',
+    '/getdiscountcodesdata'
     '/address/search',
     '/stripe/sendreservationconfirmationemail/',
     '/uploads',
