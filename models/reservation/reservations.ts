@@ -3,9 +3,7 @@ import { DataTypes } from "sequelize";
 import sequelize from "../../utils/database";
 import ReservationItems from './reservation_items.ts';
 import CustomerCustomers from '../customer/customer_customers';
-import CustomerDeliveryAddress from '../customer/customer_delivery_address';
 import SettingsColorcombinations from '../settings/settings_colorcombinations';
-import SettingsLocations from "../settings/settings_locations";
 import AllAddresses from '../all_addresses';
 
 const Reservations = sequelize.define(
@@ -23,9 +21,6 @@ const Reservations = sequelize.define(
     brand_id: {
       type: DataTypes.INTEGER,
     },
-    end_location_id: {
-      type: DataTypes.INTEGER,
-    }, 
     start_date: {
       type: DataTypes.DATE,
     },
@@ -65,9 +60,6 @@ const Reservations = sequelize.define(
     paid: {
       type: DataTypes.FLOAT,
     },
-    delivery_address_id: {
-      type: DataTypes.INTEGER,
-    },
     address_id: {
       type: DataTypes.INTEGER,
     },
@@ -97,14 +89,6 @@ Reservations.belongsTo(SettingsColorcombinations, { foreignKey: 'color_id', as: 
 Reservations.belongsTo(CustomerCustomers,{
   foreignKey: 'customer_id',
   as : 'customer'
-})
-Reservations.belongsTo(CustomerDeliveryAddress,{
-  foreignKey: 'delivery_address_id',
-  as : 'delivery_address'
-})
-Reservations.belongsTo(SettingsLocations,{
-  foreignKey: 'start_location_id',
-  as : 'location'
 })
 Reservations.belongsTo(AllAddresses,{
   foreignKey: 'address_id',
