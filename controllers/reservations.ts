@@ -110,10 +110,6 @@ export const getReservationsData = (req, res, next) => {
     CONCAT(t2.first_name, ' ', t2.last_name) AS full_name,
     -- t1.brand_id,
     t3.brand,
-    -- t1.start_location_id,
-    t4.location AS start_location,
-    -- t1.end_location_id,
-    -- t5.location AS end_location,
     t1.start_date,
     t1.end_date,
     -- t1.promo_code,
@@ -124,8 +120,6 @@ export const getReservationsData = (req, res, next) => {
     -- t1.tax_rate,
     -- t1.tax_amount,
     -- t1.total_price,
-    -- CONCAT(t7.address1, ' ', t7.address2, ' ', t7.city, ' ', t7.state) as delivery_address,
-    -- t7.address1 as delivery_address,
     SUM(t8.quantity) as quantity,
     t1.stage,
     t1.color_id
@@ -135,14 +129,8 @@ export const getReservationsData = (req, res, next) => {
     ON t1.customer_id = t2.id
     LEFT JOIN price_brands AS t3
     ON t1.brand_id = t3.id
-    LEFT JOIN settings_locations AS t4
-    ON t1.start_location_id = t4.id
-    -- LEFT JOIN settings_locations AS t5
-    -- ON t1.end_location_id = t5.id
     LEFT JOIN settings_discountcodes AS t6
     ON t1.promo_code = t6.id
-    LEFT JOIN customer_delivery_address AS t7
-    ON t1.delivery_address_id = t7.id
     LEFT JOIN reservation_items AS t8
     ON t1.id = t8.reservation_id
   WHERE
