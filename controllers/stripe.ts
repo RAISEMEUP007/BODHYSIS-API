@@ -347,7 +347,7 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
       'CHECKEDIN',
     ];
 
-    const totalHours = (reservation.end_date.getTime() - reservation.start_date.getTime()) / (1000 * 60 * 60);
+    const totalHours = (new Date(reservation.end_date).getTime() - new Date(reservation.start_date).getTime()) / (1000 * 60 * 60);
     const days = Math.floor(totalHours / 24);
 
     let htmlContent = `<div>`;
