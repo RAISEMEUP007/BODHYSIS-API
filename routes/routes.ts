@@ -234,6 +234,9 @@ router.post("/newpassword", newPass);
 router.get("/private", isAuth);
 router.post("/refresh-token", refreshToken);
 // router.get("/auth/gettesttoken", getTestToken);
+router.get("/testtokenvalid", (req, res, next)=>{
+  res.status(200).json("valid");
+});
 
 // user
 router.get("/user/getdrivers", getDrivers);
