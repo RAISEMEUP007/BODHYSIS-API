@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 
 import sequelize from '../utils/database';
 
-const User = sequelize.define('users', {
+const User = sequelize.define('Users', {
    id: {
       type: Sequelize.INTEGER,
       autoIncrement: true,
