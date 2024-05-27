@@ -553,7 +553,7 @@ router.put("/settings/templates", putSettingsTemplate)
 router.get("/settings/templates/:typeTemplate", getSettingsTemplateByType)
 
 //add addresses
-router.get("/address/search/:str", searchAddress);
+router.get("/address/search/:str/:store_id", searchAddress);
 router.post("/alladdresses/getaddressesdata/", getAddressesData);
 router.post("/alladdresses/createaddress", createAddress);
 router.post("/alladdresses/updateaddress", updateAddress);

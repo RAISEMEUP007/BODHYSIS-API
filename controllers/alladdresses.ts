@@ -7,13 +7,22 @@ import { Op } from 'sequelize';
 
 import AllAddresses from '../models/all_addresses';
 import Forecasting from '../models/marketing/forecasting';
+import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
 
 dotenv.config();
 
 export const searchAddress = async (req, res, next) => {
   try {
-    const { str } = req.params;
+    const { str, store_id } = req.params;
     const searchWords = str.split(' ');
+
+    const storeDetail = await SettingsStoreDetails.findOne({
+      where: {
+        id: store_id
+      }
+    })
+
+    const use_beach_address = storeDetail?.use_beach_address ? true : false;
 
     const addressResults = await Promise.all([
       // AllAddresses.findAll({
@@ -28,15 +37,25 @@ export const searchAddress = async (req, res, next) => {
       //   limit: 10
       // }),
       ...searchWords.map(async (word) => {
+
+        let whereCondition = {
+          [Op.or]: [
+            { number: { [Op.like]: `${word}%` } },
+            { property_name: { [Op.like]: `%${word}%` } },
+            { street: { [Op.like]: `%${word}%` } },
+            { plantation: { [Op.like]: `%${word}%` } }
+          ]
+        }
+
+        if (!use_beach_address) {
+          whereCondition[Op.and] = [
+            { plantation: { [Op.notLike]: '%Beach & Tennis%' }}
+          ];
+        }
+        console.log("whereCondition", whereCondition);
+
         return await AllAddresses.findAll({
-          where: {
-            [Op.or]: [
-              { number: { [Op.like]: `${word}%` } },
-              { property_name: { [Op.like]: `%${word}%` } },
-              { street: { [Op.like]: `%${word}%` } },
-              { plantation: { [Op.like]: `%${word}%` } }
-            ]
-          },
+          where: whereCondition,
           order: ['number', 'street', 'property_name', 'plantation'],
           limit: 10
         });
