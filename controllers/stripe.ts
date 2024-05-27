@@ -208,6 +208,34 @@ export const listPaymentMethods = async (req, res, next) => {
       };
     });
 
+    const customerBalanceTransactions = await stripe().paymentIntents.list(
+      {
+        customer:customerId,
+        limit: 10,
+      }
+    );
+
+    let cardList = []
+    for (const paymentIntent of customerBalanceTransactions.data) {
+      if (paymentIntent.status === 'succeeded' && paymentIntent.payment_method) {
+        let paymentMethod = await stripe().paymentMethods.retrieve(
+          paymentIntent.payment_method
+        );
+        if(paymentMethod.type == 'card'){
+          // cardList.push(paymentMethod.card)
+          // stripe().paymentMethods.attach('pm_1OkW1nERU8T0qKkfLZlclCuM', {
+          //   customer: customerId
+          // })
+          formattedPaymentMethods.push({
+            id: paymentMethod.id,
+            brand: paymentMethod.card.brand,
+            last4: paymentMethod.card.last4,
+            expiration: `${('0' + paymentMethod.card.exp_month).slice(-2)}/${String(paymentMethod.card.exp_year).slice(-2)}`
+          })
+        }
+      }
+    }
+
     res.json(formattedPaymentMethods);
   } catch (error) {
     console.log(error);
@@ -258,6 +286,7 @@ export const getSecret = async (req, res, next) => {
       amount: amount,
       currency: 'usd',
       automatic_payment_methods: {enabled: true},
+      setup_future_usage : 'off_session',
       // receipt_email: req.body.email,
       customer: customerId,
       shipping: {
@@ -631,17 +660,23 @@ export const addLastPaymentMethosToCustomer = async (req, res, next) => {
     );
 
     console.log("******************");
+    console.log("customerId", customerBalanceTransactions);
     console.log("customerId", customerId);
 
+    let cardList = []
     for (const paymentIntent of customerBalanceTransactions.data) {
       if (paymentIntent.status === 'succeeded' && paymentIntent.payment_method) {
-        await stripe().paymentMethods.attach(paymentIntent.payment_method, {
-          customer: customerId
-        });
+        let paymentMethod = await stripe().paymentMethods.retrieve(
+          paymentIntent.payment_method
+        );
+        if(paymentMethod.type == 'card'){
+          cardList.push(paymentMethod)
+        }
       }
     }
+    console.log(cardList);
 
-    res.json('Transaction details and payment methods updated successfully');
+    res.json(cardList);
   }catch (error) {
     console.log(error);
     res.status(500).json({error: error.message});
