@@ -89,6 +89,9 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
    dropoff_time: {
       type: Sequelize.STRING,
    },
+   use_beach_address: {
+      type: Sequelize.BOOLEAN,
+   }
 }, {
    timestamps: false
 });

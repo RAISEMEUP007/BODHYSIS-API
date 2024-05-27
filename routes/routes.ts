@@ -207,6 +207,7 @@ import {
   refundStripe,
   sendReservationConfirmationEmail,
   getCustomerIdById,
+  addLastPaymentMethosToCustomer,
 } from "../controllers/stripe";
 import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
 import { getSettingsTemplate, getSettingsTemplateByType, postSettingsTemplate, putSettingsTemplate } from "../controllers/settings_templates";
@@ -540,6 +541,7 @@ router.post("/stripe/chargeStripeCard/", chargeStripeCard);
 router.post("/stripe/sendreservationconfirmationemail/", sendReservationConfirmationEmail);
 router.post("/stripe/refund/", refundStripe);
 router.post("/stripe/getcustomeridbyid/", getCustomerIdById);
+router.post("/stripe/addlastpaymentmethostocustomer/", addLastPaymentMethosToCustomer);
 
 // Orders
 router.get("/orders", getOrders)
@@ -553,7 +555,7 @@ router.put("/settings/templates", putSettingsTemplate)
 router.get("/settings/templates/:typeTemplate", getSettingsTemplateByType)
 
 //add addresses
-router.get("/address/search/:str", searchAddress);
+router.get("/address/search/:str/:store_id", searchAddress);
 router.post("/alladdresses/getaddressesdata/", getAddressesData);
 router.post("/alladdresses/createaddress", createAddress);
 router.post("/alladdresses/updateaddress", updateAddress);
