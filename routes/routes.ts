@@ -206,6 +206,7 @@ import {
   chargeStripeCard,
   refundStripe,
   sendReservationConfirmationEmail,
+  getCustomerIdById,
 } from "../controllers/stripe";
 import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
 import { getSettingsTemplate, getSettingsTemplateByType, postSettingsTemplate, putSettingsTemplate } from "../controllers/settings_templates";
@@ -538,6 +539,7 @@ router.post("/stripe/getsecret/", getSecret);
 router.post("/stripe/chargeStripeCard/", chargeStripeCard);
 router.post("/stripe/sendreservationconfirmationemail/", sendReservationConfirmationEmail);
 router.post("/stripe/refund/", refundStripe);
+router.post("/stripe/getcustomeridbyid/", getCustomerIdById);
 
 // Orders
 router.get("/orders", getOrders)
