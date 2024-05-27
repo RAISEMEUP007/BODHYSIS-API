@@ -215,27 +215,6 @@ export const listPaymentMethods = async (req, res, next) => {
       }
     );
 
-    let cardList = []
-    for (const paymentIntent of customerBalanceTransactions.data) {
-      if (paymentIntent.status === 'succeeded' && paymentIntent.payment_method) {
-        let paymentMethod = await stripe().paymentMethods.retrieve(
-          paymentIntent.payment_method
-        );
-        if(paymentMethod.type == 'card'){
-          // cardList.push(paymentMethod.card)
-          // stripe().paymentMethods.attach('pm_1OkW1nERU8T0qKkfLZlclCuM', {
-          //   customer: customerId
-          // })
-          formattedPaymentMethods.push({
-            id: paymentMethod.id,
-            brand: paymentMethod.card.brand,
-            last4: paymentMethod.card.last4,
-            expiration: `${('0' + paymentMethod.card.exp_month).slice(-2)}/${String(paymentMethod.card.exp_year).slice(-2)}`
-          })
-        }
-      }
-    }
-
     res.json(formattedPaymentMethods);
   } catch (error) {
     console.log(error);
