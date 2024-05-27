@@ -15,7 +15,9 @@ import AllAddresses from '../models/all_addresses';
 dotenv.config();
 
 export const createCustomer = (req, res, next) => {
-  CustomerCustomers.create(req.body)
+  const updateFields = req.body;
+  if(!updateFields.password) updateFields.password = 'Bodhisys-Tractor-Pull1';
+  CustomerCustomers.create(updateFields)
   .then(newcustomer => {
     res.status(201).json({ message: 'Customer created successfully', customer: newcustomer });
     CustomerDeliveryAddress.update(
@@ -24,6 +26,7 @@ export const createCustomer = (req, res, next) => {
     );
   })
   .catch(error => {
+    console.log(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);

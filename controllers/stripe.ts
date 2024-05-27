@@ -210,6 +210,7 @@ export const listPaymentMethods = async (req, res, next) => {
 
     res.json(formattedPaymentMethods);
   } catch (error) {
+    console.log(error);
     res.status(500).json({error: error.message});
   }
 }
@@ -582,6 +583,67 @@ export const getCustomerIdById = async (req, res, next) => {
 
     res.json(customerId);
   } catch (error) {
+    res.status(500).json({error: error.message});
+  }
+}
+
+export const addLastPaymentMethosToCustomer = async (req, res, next) => {
+  try {
+    const customerDetail = await CustomerCustomers.findOne({
+      where: {
+        id: req.body.customerId,
+      }
+    })
+
+    const customers = await stripe().customers.list();
+    let customerId = null;
+
+    customers.data.forEach((customer) => {
+      if (customer.email == customerDetail.email) {
+        customerId = customer.id;
+      }
+    });
+
+    if(customerId == null){
+      const customer = await createCustomerOnStripe({
+        email: customerDetail.email,
+        name: customerDetail.first_name + ' ' + customerDetail.last_name,
+        description: '',
+        phone: customerDetail.phone_number,
+        address: {
+          line1: customerDetail.home_address,
+          line2: customerDetail.address2,
+          city: customerDetail.city,
+          state: customerDetail.state,
+          postal_code: customerDetail.zipcode,
+          country: 'US'
+        }
+      })
+
+      customerId = customer.id;
+    }
+
+    const customerBalanceTransactions = await stripe().paymentIntents.list(
+      {
+        customer:customerId,
+        limit: 10,
+      }
+    );
+
+    console.log("******************");
+    console.log("customerId", customerId);
+
+    for (const paymentIntent of customerBalanceTransactions.data) {
+      if (paymentIntent.status === 'succeeded' && paymentIntent.payment_method) {
+        await stripe().paymentMethods.attach(paymentIntent.payment_method, {
+          customer: customerId
+        });
+      }
+    }
+
+    res.json('Transaction details and payment methods updated successfully');
+  }catch (error) {
+    console.log(error);
     res.status(500).json({error: error.message});
   }
 }
