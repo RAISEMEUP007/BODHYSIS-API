@@ -28,7 +28,7 @@ const stripe = (storeName = "") => {
 
 export const createCustomerStripe = async (req, res, next) => {
   try {
-    const customer = await stripe().customers.create({
+    const customer = await createCustomerOnStripe({
       email: req.body.email,
       name: req.body.name,
       description: req.body.description,
@@ -47,6 +47,11 @@ export const createCustomerStripe = async (req, res, next) => {
   } catch (error) {
     res.status(500).json({error: error.message});
   }
+}
+
+const createCustomerOnStripe = async (data) => {
+  const customer = await stripe().customers.create(data);
+  return customer;
 }
 
 export const retriveCustomerStripe = async (req, res, next) => {
@@ -213,11 +218,47 @@ export const getSecret = async (req, res, next) => {
   const { amount } = req.body;
 
   try {
-    const intent = await stripe(req.body.store_name).paymentIntents.create({
+
+    const customerDetail = await CustomerCustomers.findOne({
+      where: {
+        id: req.body.customerId,
+      }
+    })
+
+    const customers = await stripe().customers.list();
+    let customerId = null;
+
+    customers.data.forEach((customer) => {
+      if (customer.email == customerDetail.email) {
+        customerId = customer.id;
+      }
+    });
+
+    if(customerId == null){
+      const customer = await createCustomerOnStripe({
+        email: customerDetail.email,
+        name: customerDetail.first_name + ' ' + customerDetail.last_name,
+        description: '',
+        phone: customerDetail.phone_number,
+        address: {
+          line1: customerDetail.home_address,
+          line2: customerDetail.address2,
+          city: customerDetail.city,
+          state: customerDetail.state,
+          postal_code: customerDetail.zipcode,
+          country: 'US'
+        }
+      })
+
+      customerId = customer.id;
+    }
+
+    const intent = await stripe().paymentIntents.create({
       amount: amount,
       currency: 'usd',
       automatic_payment_methods: {enabled: true},
       // receipt_email: req.body.email,
+      customer: customerId,
       shipping: {
         name: req.body.name,
         address: {
@@ -497,6 +538,49 @@ export const refundStripe = async (req, res, next) => {
       res.status(500).json({ error: "Internal server error" });
     });
 
+  } catch (error) {
+    res.status(500).json({error: error.message});
+  }
+}
+
+export const getCustomerIdById = async (req, res, next) => {
+  try {
+
+    const customerDetail = await CustomerCustomers.findOne({
+      where: {
+        id: req.body.id,
+      }
+    })
+
+    const customers = await stripe().customers.list();
+    let customerId = null;
+
+    customers.data.forEach((customer) => {
+      if (customer.email == customerDetail.email) {
+        customerId = customer.id;
+      }
+    });
+
+    if(customerId == null){
+      const customer = await createCustomerOnStripe({
+        email: customerDetail.email,
+        name: customerDetail.first_name + ' ' + customerDetail.last_name,
+        description: '',
+        phone: customerDetail.phone_number,
+        address: {
+          line1: customerDetail.home_address,
+          line2: customerDetail.address2,
+          city: customerDetail.city,
+          state: customerDetail.state,
+          postal_code: customerDetail.zipcode,
+          country: 'US'
+        }
+      })
+
+      customerId = customer.id;
+    }
+
+    res.json(customerId);
   } catch (error) {
     res.status(500).json({error: error.message});
   }
