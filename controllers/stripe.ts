@@ -14,6 +14,7 @@ import SettingsColorcombinations from '../models/settings/settings_colorcombinat
 import AllAddresses from '../models/all_addresses';
 import SettingsExtras from '../models/settings/settings_extras';
 import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
+import SettingsDocuments from '../models/settings/settings_documents.js';
 
 dotenv.config();
 
@@ -459,6 +460,37 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
       </div>`
     htmlContent += `</div>`;
 
+    const section2HTML = storeDetail.email_confirmation
+      .replaceAll('[store_name]', storeDetail.store_name)
+      .replaceAll('[order_number]', reservation.order_number)
+      .replaceAll('[pickup_time]', storeDetail?.pickup_time??'')
+      .replaceAll('[drop_off_time]', storeDetail?.dropoff_time??'');
+
+    // console.log(section2HTML);
+    let section4HTML = '';
+    if (storeDetail.is_document) {
+      console.log("storeDetail.is_document");
+      const documentDetail = await SettingsDocuments.findOne({
+        where: {
+          id: storeDetail.document_id
+        }
+      });
+      // console.log("documentDetail.document_type", documentDetail.document_type);
+      // console.log("documentDetail.document_content", documentDetail.document_content);
+      if (documentDetail.document_type == 1) {
+        section4HTML += `<Section style="margin: 50px 0;">
+                <a href="${process.env.BASE_URL + documentDetail.document_file}" download="${documentDetail.document_name}.pdf" target="_blank">
+                  ${documentDetail.document_name}.pdf
+                </a>
+              </section>`;
+      } else if (documentDetail.document_content) {
+        section4HTML += `<Section style="margin: 50px 0;">${documentDetail.document_content}</section>`;
+      }
+    } else {
+      section4HTML += `<Section style="margin: 50px 0;">${storeDetail.store_wavier}</section>`;
+    }
+    // console.log("section4HTML", section4HTML);
+
     const msg = {
       to: req.body.email,
       dynamic_template_data: {
@@ -487,20 +519,27 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
         TotalReceived: reservation.paid.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
         Balance: (reservation.paid - reservation.total_price).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
         pricing_table: htmlContent,
+        section2: section2HTML,
+        section4: section4HTML,
       },
     };
     await sendReservationConfirmEmail(msg);
 
-    const templateText = `${req.body.name},
+//     const templateText = `${req.body.name},
 
-Your reservation has been confirmed.
+// Your reservation has been confirmed.
 
-Your equipment will be delivered on the date of your reservation. Please remember, we will pickup your equipment on the last date of your reservation at ${storeDetail.dropoff_time}.
+// Your equipment will be delivered on the date of your reservation. Please remember, we will pickup your equipment on the last date of your reservation at ${storeDetail.dropoff_time}.
 
-Confirmation Details
-${req.body.start_time} - ${req.body.end_time}.
+// Confirmation Details
+// ${req.body.start_time} - ${req.body.end_time}.
 
-`
+// `
+    const templateText = storeDetail.text_confirmation
+      .replaceAll('[store_name]', storeDetail.store_name)
+      .replaceAll('[order_number]', reservation.order_number)
+      .replaceAll('[pickup_time]', storeDetail?.pickup_time??'')
+      .replaceAll('[drop_off_time]', storeDetail?.dropoff_time??'');
 
     await sendSMSTwilio(req.body.phone_number, templateText);
     return res.status(200).json();
@@ -597,65 +636,65 @@ export const getCustomerIdById = async (req, res, next) => {
 
 export const addLastPaymentMethosToCustomer = async (req, res, next) => {
   try {
-    const customerDetail = await CustomerCustomers.findOne({
-      where: {
-        id: req.body.customerId,
-      }
-    })
+    // const customerDetail = await CustomerCustomers.findOne({
+    //   where: {
+    //     id: req.body.customerId,
+    //   }
+    // })
 
-    const customers = await stripe().customers.list();
-    let customerId = null;
+    // const customers = await stripe().customers.list();
+    // let customerId = null;
 
-    customers.data.forEach((customer) => {
-      if (customer.email == customerDetail.email) {
-        customerId = customer.id;
-      }
-    });
+    // customers.data.forEach((customer) => {
+    //   if (customer.email == customerDetail.email) {
+    //     customerId = customer.id;
+    //   }
+    // });
 
-    if(customerId == null){
-      const customer = await createCustomerOnStripe({
-        email: customerDetail.email,
-        name: customerDetail.first_name + ' ' + customerDetail.last_name,
-        description: '',
-        phone: customerDetail.phone_number,
-        address: {
-          line1: customerDetail.home_address,
-          line2: customerDetail.address2,
-          city: customerDetail.city,
-          state: customerDetail.state,
-          postal_code: customerDetail.zipcode,
-          country: 'US'
-        }
-      })
+    // if(customerId == null){
+    //   const customer = await createCustomerOnStripe({
+    //     email: customerDetail.email,
+    //     name: customerDetail.first_name + ' ' + customerDetail.last_name,
+    //     description: '',
+    //     phone: customerDetail.phone_number,
+    //     address: {
+    //       line1: customerDetail.home_address,
+    //       line2: customerDetail.address2,
+    //       city: customerDetail.city,
+    //       state: customerDetail.state,
+    //       postal_code: customerDetail.zipcode,
+    //       country: 'US'
+    //     }
+    //   })
 
-      customerId = customer.id;
-    }
+    //   customerId = customer.id;
+    // }
 
-    const customerBalanceTransactions = await stripe().paymentIntents.list(
-      {
-        customer:customerId,
-        limit: 10,
-      }
-    );
+    // const customerBalanceTransactions = await stripe().paymentIntents.list(
+    //   {
+    //     customer:customerId,
+    //     limit: 10,
+    //   }
+    // );
 
-    console.log("******************");
-    console.log("customerId", customerBalanceTransactions);
-    console.log("customerId", customerId);
+    // console.log("******************");
+    // console.log("customerId", customerBalanceTransactions);
+    // console.log("customerId", customerId);
 
-    let cardList = []
-    for (const paymentIntent of customerBalanceTransactions.data) {
-      if (paymentIntent.status === 'succeeded' && paymentIntent.payment_method) {
-        let paymentMethod = await stripe().paymentMethods.retrieve(
-          paymentIntent.payment_method
-        );
-        if(paymentMethod.type == 'card'){
-          cardList.push(paymentMethod)
-        }
-      }
-    }
-    console.log(cardList);
+    // let cardList = []
+    // for (const paymentIntent of customerBalanceTransactions.data) {
+    //   if (paymentIntent.status === 'succeeded' && paymentIntent.payment_method) {
+    //     let paymentMethod = await stripe().paymentMethods.retrieve(
+    //       paymentIntent.payment_method
+    //     );
+    //     if(paymentMethod.type == 'card'){
+    //       cardList.push(paymentMethod)
+    //     }
+    //   }
+    // }
+    // console.log(cardList);
 
-    res.json(cardList);
+    // res.json(cardList);
   }catch (error) {
     console.log(error);
     res.status(500).json({error: error.message});
