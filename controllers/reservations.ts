@@ -711,16 +711,26 @@ export const exportReservation = async (req, res, next) => {
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">First Name</td><td>${reservation.customer?.first_name??''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Last Name</td><td>${reservation.customer?.last_name??''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Email</td><td>${reservation.email ? reservation.email : reservation.customer && reservation.customer.email ? reservation.customer.email : ''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Phone Number</td><td>${reservation.phone_number ? reservation.phone_number : reservation.customer && reservation.customer.phone_number ? reservation.customer.phone_number : ''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Unit Number</td><td>${reservation.all_addresses?.number??''} ${reservation.all_addresses?.street??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Property Name</td><td>${reservation.all_addresses?.property_name??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">From</td><td>${new Date(`${reservation.start_date} 0:0:0`).toLocaleString('en-US', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                }) + ` @ ${storeDetail?.pickup_time}`??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">From Location</td><td></td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">To</td><td>${new Date(`${reservation.end_date} 0:0:0`).toLocaleString('en-US', {
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Phone Number</td><td>${reservation.phone_number ? reservation.phone_number : reservation.customer && reservation.customer.phone_number ? reservation.customer.phone_number : ''}</td></tr>`
+
+        if(!reservation.use_manual){
+          htmlContent += `<tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Unit Number</td><td>${reservation.all_addresses?.number??''} ${reservation.all_addresses?.street??''}</td></tr>
+          <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Property Name</td><td>${reservation.all_addresses?.property_name??''}</td></tr>`
+        }
+
+        htmlContent += `<tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">From</td><td>${new Date(`${reservation.start_date} 0:0:0`).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                  }) + ` @ ${storeDetail?.pickup_time}`??''}</td></tr>`
+
+        if(reservation.use_manual){
+          htmlContent += `<tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Address</td><td>${reservation.manual_address??''}</td></tr>`
+        }else {
+          htmlContent += `<tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">From Location</td><td>${reservation.all_addresses?.plantation??''}</td></tr>`
+        }
+        
+        htmlContent += `<tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">To</td><td>${new Date(`${reservation.end_date} 0:0:0`).toLocaleString('en-US', {
                   year: 'numeric',
                   month: '2-digit',
                   day: '2-digit',
