@@ -91,7 +91,13 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
    },
    use_beach_address: {
       type: Sequelize.BOOLEAN,
-   }
+   },
+   email_confirmation: {
+      type: Sequelize.STRING,
+   },
+   text_confirmation: {
+      type: Sequelize.STRING,
+   },
 }, {
    timestamps: false
 });
