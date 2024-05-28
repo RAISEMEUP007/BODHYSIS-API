@@ -462,9 +462,12 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
 
     const section2HTML = storeDetail.email_confirmation
       .replaceAll('[store_name]', storeDetail.store_name)
+      .replaceAll('[customer_name]', (reservation.customer?.first_name??'') + ' ' + (reservation.customer?.last_name??''))
       .replaceAll('[order_number]', reservation.order_number)
-      .replaceAll('[pickup_time]', storeDetail?.pickup_time??'')
-      .replaceAll('[drop_off_time]', storeDetail?.dropoff_time??'');
+      .replaceAll('[start_date]', reservation.start_date)
+      .replaceAll('[end_date]', reservation.end_date)
+      .replaceAll('[start_time]', storeDetail?.pickup_time??'')
+      .replaceAll('[end_time]', storeDetail?.dropoff_time??'');
 
     // console.log(section2HTML);
     let section4HTML = '';
@@ -537,9 +540,12 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
 // `
     const templateText = storeDetail.text_confirmation
       .replaceAll('[store_name]', storeDetail.store_name)
+      .replaceAll('[customer_name]', (reservation.customer?.first_name??'') + ' ' + (reservation.customer?.last_name??''))
       .replaceAll('[order_number]', reservation.order_number)
-      .replaceAll('[pickup_time]', storeDetail?.pickup_time??'')
-      .replaceAll('[drop_off_time]', storeDetail?.dropoff_time??'');
+      .replaceAll('[start_date]', reservation.start_date)
+      .replaceAll('[end_date]', reservation.end_date)
+      .replaceAll('[start_time]', storeDetail?.pickup_time??'')
+      .replaceAll('[end_time]', storeDetail?.dropoff_time??'');
 
     await sendSMSTwilio(req.body.phone_number, templateText);
     return res.status(200).json();
