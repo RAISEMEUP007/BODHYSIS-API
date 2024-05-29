@@ -141,9 +141,6 @@ const verifyToken = (req, res, next) => {
 app.use(verifyToken);
 app.use(router);
 
-console.log("process.env.BASE_URL------");
-console.log(process.env.BASE_URL);
-
 sequelize.sync();
 
 app.listen(process.env.BASE_PORT);
