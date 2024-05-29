@@ -894,6 +894,7 @@ export const exportReservation = async (req, res, next) => {
     await browser.close();
 
     res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename="'+reservation.order_number+'.pdf"');
     res.send(pdfBuffer);
   } catch (error) {
     console.error('Error exporting reservation:', error);
