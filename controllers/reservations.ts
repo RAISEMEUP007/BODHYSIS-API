@@ -736,31 +736,32 @@ export const exportReservation = async (req, res, next) => {
                   day: '2-digit',
                 }) + ` @ ${storeDetail?.dropoff_time}`??''}</td></tr>
         <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Duration</td><td>${days} Day(s)</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Price</td><td>${reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Rec'd</td><td>${reservation.paid.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Balance</td><td>${(reservation.paid - reservation.total_price).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Price</td><td>${reservation?.total_price?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })??''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Rec'd</td><td>${reservation?.paid?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })??''}</td></tr>
+        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Balance</td><td>${(reservation.paid - reservation.total_price)?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })??''}</td></tr>
       </table>
       <table style="border-collapse: collapse; margin-top:50px;">
         <thead>
           <tr style="border-bottom: 2px solid black">
             <th width="200" style="text-align:left;">Bike</th>
-            <th width="500" style="text-align:left;">Description</th>
+            <th width="500" style="text-align:left;">Extras</th>
             <th width="80" style="text-align:left;">Size</th>
             <th width="50" style="text-align:left;">Tax</th>
             <th width="70" style="text-align:left;">Price</th>
           </tr>
         </thead>
         <tbody>`;
-
-    htmlContent += reservation.items.map(item=>(
-      `<tr style="border-bottom: 1px solid #999;">
-        <td style="padding: 10px 4px;">${item.display_name}</td>
-        <td style="padding: 10px 4px;">${item.summary}</td>
-        <td style="padding: 10px 4px;">${item.size || ''}</td>
-        <td style="padding-left: 10px;">${(item.price * reservation.tax_rate/100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
-        <td style="text-align:right;">${item.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
-      </tr>`
-    )).join('');;
+    htmlContent += reservation.items.map(item=>{
+      let extras = item.extras.map(extra=>extra.name).join(', ');
+      return (
+        `<tr style="border-bottom: 1px solid #999;">
+          <td style="padding: 10px 4px;">${item.display_name}</td>
+          <td style="padding: 10px 4px;">${extras}</td>
+          <td style="padding: 10px 4px;">${item.size || ''}</td>
+          <td style="padding-left: 10px;">${(item.price * reservation.tax_rate/100)?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+          <td style="text-align:right;">${item?.price?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+        </tr>`
+      )}).join('');;
 
     htmlContent += `</tbody>
       </table>
@@ -768,19 +769,19 @@ export const exportReservation = async (req, res, next) => {
         <table style="border-collapse: collapse; margin-top:12px;">
           <tr>
             <td style="text-align:right; padding-right:20px;" width="200"><b>Subtotal (excl. tax)</b></td>
-            <td style="text-align:right;">${reservation.subtotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+            <td style="text-align:right;">${reservation?.subtotal?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
           <tr>
             <td style="text-align:right; padding-right:20px;"><sup>*</sup> Discount</td>
-            <td style="text-align:right;">-${reservation.discount_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+            <td style="text-align:right;">- ${reservation?.discount_amount?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
           <tr>
             <td style="text-align:right; padding-right:20px;"><b>Discounted Subtotal</b></td>
-            <td style="text-align:right;">${(reservation.subtotal - reservation.discount_amount).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+            <td style="text-align:right;">${(reservation.subtotal - reservation.discount_amount)?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
           <tr>
             <td style="text-align:right; padding-right:20px;"><sup>2</sup>driver tip</td>
-            <td style="text-align:right;">${(reservation.driver_tip).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+            <td style="text-align:right;">${(reservation.driver_tip || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
           <tr>
             <td style="text-align:right; padding-right:20px;"><sup>1</sup>gst</td>
@@ -788,67 +789,14 @@ export const exportReservation = async (req, res, next) => {
           </tr>
           <tr>
             <td style="text-align:right; padding-right:20px;"><b>Total Tax</b></td>
-            <td style="text-align:right;">${reservation.tax_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+            <td style="text-align:right;">${reservation.tax_amount?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
           <tr>
             <td style="text-align:right; padding-right:20px; padding-top:16px; font-size:18px; font-weight:700;">Total</td>
-            <td style="text-align:right;  padding-top:16px; font-size:18px; font-weight:700;">${reservation.total_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+            <td style="text-align:right;  padding-top:16px; font-size:18px; font-weight:700;">${reservation?.total_price?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
           </tr>
         </table>
       </div>`
-
-    // if(tc == true || tc == 'true') htmlContent += `<Section style="margin: 50px 0;">
-    //     <p>TERMS AND CONDITIONS</p>
-    //     <p></p>
-    //   </Section>
-    //   <Section style="margin: 50px 0;">
-    //     <p>CONDITIONS OF RENTAL</p>
-    //     <p>In the context of the rental agreement with ${storeName}, the term "equipment" refers to all items available for rent by the company to the Customer. It is important to note that the equipment is leased to the Customer, with no transfer of right, title, or interest, and will continue to be the property of ${storeName}. The term "Customer" specifically denotes the inpidual identified in the rental agreement and any other inpiduals for whom they have procured equipment. The inpidual identified in the rental agreement confirms that they are at least 18 years old and possess the authority to legally commit to these Terms and Conditions on behalf of ALL members in their party.  </p>
-    //   </Section>
-    //   <Section style="margin: 50px 0;">
-    //     <p>WAIVER OF LIABILITY</p>
-    //     <p>In the rental agreement, it is understood and accepted that the use of the equipment exposes the Customer to potential hazards. In acknowledgment of the inherent risks related to the rental and use of the equipment, the Customer affirms, on behalf of themselves and all inpiduals included in the reservation, that they are physically and mentally capable of participating in the activity and using the equipment. The Customer further acknowledges that they are engaging in these activities willingly and voluntarily. They knowingly and freely assume all such risks, both those that are known and unknown, including, but not limited to, personal bodily and mental injury, accidents, illnesses, and even death, even if such occurrences arise from the negligence of parties released from liability as outlined herein. The Customer also takes on full responsibility for their participation, assuming all risks and responsibilities referred to above. Additionally, the Customer accepts all responsibility for any damage to or loss of personal property (their own or that of others caused by the Customer) resulting from any accidents that may occur.  
-    //      In exchange for the services or equipment provided, the Customer, acting on behalf of their heirs, successors, assigns, next of kin, and personal representatives, hereby releases and forever discharges and absolves ${storeName}, its DBAs, principals, directors, trustees, officers, owners, agents, and employees from any liability arising from the activity. The Customer waives any claims for damages resulting from any cause, encompassing but not limited to personal, bodily, or mental injury, disability, death, and loss or damage to person or property, whether caused by the negligence of the aforementioned released parties or otherwise. Furthermore, the Customer agrees to indemnify and safeguard ${storeName}, its DBAs, principals, directors, trustees, officers, owners, agents, and employees from all claims, judgments, and costs, including attorney's fees, accrued in connection with any legal action initiated due to the Customer's use of the equipment.  </p>
-    //   </Section>
-    //   <Section style="margin: 50px 0;">
-    //     <p>HELMETS</p>
-    //     <p>${storeName} advises Customers to use a helmet when riding any type of bicycle. Helmets are provided for Customer use, or Customers can choose to bring their own. Customers who opt not to use a helmet do so voluntarily and assume any associated risks.</p>
-    //   </Section>
-    //   <Section style="margin: 50px 0;">
-    //     <p>PAYMENTS</p>
-    //     <p>All payments shall be made in full at the time of order. Orders may be canceled up to fourteen (14) days prior to delivery date. After that time, all orders are final and no rain checks or refunds will be given. Customer may purchase **cancelation insurance** which provides a full refund for any reason. *Cancelation insurance* applies only to the items for which it was purchased. For a full refund, *cancelation insurance* must be purchased on each item for which it is offered. Once equipment is delivered, should Customer not be able to utilize equipment for the full rental period for any reason, no refund for unused time will be given. *Cancelation insurance* does not apply once items are delivered. All sales are final and no refunds or returns for rented or purchased items.  </p>
-    //   </Section>
-    //   <Section style="margin: 50px 0;">
-    //     <p>DELIVERY, RIDE OFF, & PICKUP</p>
-    //     <p>Delivery and pick-up of equipment is included on all orders over  $50 within the traditional tourist destination areas of Hilton Head. Delivery fee for less than $50 or to areas outside of the traditional tourist areas is $25 each trip plus any applicable gate fees. ${storeName} reserves the right to include delivery at a lower amount or refuse to deliver to non-tourist areas at its sole discretion. ${storeName} may add the Sea Pines bike fee on the invoice, if not added by customer at time of order. Should there be a gate fee associated with entrance to a private neighborhood for which ${storeName} does not have a commercial pass, Customer shall provide a pass or pay the cost associated with obtaining such pass. Customer must provide delivery address at time of order.</p>
-    //     <p>Customer agrees to pay a switch-out fee if they order the wrong size, style, or quantity of equipment. However, they may exchange the equipment at one of HHI Rental, LLC's facilities at no additional charge.</p>
-    //     <p>Customer may ride off from ${storeName}'s facility at 59B New Orleans Road or Hilton Head Beach and Tennis stand only. No ride-off rentals are allowed from any other location. All Customers staying at Hilton Head Resort must pick up from and return items to one of our facilities. We do not provide delivery or pickup at Hilton Head Resort. Failure to return items will result in a $100 charge.</p>
-    //     <p>All orders end at ${storeDetail?.pickup_time} on the last day listed on the agreement. We will begin pickup as early as ${storeDetail?.dropoff_time} so please ensure the bikes and equipment are locked where we left them. If we attempt to pick up the items and they are not available, we will charge an amount equal to the current 1 day rental rate on all items listed in the order as a fee for the second trip. During times of high demand, ${storeName} reserves the right to deliver orders for Saturday delivery the following Sunday morning without any discount owed to or right to cancel by Customer.</p>
-    //     <p>Customer agrees ${storeName} has the right to terminate this agreement and the rental contract at any time due to Customer's actions or improper conduct and re-take possession of equipment. ${storeName} and its DBAs may enter the property or premises where the equipment is located to effect its return without liability for trespassing.  </p>
-    //   </Section>
-    //   <Section style="margin: 50px 0;">
-    //     <p>CUSTOMER INSPECTION</p>
-    //     <p> Customer agrees and acknowledges they are to inspect equipment upon receipt and should they find any equipment not in proper mechanical or aesthetic condition, they shall immediately notify ${storeName} through one of its DBAs. Upon use of equipment, Customer accepts the condition of equipment as is, agrees it is in proper functioning condition, and accepts responsibility for the care of equipment while in Customer's possession. Customer further understands equipment may not have visibility enhancement equipment, such as reflectors, blinking lights, or other lights, and agrees to use of equipment in its delivered condition.  </p>
-    //   </Section>
-    //   <Section style="margin: 50px 0;">
-    //     <p>RESPONSIBILITY FOR DAMAGE, LOSS AND/OR LATE RETURN</p>
-    //     <p> Customer agrees that they will return equipment in the same condition as it was at rental, normal wear and tear excepted. Customer assumes liability for any and all damage or loss of equipment and damage or loss to personal property, accident/injury to other persons related to the use of equipment. It is Customer's responsibility to prevent damage, loss, or theft of equipment. Customer shall not misuse or abuse equipment and agrees to not subject equipment to any water, unsafe use, use while under the effect of alcohol or drugs, and not assign its rights to use of equipment. Customer shall comply with all laws, ordinances, and regulations governing use of equipment and return equipment to the same location as it was delivered to them at the end of their rental period clean and undamaged. Customer is responsible for the cost of excessive cleaning and to repair any damage to equipment while in Customer's possession at the normal shop rate plus retail cost of repair parts required to return equipment to is condition at time of rental, unless Damage Waiver purchased at time of rental. Customer agrees any bicycle ridden in wet sand is subject to a minimum $75 cleaning and repair charge. Should equipment be lost or stolen, Customer agrees to pay the current replacement cost. There are no warranties, expressed or implied, in connection with the use of the rented equipment. Should equipment not be returned or available for pickup at the agreed day and time, Customer shall be charged an additional fee equal to the one day rental rate for all items on the order for each day not available for pickup. Customer agrees ${storeName} may charge the credit card on file for any damage, loss, or late return fees.  </p>
-    //   </Section>
-    //   <Section style="margin: 50px 0;">
-    //     <p>CHOICE OF LAW AND VENUE</p>
-    //     <p> Certainly! The rental and this agreement shall be governed and interpreted solely in accordance with the law of the State of South Carolina. Any litigation involving the use of equipment shall be brought solely within the State of South Carolina and shall be in the exclusive jurisdiction of the courts of Beaufort County South Carolina. If any provision is deemed invalid or unenforceable, the remainder of this agreement remains in full force and effect.  </p>
-    //   </Section>
-    //   <Section style="margin: 50px 0;">
-    //     <p>USE OF EQUIPMENT</p>
-    //     <p> Certainly! Here's the summary of the additional terms: 1. **Safe Usage and Compliance**: - Customer agrees to use equipment in a safe manner in accordance with all South Carolina traffic laws and regulations, as well as the regulations of the Town of Hilton Head and neighborhood requirements. - Customer shall not use phones or cameras while riding. - Customer shall only ride on open paths, trails, and roads and shall not trespass. 2. **Protection from Water Damage**: - Customer shall not subject equipment to any body of water, including the ocean, and is responsible for all water damage. 3. **Equipment Modification and Safe Use**: - Customer agrees not to modify, change, add, or remove items from equipment. - Customer is responsible for the safe use of equipment for all members of its group and shall ensure their safe use of equipment. - Customers understand how to use the equipment. 4. **Child Safety and Compliance**: - Customer agrees no child will be left unattended in any child seat, carrier, highchair, pack and play, crib, or any other equipment. - Customer agrees to comply with the minimum/maximum age and weight standards listed in HHI Rentals' online order page. This comprehensive summary covers the key points of the additional terms for the agreement.  </p>
-    //   </Section>
-    //   <Section style="margin: 50px 0;">
-    //     <p>ACCEPTANCE OF TERMS AND CONDITIONS</p>
-    //     <p> Customer understands and agrees to its acceptance of ${storeName}'s Terms and Conditions by either checking the acceptance box during online or kiosk ordering; having the Terms and Conditions link emailed to Customer with their confirmation email; and/or through their use of equipment constitutes the equivalent of a legal signature confirming their agreement to all Terms and Conditions set forth in this agreement. Should Customer not agree with these Terms and Conditions, Customer shall not utilize any equipment and immediately contact ${storeName} at the number listed in its rental communications.  </p>
-    //   </Section>
-    //   <p><span>Signed:</span><span style="display:inline-block; margin-left:12px; width:200px; border-bottom:1px dotted gray;"></span></p>
-    //   <p style="padding-top:8px; border-top:1px solid black; text-align:center;">bikerentalmanager.com - Printed: ${new Date().toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })} - Language: en</p>
-    // `;
 
     if(tc == true || tc == 'true'){
       if(storeDetail.is_document){
