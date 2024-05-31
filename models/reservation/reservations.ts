@@ -78,6 +78,9 @@ const Reservations = sequelize.define(
     driver_tip: {
       type: DataTypes.FLOAT,
     },
+    textSent: {
+      type: DataTypes.BOOLEAN,
+    },
   },
   {
     timestamps: true,

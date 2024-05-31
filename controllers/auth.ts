@@ -112,8 +112,6 @@ export const login = (req, res, next) => {
 					})
 
 					const refreshToken = await generateRefreshToken(dbUser.id, req.body.email)
-					console.log("-----------------------------------------------------refreshToken");
-					console.log(refreshToken);
 					res.status(200).json({
 						message: "user logged in", 
 						refreshToken,

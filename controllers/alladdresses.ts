@@ -226,8 +226,6 @@ export const createForecasting = async (req, res, next) => {
     };
  
     const addressDetail = await AllAddresses.findOne({where:{id:address_id}});
-    console.log("addressDetail--------------------------------------------");
-    console.log(addressDetail);
     if(addressDetail?.guests){
       fields.max_guests = addressDetail.guests;
       fields.percentage = Math.round(booked_guests/addressDetail.guests * 100)/100;

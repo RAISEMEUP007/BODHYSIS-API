@@ -21,8 +21,6 @@ import SettingsDocuments from '../models/settings/settings_documents.js';
 
 export const createReservation = async (req, res, next) => {
   try {
-    console.log("tax_amount-----------------------------------------------------");
-    console.log(req.body);
     const lastReservation = await Reservations.findOne({
       order: [['order_number', 'DESC']]
     });
