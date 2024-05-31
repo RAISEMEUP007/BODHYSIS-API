@@ -494,11 +494,15 @@ export const verifyQuantityByDisplayName = async (req, res, next) => {
     const out_amount = stageAmount?.out_amount??0;
     const remainingQuantity = inventoryAmount - out_amount;
 
-    if (quantity + (pre_quantity || 0) > remainingQuantity) {
-      return res.status(400).json({ error: 'Out of Stock' });
+    const quantities = {
+      remainingQuantity,
     }
 
-    res.status(200).json({ message: 'In Stock' });
+    if (quantity + (pre_quantity || 0) > remainingQuantity) {
+      return res.status(400).json({ error: 'Out of Stock', quantities });
+    }
+
+    res.status(200).json({ message: 'In Stock', quantities });
     next();
   } catch (error) {
     console.log(error);
