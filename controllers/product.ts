@@ -173,8 +173,19 @@ export const getProductFamiliesData = (req, res, next) => {
   });
 };
 
-export const getProductFamiliesDataByDisplayName = (req, res, next) => {
-  let categoryId = req.params.categoryId;
+export const getProductFamiliesDataByDisplayName = async (req, res, next) => {
+  try {
+    let categoryId = req.params.categoryId;
+
+    const productFamilies = await getPFDByDisplayName(categoryId);
+    res.status(200).json(productFamilies);
+  } catch (err) {
+    console.log(err);
+    res.status(502).json({error: "An error occurred"});
+  }
+};
+
+export const getPFDByDisplayName = async (categoryId) => {
   let queryOptions = {
     attributes: [
       'id',
@@ -203,7 +214,6 @@ export const getProductFamiliesDataByDisplayName = (req, res, next) => {
           'shortcode',
           'price_group_id',
           [sequelize.fn('GROUP_CONCAT', sequelize.col('lines.id')), 'linesIds'],
-          // [sequelize.fn('GROUP_CONCAT', sequelize.col('lines.size')), 'linesSizes'],
           [sequelize.fn('GROUP_CONCAT', sequelize.fn('DISTINCT', sequelize.col('lines.size'))), 'linesSizes'],
           [sequelize.fn('GROUP_CONCAT', sequelize.col('lines.price_group_id')), 'priceGroupIds']
         ],
@@ -230,19 +240,14 @@ export const getProductFamiliesDataByDisplayName = (req, res, next) => {
     };
   }
 
-  ProductFamilies.findAll(queryOptions)
-  .then((productFamilies) => {
-    let productFamiliesJSON = [];
-    for (let i = 0; i < productFamilies.length; i++) {
-      productFamiliesJSON.push(productFamilies[i].dataValues);
-    }   
-    res.status(200).json(productFamiliesJSON);
-  })
-  .catch(err => {
-    console.log(err);
-    res.status(502).json({error: "An error occurred"});
-  });
-};
+  const productFamilies = await ProductFamilies.findAll(queryOptions);
+
+  let productFamiliesJSON = [];
+  for (let i = 0; i < productFamilies.length; i++) {
+    productFamiliesJSON.push(productFamilies[i].dataValues);
+  }
+  return productFamiliesJSON;
+}
 
 export const getProductFamilyIdsByDisplayName = async (category_id, display_name) => {
   try {

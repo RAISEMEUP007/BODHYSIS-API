@@ -3,7 +3,7 @@ import sequelize from '../utils/database';
 import puppeteer from 'puppeteer';
 import bwipjs from 'bwip-js'; 
 
-import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds, getAvaliableQuantityByfamily, getProductFamilyIdsByDisplayName } from "./product";
+import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds, getAvaliableQuantityByfamily, getProductFamilyIdsByDisplayName, getPFDByDisplayName } from "./product";
 import Reservations from "../models/reservation/reservations";
 import ReservationPayments from '../models/reservation/reservation_payments';
 import ReservationItems from '../models/reservation/reservation_items';
@@ -997,3 +997,45 @@ export const checkedInBarcode = async (req, res, next) => {
     res.status(500).json({ error: "An error occurred" });
   }
 };
+
+export const getAvailableSheet = async (req, res, next) => {
+  try {
+    let families = await getPFDByDisplayName(33);
+
+    const today = new Date();
+    const futureDate = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+    for(const family of families){
+      family.quantities = [];
+      for(let date = new Date(today); date <= futureDate; date.setDate(date.getDate() + 1)){
+        const formattedDate = formatDate(date);
+        let familyIds = await getProductFamilyIdsByDisplayName(33, family.display_name);
+        let availableQuantity = await getAvaliableQuantityByfamily(familyIds);
+        let stageAmount = await getStageAmountByDisplayName(formattedDate, formattedDate, family.display_name);
+
+        let inventoryAmount = availableQuantity || 0;
+        let out_amount = stageAmount?.out_amount??0;
+        let remainingQuantity = inventoryAmount - out_amount;
+
+        family.quantities.push({
+          date: formattedDate,
+          inventoryAmount,
+          remainingQuantity,
+          out_amount,
+        })
+      }
+    }
+
+    res.json(families);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "An error occurred" });
+  }
+};
+
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
