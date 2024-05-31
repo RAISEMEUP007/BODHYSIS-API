@@ -480,7 +480,6 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
     // console.log(section2HTML);
     let section4HTML = '';
     if (storeDetail.is_document) {
-      console.log("storeDetail.is_document");
       const documentDetail = await SettingsDocuments.findOne({
         where: {
           id: storeDetail.document_id
@@ -536,16 +535,6 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
     };
     await sendReservationConfirmEmail(msg);
 
-//     const templateText = `${req.body.name},
-
-// Your reservation has been confirmed.
-
-// Your equipment will be delivered on the date of your reservation. Please remember, we will pickup your equipment on the last date of your reservation at ${storeDetail.dropoff_time}.
-
-// Confirmation Details
-// ${req.body.start_time} - ${req.body.end_time}.
-
-// `
     const templateText = storeDetail.text_confirmation
       .replaceAll('[store_name]', storeDetail.store_name)
       .replaceAll('[customer_name]', (reservation.customer?.first_name??'') + ' ' + (reservation.customer?.last_name??''))
@@ -564,6 +553,7 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
       .replaceAll('[end_time]', storeDetail?.dropoff_time??'');
 
     await sendSMSTwilio(req.body.phone_number, templateText);
+    await reservationRow.update({textSent: true})
     return res.status(200).json();
   } catch (err) {
     console.log(err);

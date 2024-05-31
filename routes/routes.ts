@@ -190,6 +190,7 @@ import {
   scanBarcode,
   checkedInBarcode,
   verifyQuantityByDisplayName,
+  getAvailableSheet,
 } from "../controllers/reservations";
 
 import {
@@ -525,6 +526,7 @@ router.post("/reservation/verifyquantitybydisplayname/", verifyQuantityByDisplay
 router.get("/reservations/exportpdf/:id/:tc", exportReservation);
 router.post("/reservation/scanbarcode/", scanBarcode);
 router.post("/reservation/checkedinbarcode/", checkedInBarcode);
+router.get("/reservations/getavailablesheet", getAvailableSheet);
 
 /* ----- Stripe ----- */
 router.post("/createcustomerstripe/", createCustomerStripe);
