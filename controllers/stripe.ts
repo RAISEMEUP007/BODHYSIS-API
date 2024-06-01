@@ -369,9 +369,7 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
     };
 
     const reservationRow = await Reservations.findOne(queryOptions);
-    const storeDetail = await SettingsStoreDetails.findOne({
-      where: {brand_id: reservationRow.brand_id}
-    })
+
     const reservation = {
       ...reservationRow.toJSON(),
       items: reservationRow.items.map(item => ({
@@ -388,6 +386,13 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
       }))
       .sort((a, b) => a.display_name.localeCompare(b.display_name)) 
     };
+
+console.log(reservation);
+console.log(reservation.brand_id);
+    
+    const storeDetail = await SettingsStoreDetails.findOne({
+      where: {brand_id: reservation.brand_id}
+    }) 
 
     const stage = [
       'DRAFT',
