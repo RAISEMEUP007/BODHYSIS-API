@@ -17,7 +17,7 @@ export const getDrivers = (req, res, next) => {
     res.status(200).json(users);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };

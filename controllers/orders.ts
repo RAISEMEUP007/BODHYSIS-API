@@ -106,7 +106,7 @@ export const getOrdersData = (req:Request, res:Response, next:NextFunction) => {
     res.status(200).json(reservations);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 }

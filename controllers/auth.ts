@@ -62,7 +62,7 @@ export const signup = (req, res, next) => {
 						res.status(200).json({message: "user created"});
 					})
 					.catch(err => {
-						console.log(err);
+						console.error(err);
 						res.status(502).json({message: "error while creating the user"});
 					});
 				};
@@ -74,7 +74,7 @@ export const signup = (req, res, next) => {
 		};
 	})
 	.catch(err => {
-		console.log('error', err);
+		console.error('error', err);
 	});
 };
 
@@ -126,7 +126,7 @@ export const login = (req, res, next) => {
 		};
 	})
 	.catch(err => {
-		console.log('error', err);
+		console.error('error', err);
 	});
 };
 

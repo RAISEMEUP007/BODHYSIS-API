@@ -41,7 +41,6 @@ dotenv.config();
 // };
 
 export const customerSignUp = (req, res, next) => {
-	console.log(req);
 	CustomerCustomers.findOne({ where : {
 		email: req.body.email, 
 	}})
@@ -87,7 +86,7 @@ export const customerSignUp = (req, res, next) => {
 						});
 					})
 					.catch(err => {
-						console.log(err);
+						console.error(err);
 						res.status(502).json({message: "error while creating the customer account"});
 					});
 				};
@@ -99,7 +98,7 @@ export const customerSignUp = (req, res, next) => {
 		};
 	})
 	.catch(err => {
-		console.log('error', err);
+		console.error('error', err);
 	});
 };
 
@@ -172,8 +171,8 @@ export const customerLogin = (req, res, next) => {
 		};
 	})
 	.catch(err => {
-		console.log(err);
-		console.log('error', err);
+		console.error(err);
+		console.error('error', err);
 	});
 };
 
@@ -215,8 +214,8 @@ export const adminTry = async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
   } catch (err) {
-    console.log(err);
-    console.log('error', err);
+    console.error(err);
+    console.error('error', err);
   }
 };
 

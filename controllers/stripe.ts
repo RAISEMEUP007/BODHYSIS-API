@@ -20,7 +20,6 @@ dotenv.config();
 
 const stripe = (storeName = "") => {
   if(storeName && storeName.toLowerCase().includes('stand')) {
-    console.log("********************************************************************");
     return new Stripe(process.env.STRIPE_SECRET_KEY_STAND);
   } else {
     return new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -218,7 +217,7 @@ export const listPaymentMethods = async (req, res, next) => {
 
     res.json(formattedPaymentMethods);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({error: error.message});
   }
 }
@@ -285,7 +284,7 @@ export const getSecret = async (req, res, next) => {
 
     res.json({ client_secret: intent.client_secret });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json(error);
   }
 }
@@ -322,7 +321,7 @@ export const chargeStripeCard = async (req, res, next) => {
 
     res.send(paymentIntent);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json(error);
   }
 }
@@ -460,6 +459,8 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
       </div>`
     htmlContent += `</div>`;
 
+    console.log("storeDetail.email_confirmation", storeDetail.email_confirmation);
+
     const section2HTML = storeDetail.email_confirmation
       .replaceAll('[store_name]', storeDetail.store_name)
       .replaceAll('[customer_name]', (reservation.customer?.first_name??'') + ' ' + (reservation.customer?.last_name??''))
@@ -556,7 +557,7 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
     await reservationRow.update({textSent: true})
     return res.status(200).json();
   } catch (err) {
-    console.log(err);
+    console.error(err);
     console.error('An error occurred:', err);
     return res.status(500).send("An error occurred");
   }
@@ -574,7 +575,6 @@ export const refundStripe = async (req, res, next) => {
       ...refundAmount
     });
 
-    // console.log(req.body);
     ReservationPayments.update(
       { 
         refunded: req.body.old_refunded + refund.amount/100,
@@ -689,10 +689,6 @@ export const addLastPaymentMethosToCustomer = async (req, res, next) => {
     //   }
     // );
 
-    // console.log("******************");
-    // console.log("customerId", customerBalanceTransactions);
-    // console.log("customerId", customerId);
-
     // let cardList = []
     // for (const paymentIntent of customerBalanceTransactions.data) {
     //   if (paymentIntent.status === 'succeeded' && paymentIntent.payment_method) {
@@ -704,11 +700,10 @@ export const addLastPaymentMethosToCustomer = async (req, res, next) => {
     //     }
     //   }
     // }
-    // console.log(cardList);
 
     // res.json(cardList);
   }catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({error: error.message});
   }
 }

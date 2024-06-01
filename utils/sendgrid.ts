@@ -15,7 +15,7 @@ export const sendEmail=async(data: SendEmailDataType | SendEmailDataType[], isMu
   try {    
     await sgMail.send(msg,isMultiple,cb);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 
@@ -29,6 +29,6 @@ export const sendReservationConfirmEmail=async(data: SendEmailDataType | SendEma
   try {    
     await sgMail.send(msg,isMultiple,cb);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }

@@ -33,13 +33,13 @@ export const createPriceGroup = (req, res, next) => {
 				res.status(200).json({message: "Added Successfully"});
 			})
 			.catch(err => {
-				console.log(err);
+				console.error(err);
 				res.status(502).json({error: "An error occurred"});
 			});
 		}
 	})
 	.catch(err => {
-		console.log('error', err);
+		console.error('error', err);
 	});
 };
 
@@ -61,7 +61,7 @@ export const updatePriceGroup = (req, res, next) => {
         res.status(200).json({ message: "Updated Successfully" });
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
         res.status(502).json({ error: "An error occurred" });
       });
     } else {
@@ -69,7 +69,7 @@ export const updatePriceGroup = (req, res, next) => {
     }
   })
   .catch(err => {
-    console.log('error', err);
+    console.error('error', err);
     res.status(500).json({ error: "Internal server error" });
   });
 };
@@ -93,13 +93,13 @@ export const addPricePoint = (req, res, next) => {
 				return res.status(200).json({message: "Added Successfully"});
 			})
 			.catch(err => {
-				console.log(err);
+				console.error(err);
 				return res.status(502).json({error: "An error occurred"});
 			});
 		}
 	})
 	.catch(err => {
-		console.log('error', err);
+		console.error('error', err);
 	});
 };
 
@@ -187,7 +187,7 @@ export const getHeaderData = (req, res, next) => {
     res.status(200).json(pointsJSON);
 	})
 	.catch(err => {
-		console.log(err);
+		console.error(err);
 		res.status(502).json({error: "An error occurred"});
 	});
 };
@@ -292,7 +292,7 @@ export const getPriceGroupsData = (req, res, next) => {
     res.status(200).json(PriceGroupJSON);
 	})
 	.catch(err => {
-		console.log(err);
+		console.error(err);
 		res.status(502).json({error: "An error occurred"});
 	});
 };
@@ -327,15 +327,13 @@ export const priceValidation = (req, res, next) => {
 		  res.status(200).json({ message: "No confliction" });
 		}
   }).catch((error) => {
-		console.log(error);
+		console.error(error);
 		res.status(500).json({ error: "Internal server error" });
   });
 };
 
 export const getPriceGroupValue = (req, res, next) => {
   const { groupId, pointId, tableId } = req.body;
-
-  console.log(req.body);
 
   PriceTableDetails.findOne({
     attributes: ['value'],
@@ -345,22 +343,19 @@ export const getPriceGroupValue = (req, res, next) => {
       point_id: pointId
     }
   }).then((result) => {
-  	console.log(result);
     if (result && result.value != null) {
       res.json(result.value);
     } else {
       res.json(0);
     }
   }).catch((error) => {
-		console.log(error);
+		console.error(error);
 		res.status(500).json({ error: "Internal server error" });
   });
 };
 
 export const getPriceDataByGroup = (req, res, next) => {
   const { groupId, tableId } = req.body;
-
-  console.log(req.body);
 
   PriceTableDetails.findAll({
     where: {
@@ -370,7 +365,7 @@ export const getPriceDataByGroup = (req, res, next) => {
   }).then((result) => {
     res.json(result);
   }).catch((error) => {
-		console.log(error);
+		console.error(error);
 		res.status(500).json({ error: "Internal server error" });
   });
 };
@@ -410,14 +405,14 @@ export const setPriceData = (req, res, next) => {
 					}}).then(() => {
 						res.status(200).json({ message: "Updated price Successfully" });
 				  }).catch((error) => {
-						console.log(error);
+						console.error(error);
 						res.status(500).json({ error: "Internal server error" });
 				  });
 				} else {
 				  res.status(200).json({ message: "SetPrice Successfully" });
 				}
 		  }).catch((error) => {
-				console.log(error);
+				console.error(error);
 				res.status(500).json({ error: "Internal server error" });
 		  });
 	});
@@ -479,7 +474,7 @@ export const getSeasonsData = (req, res, next) => {
     res.status(200).json(seasonsJSON);
 	})
 	.catch(err => {
-		console.log(err);
+		console.error(err);
 		res.status(502).json({error: "An error occurred"});
 	});
 };
@@ -547,7 +542,7 @@ export const getBrandsData = (req, res, next) => {
     res.status(200).json(brandsJSON);
 	})
 	.catch(err => {
-		console.log(err);
+		console.error(err);
 		res.status(502).json({error: "An error occurred"});
 	});
 };
@@ -562,7 +557,7 @@ export const getBrandDetail = (req, res, next) => {
     res.status(200).json(brand);
 	})
 	.catch(err => {
-		console.log(err);
+		console.error(err);
 		res.status(502).json({error: "An error occurred"});
 	});
 };
@@ -625,7 +620,7 @@ export const getPriceTablesData = (req, res, next) => {
     res.status(200).json(priceTablesJSON);
 	})
 	.catch(err => {
-		console.log(err);
+		console.error(err);
 		res.status(502).json({error: "An error occurred"});
 	});
 };
@@ -751,7 +746,7 @@ export const getPriceLogicData = (req, res, next) => {
     res.status(200).json(priceLogicJSON);
 	})
 	.catch(err => {
-		console.log(err);
+		console.error(err);
 		res.status(502).json({error: "An error occurred"});
 	});
 };
@@ -777,13 +772,13 @@ export const createPriceLogic = (req, res, next) => {
 				res.status(200).json({message: "Added Successfully"});
 			})
 			.catch(err => {
-				console.log(err);
+				console.error(err);
 				res.status(502).json({error: "An error occurred"});
 			});
 		}
 	})
 	.catch(err => {
-		console.log('error', err);
+		console.error('error', err);
 	});
 };
 
@@ -858,7 +853,7 @@ export const getPriceGroupActiveDataByTableId = (req, res, next)=>{
     res.status(200).json(transformedResults);
 	})
 	.catch(err => {
-		console.log(err);
+		console.error(err);
 		res.status(502).json({error: "An error occurred"});
 	});
 }
@@ -883,14 +878,14 @@ export const setActiveGroup = (req, res, next) => {
 			}}).then(() => {
 				res.status(200).json({ message: "Updated Successfully" });
 		  }).catch((error) => {
-				console.log(error);
+				console.error(error);
 				res.status(500).json({ error: "Internal server error" });
 		  });
 		} else {
 		  res.status(200).json({ message: "Set Successfully" });
 		}
   }).catch((error) => {
-		console.log(error);
+		console.error(error);
 		res.status(500).json({ error: "Internal server error" });
   });
 };

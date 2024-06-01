@@ -161,7 +161,7 @@ export const getReservationsData = (req, res, next) => {
     res.status(200).json(reservations);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -240,7 +240,7 @@ export const getReservationDetails = async (req: Request, res: Response) => {
     res.status(200).json(transformedReservation);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -297,7 +297,7 @@ export const updateReservation = (req, res, next) => {
         res.status(201).json({ message: 'Reservation updated successfully', items: newItems });
       })
       .catch(error => {
-        console.log(error);
+        console.error(error);
         if (error.name === 'SequelizeUniqueConstraintError') {
           const message = error.errors[0].message;
           const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -311,7 +311,7 @@ export const updateReservation = (req, res, next) => {
     }
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: "Internal server error" });
   });
 }
@@ -359,7 +359,6 @@ const saveReservationItemsExtras = (reservationItemId, extras) => {
 }
 
 export const removeReservationItem = (req, res, next) => {
-  console.log(req.body);
   ReservationItems.destroy({ where: { id: req.body.id } })
   .then((result) => {
     if (result === 1) {
@@ -396,7 +395,7 @@ export const createTransaction = (req, res, next) => {
     res.status(201).json({ message: 'Transaction created successfully', transaction: newPayment });
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -415,15 +414,13 @@ export const getTransactionsData = (req, res, next) => {
     res.status(200).json(paymentsJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
 
 export const verifyQuantity = async (req, res, next) => {
   const { start_date, end_date, items } = req.body;
-
-  console.log(req.body);
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Request body must have a non-empty array of items' });
@@ -466,7 +463,7 @@ export const verifyQuantity = async (req, res, next) => {
     res.status(200).json({ message: 'All quantities verified', quantities: response });
     next();
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ error: 'An error occurred while verifying quantities' });
   }
 };
@@ -483,11 +480,6 @@ export const verifyQuantityByDisplayName = async (req, res, next) => {
     const availableQuantity = await getAvaliableQuantityByfamily(familyIds);
     const stageAmount = await getStageAmountByDisplayName(start_date, end_date, display_name);
 
-    console.log("====================================");
-    console.log(familyIds);
-    console.log(availableQuantity);
-    console.log(stageAmount);
-
     const inventoryAmount = availableQuantity || 0;
     const out_amount = stageAmount?.out_amount??0;
     const remainingQuantity = inventoryAmount - out_amount;
@@ -503,7 +495,7 @@ export const verifyQuantityByDisplayName = async (req, res, next) => {
     res.status(200).json({ message: 'In Stock', quantities });
     next();
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ error: 'An error occurred while verifying quantities' });
   }
 };
@@ -807,7 +799,6 @@ export const exportReservation = async (req, res, next) => {
             id: storeDetail.document_id,
           }
         })
-        console.log(documentDetail);
         if(documentDetail.document_type == 1){
           htmlContent += `<Section style="margin: 50px 0;">
                   <a href="${process.env.BASE_URL + documentDetail.document_file}" download="${documentDetail.document_name}.pdf" target="_blank">
@@ -874,9 +865,6 @@ export const scanBarcode = async (req, res, next) => {
     if(!product) {
       return res.status(404).json({ error: "Product not found" });
     }
-
-    console.log("product.status---------------------------------------------");
-    console.log(product.status);
     if(product.status == 2){
       return res.status(403).json({ error: "This product is already checked out" });
     }else if(product.status != 0 && product.status != 1 && product.status != 3){
@@ -884,11 +872,6 @@ export const scanBarcode = async (req, res, next) => {
     }
     
     const displayName = product.family.display_name;
-
-    console.log("product---------------------------------");
-    console.log(product.status);
-    console.log(displayName);
-
     const availableProductItem = await ReservationItems.findOne({
       where:{
         reservation_id: reservation_id,
@@ -897,9 +880,6 @@ export const scanBarcode = async (req, res, next) => {
         status: null
       }
     })
-
-    console.log("availableProductItem---------------------------------");
-    console.log(availableProductItem);
 
     if(!availableProductItem) {
       return res.status(404).json({ error: "This product is not associated with this reservation" });
@@ -920,7 +900,7 @@ export const scanBarcode = async (req, res, next) => {
       message: "Updated the item status successfully" 
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ error: "An error occurred" });
   }
 };
@@ -956,10 +936,6 @@ export const checkedInBarcode = async (req, res, next) => {
     
     const displayName = product.family.display_name;
 
-    console.log("product---------------------------------");
-    console.log(product.status);
-    console.log(displayName);
-
     const availableProductItem = await ReservationItems.findOne({
       where:{
         reservation_id: reservation_id,
@@ -968,9 +944,6 @@ export const checkedInBarcode = async (req, res, next) => {
         status: 3
       }
     })
-
-    console.log("availableProductItem---------------------------------");
-    console.log(availableProductItem);
 
     if(!availableProductItem) {
       return res.status(404).json({ error: "This product is not associated with this reservation" });
@@ -991,7 +964,7 @@ export const checkedInBarcode = async (req, res, next) => {
       message: "Updated the item status successfully" 
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ error: "An error occurred" });
   }
 };
@@ -1026,7 +999,7 @@ export const getAvailableSheet = async (req, res, next) => {
 
     res.json(families);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ error: "An error occurred" });
   }
 };

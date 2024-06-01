@@ -78,7 +78,7 @@ export const getManufacturesData = (req, res, next) => {
     res.status(200).json(manufacturesJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -137,7 +137,7 @@ export const getTagsData = (req, res, next) => {
     res.status(200).json(tagsJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -196,7 +196,7 @@ export const getLocationsData = (req, res, next) => {
     res.status(200).json(locationsJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -313,7 +313,7 @@ export const getLanguagesData = (req, res, next) => {
     res.status(200).json(languagesJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -385,7 +385,7 @@ export const createDocument = (req, res, next) => {
     res.status(201).json({ message: 'Document created successfully', document: newdocument });
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -470,7 +470,7 @@ export const createReservationType = (req, res, next) => {
     res.status(201).json({ message: 'ReservationType created successfully', reservationType: newreservationType });
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -562,7 +562,7 @@ export const getTrucksData = (req, res, next) => {
     res.status(200).json(trucksJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -621,7 +621,7 @@ export const getTimezonesData = (req, res, next) => {
     res.status(200).json(timezonesJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -680,7 +680,7 @@ export const getCurrenciesData = (req, res, next) => {
     res.status(200).json(currenciesJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -739,7 +739,7 @@ export const getDateformatsData = (req, res, next) => {
     res.status(200).json(dateformatsJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -798,7 +798,7 @@ export const getTimeformatsData = (req, res, next) => {
     res.status(200).json(timeformatsJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -860,7 +860,7 @@ export const getStoreDetailByStoreURL = (req, res, next) => {
     }
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({ error: "An error occurred" });
   });
 };
@@ -891,7 +891,7 @@ export const updateStoreDetail = (req, res, next) => {
     }
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -971,7 +971,7 @@ export const getDiscountCodesData = (req, res, next) => {
     res.status(200).json(discountCodesJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -996,7 +996,7 @@ export const createExclusion = (req, res, next) => {
     res.status(201).json({ message: 'Exclusion created successfully', exclusion: newExclusion });
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -1107,7 +1107,7 @@ export const getTaxcodesData = (req, res, next) => {
     res.status(200).json(taxcodesJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -1166,7 +1166,7 @@ export const getColorcombinationsData = (req, res, next) => {
     res.status(200).json(colorcombinationsJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -1212,7 +1212,6 @@ export const getExtrasDataByDisplayName = (req, res, next) => {
     nest: true,
     order: ['id'],
   }).then((extras) => {
-    console.log(extras);
     if(req.body.brand_id){
       const filteredCategories = extras.filter((item) => {
         if(!item.brand_ids) return false;
@@ -1242,7 +1241,6 @@ export const createExtra = (req, res, next) => {
           is_apply_tax,
           is_apply_discounts,
           brand_ids } = req.body;
-  console.log(req.body);
 
   const imgUrl = generateFileUrl(req.files);
 
@@ -1271,7 +1269,7 @@ export const createExtra = (req, res, next) => {
     res.status(201).json({ message: 'Extra created successfully', extra: newextra });
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -1295,7 +1293,6 @@ export const updateExtra = (req, res, next) => {
           is_apply_tax,
           is_apply_discounts,
           brand_ids } = req.body;
-  console.log(req.body);
   const imgUrl = generateFileUrl(req.files);
 
   const updateFields = {
@@ -1324,7 +1321,7 @@ export const updateExtra = (req, res, next) => {
     res.status(201).json({ message: 'Extra updated successfully', extra: newExtra });
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -1385,8 +1382,6 @@ export const getProductCompatibilitiesData = async (req, res, next) => {
 };
 
 export const updateCompatibility = (req, res, next) => {
-  console.log("req.body----------------------------------------------------------");
-  console.log(req.body);
   SettingsProductCompatibilities.findOrCreate({
     where: { 
       display_name: req.body.display_name,
@@ -1403,14 +1398,14 @@ export const updateCompatibility = (req, res, next) => {
       }}).then(() => {
         res.status(200).json({ message: "Set Successfully" });
       }).catch((error) => {
-        console.log(error);
+        console.error(error);
         res.status(500).json({ error: "Internal server error" });
       });
     } else {
       res.status(200).json({ message: "Set Successfully" });
     }
   }).catch((error) => {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: "Internal server error" });
   });
 };
