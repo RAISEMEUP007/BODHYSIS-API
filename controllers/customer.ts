@@ -26,7 +26,7 @@ export const createCustomer = (req, res, next) => {
     );
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -138,7 +138,6 @@ export const createDeliveryAddress = async (req, res, next) => {
 }
 
 export const updateDeliveryAddress = (req, res, next) => {
-  console.log(req.body);
   CustomerDeliveryAddress.update(req.body, { where: { id: req.body.id } })
   .then(newdeliveryAddress => {
     res.status(201).json({ message: 'Delivery Address created successfully', deliveryAddress: newdeliveryAddress });
@@ -167,7 +166,7 @@ export const getDeliveryAddressData = (req, res, next) => {
     res.status(200).json(deliveryAddresss);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -190,7 +189,7 @@ export const getUsedDeliveryAddress = (req, res, next) => {
     res.status(200).json(deliveryAddresss);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };

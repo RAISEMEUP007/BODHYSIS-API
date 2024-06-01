@@ -180,7 +180,7 @@ export const getProductFamiliesDataByDisplayName = async (req, res, next) => {
     const productFamilies = await getPFDByDisplayName(categoryId);
     res.status(200).json(productFamilies);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   }
 };
@@ -261,7 +261,7 @@ export const getProductFamilyIdsByDisplayName = async (category_id, display_name
     const productFamilies = await ProductFamilies.findAll(queryOptions);
     return productFamilies.map((family) => family.id);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     throw { status: 502, error: "An error occurred" };
   }
 };
@@ -283,7 +283,7 @@ export const createProductFamily = (req, res, next) => {
     res.status(201).json({ message: 'Product family created successfully', family: newfamily });
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -409,7 +409,7 @@ export const getProductLinesData = (req, res, next) => {
     res.status(200).json(productLinesJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -456,7 +456,7 @@ export const getProductLinesDataByCategory = (req, res, next) => {
     res.status(200).json(productLines);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -567,7 +567,7 @@ export const getProductsData = (req, res, next) => {
     res.status(200).json(productsJSON);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -610,7 +610,7 @@ export const getProductDetailByBarcode = (req, res, next) => {
       }
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       res.status(500).json({ error: "An error occurred" });
     });
 };
@@ -653,7 +653,7 @@ export const getProductDetailById = (req, res, next) => {
       }
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       res.status(500).json({ error: "An error occurred" });
     });
 };
@@ -724,7 +724,7 @@ export const getProductQuantitiesByLine = (req, res, next) => {
     res.status(200).json(transformedResults);
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: error.message });
   });
 };
@@ -742,7 +742,7 @@ export const getProductQuantitiesByFamily = (req, res, next) => {
     res.status(200).json(transformedResults);
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: error.message });
   });
 };
@@ -760,7 +760,7 @@ export const getProductQuantitiesByCategory = (req, res, next) => {
     res.status(200).json(transformedResults);
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: error.message });
   });
 };
@@ -948,14 +948,14 @@ export const updateOrderIndex = (req, res, next) => {
       }}).then(() => {
         res.status(200).json({ message: "Set Successfully" });
       }).catch((error) => {
-        console.log(error);
+        console.error(error);
         res.status(500).json({ error: "Internal server error" });
       });
     } else {
       res.status(200).json({ message: "Set Successfully" });
     }
   }).catch((error) => {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: "Internal server error" });
   });
 };

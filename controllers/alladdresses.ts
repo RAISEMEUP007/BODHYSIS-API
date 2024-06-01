@@ -52,7 +52,6 @@ export const searchAddress = async (req, res, next) => {
             { plantation: { [Op.notLike]: '%Beach & Tennis%' }}
           ];
         }
-        console.log("whereCondition", whereCondition);
 
         return await AllAddresses.findAll({
           where: whereCondition,
@@ -78,7 +77,7 @@ export const createAddress = (req, res, next) => {
     res.status(201).json({ message: 'Address created successfully', address: newAddress });
   })
   .catch(error => {
-    console.log(error);
+    console.error(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -123,7 +122,7 @@ export const getAddressesData = (req, res, next) => {
     res.status(200).json(addresses);
   })
   .catch(err => {
-    console.log(err);
+    console.error(err);
     res.status(502).json({error: "An error occurred"});
   });
 };
@@ -237,7 +236,7 @@ export const createForecasting = async (req, res, next) => {
     const newForecasting = await Forecasting.create(fields);
     res.status(201).json({ message: 'Forecasting created successfully', forecasting: newForecasting });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error.errors && error.errors[0].validatorKey === 'not_unique') {
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -341,7 +340,7 @@ export const getForecastingData = async (req, res, next) => {
 
     res.send({weeksArray:getWeeksInYear(year), gridData:addresses});
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error.errors && error.errors[0].validatorKey === 'not_unique') {
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
