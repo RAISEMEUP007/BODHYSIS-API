@@ -585,8 +585,8 @@ const getStageAmountByDisplayName = async (startDate, endDate, display_name = ""
       INNER JOIN reservations AS t2
         ON t1.reservation_id = t2.id
     WHERE
-      t2.start_date < :end_date
-      AND t2.end_date > :start_date
+      t2.start_date <= :end_date
+      AND t2.end_date >= :start_date
       AND t2.stage IN (1, 2, 3, 4)
       AND t1.display_name = :display_name
     GROUP BY t2.stage;
