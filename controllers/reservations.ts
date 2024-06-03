@@ -500,59 +500,59 @@ export const verifyQuantityByDisplayName = async (req, res, next) => {
   }
 };
 
-const getStageAmount = (startDate, endDate, line_id = null) => {
-  let lineIdCondition = '';
-  let replacements = { start_date: startDate, end_date: endDate };
+// const getStageAmount = (startDate, endDate, line_id = null) => {
+//   let lineIdCondition = '';
+//   let replacements = { start_date: startDate, end_date: endDate };
 
-  if (Array.isArray(line_id)) {
-    lineIdCondition = 'AND t1.line_id IN (:line_id)';
-    replacements.line_id = line_id;
-  } else if (Number.isInteger(line_id)) {
-    lineIdCondition = 'AND t1.line_id = :line_id';
-    replacements.line_id = line_id;
-  }
+//   if (Array.isArray(line_id)) {
+//     lineIdCondition = 'AND t1.line_id IN (:line_id)';
+//     replacements.line_id = line_id;
+//   } else if (Number.isInteger(line_id)) {
+//     lineIdCondition = 'AND t1.line_id = :line_id';
+//     replacements.line_id = line_id;
+//   }
 
-  const query = `
-    SELECT
-      t1.line_id,
-      t2.stage,
-      SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) AS reserved,
-      SUM(IF(t2.stage = 3, t1.quantity, 0)) AS checked_out,
-      SUM(IF(t2.stage = 4, t1.quantity, 0)) AS checked_in,
-      (SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) + SUM(IF(t2.stage = 3, t1.quantity, 0))) - SUM(IF(t2.stage = 4, t1.quantity, 0)) AS out_amount
-    FROM
-      reservation_items AS t1
-      INNER JOIN reservations AS t2
-        ON t1.reservation_id = t2.id
-    WHERE
-      t2.start_date < :end_date
-      AND t2.end_date > :start_date
-      AND t2.stage IN (1, 2, 3, 4)
-      ${lineIdCondition}
-    GROUP BY t1.line_id, t2.stage;
-  `;
+//   const query = `
+//     SELECT
+//       t1.line_id,
+//       t2.stage,
+//       SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) AS reserved,
+//       SUM(IF(t2.stage = 3, t1.quantity, 0)) AS checked_out,
+//       SUM(IF(t2.stage = 4, t1.quantity, 0)) AS checked_in,
+//       (SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) + SUM(IF(t2.stage = 3, t1.quantity, 0))) - SUM(IF(t2.stage = 4, t1.quantity, 0)) AS out_amount
+//     FROM
+//       reservation_items AS t1
+//       INNER JOIN reservations AS t2
+//         ON t1.reservation_id = t2.id
+//     WHERE
+//       t2.start_date < :end_date
+//       AND t2.end_date > :start_date
+//       AND t2.stage IN (1, 2, 3, 4)
+//       ${lineIdCondition}
+//     GROUP BY t1.line_id, t2.stage;
+//   `;
 
-  return sequelize.query(query, {
-    replacements,
-    type: sequelize.QueryTypes.SELECT
-  }).then(stageAmounts => {
-    const formattedResults = stageAmounts.reduce((acc, cur) => {
-      acc[cur.line_id] = {
-        line_id: cur.line_id,
-        stage: cur.stage,
-        reserved: cur.reserved,
-        checked_out: cur.checked_out,
-        checked_in: cur.checked_in,
-        out_amount: cur.out_amount
-      };
-      return acc;
-    }, {});
-    return formattedResults;
-  }).catch(error => {
-    console.error(error);
-    throw new Error('An error occurred while fetching stage amounts');
-  });
-}
+//   return sequelize.query(query, {
+//     replacements,
+//     type: sequelize.QueryTypes.SELECT
+//   }).then(stageAmounts => {
+//     const formattedResults = stageAmounts.reduce((acc, cur) => {
+//       acc[cur.line_id] = {
+//         line_id: cur.line_id,
+//         stage: cur.stage,
+//         reserved: cur.reserved,
+//         checked_out: cur.checked_out,
+//         checked_in: cur.checked_in,
+//         out_amount: cur.out_amount
+//       };
+//       return acc;
+//     }, {});
+//     return formattedResults;
+//   }).catch(error => {
+//     console.error(error);
+//     throw new Error('An error occurred while fetching stage amounts');
+//   });
+// }
 
 const getStageAmountByDisplayName = async (startDate, endDate, display_name = "") => {
   let lineIdCondition = '';
@@ -581,7 +581,7 @@ const getStageAmountByDisplayName = async (startDate, endDate, display_name = ""
       AND t2.end_date >= :start_date
       AND t2.stage IN (1, 2, 3, 4)
       AND t1.display_name = :display_name
-    GROUP BY t2.stage;
+    -- GROUP BY t2.stage;
   `;
 
   try {
@@ -590,14 +590,14 @@ const getStageAmountByDisplayName = async (startDate, endDate, display_name = ""
        type: sequelize.QueryTypes.SELECT
      });
 
-    const formattedResults = stageAmounts.reduce((acc, cur) => {
-      acc.reserved = cur.reserved;
-      acc.checked_out = cur.checked_out;
-      acc.checked_in = cur.checked_in;
-      acc.out_amount = cur.out_amount;
-      return acc;
-    }, {});
-    return formattedResults;
+    // const formattedResults = stageAmounts.reduce((acc, cur) => {
+    //   acc.reserved = cur.reserved;
+    //   acc.checked_out = cur.checked_out;
+    //   acc.checked_in = cur.checked_in;
+    //   acc.out_amount = cur.out_amount;
+    //   return acc;
+    // }, {});
+    return stageAmounts[0];
   } catch (error) {
     console.error(error);
     throw new Error('An error occurred while fetching stage amounts');
@@ -978,6 +978,7 @@ export const getAvailableSheet = async (req, res, next) => {
 
     for(const family of families){
       family.quantities = [];
+      console.log("family.display_name", family.display_name);
       for(let date = new Date(today); date <= futureDate; date.setDate(date.getDate() + 1)){
         const formattedDate = formatDate(date);
         let familyIds = await getProductFamilyIdsByDisplayName(33, family.display_name);
@@ -987,7 +988,8 @@ export const getAvailableSheet = async (req, res, next) => {
         let inventoryAmount = availableQuantity || 0;
         let out_amount = stageAmount?.out_amount??0;
         let remainingQuantity = inventoryAmount - out_amount;
-
+        console.log("formattedDate", formattedDate);
+        console.log("stageAmount", stageAmount);
         family.quantities.push({
           date: formattedDate,
           inventoryAmount,
