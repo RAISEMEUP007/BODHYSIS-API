@@ -140,7 +140,7 @@ export const getReservationsData = (req, res, next) => {
     ${searchOptions && searchOptions.order_number ? `AND t1.order_number LIKE :order_number` : ''}
     ${searchOptions && searchOptions.stage && Array.isArray(searchOptions.stage) ? `AND t1.stage IN (:stage)` : searchOptions && searchOptions.stage ? `AND (t1.stage = :stage OR :stage IS NULL OR :stage = '')` : ''}
   GROUP BY t1.id
-  ORDER BY t1.order_number DESC
+  ORDER BY t1.order_number DESC, t1.start_date DESC, t1.end_date DESC
   `;
 
   sequelize.query(
