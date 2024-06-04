@@ -386,9 +386,6 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
       }))
       .sort((a, b) => a.display_name.localeCompare(b.display_name)) 
     };
-
-console.log(reservation);
-console.log(reservation.brand_id);
     
     const storeDetail = await SettingsStoreDetails.findOne({
       where: {brand_id: reservation.brand_id}
@@ -464,8 +461,6 @@ console.log(reservation.brand_id);
       </div>`
     htmlContent += `</div>`;
 
-    console.log("storeDetail.email_confirmation", storeDetail.email_confirmation);
-
     const section2HTML = storeDetail.email_confirmation
       .replaceAll('[store_name]', storeDetail.store_name)
       .replaceAll('[customer_name]', (reservation.customer?.first_name??'') + ' ' + (reservation.customer?.last_name??''))
@@ -483,7 +478,6 @@ console.log(reservation.brand_id);
       .replaceAll('[start_time]', storeDetail?.pickup_time??'')
       .replaceAll('[end_time]', storeDetail?.dropoff_time??'');
 
-    // console.log(section2HTML);
     let section4HTML = '';
     if (storeDetail.is_document) {
       const documentDetail = await SettingsDocuments.findOne({
@@ -491,8 +485,6 @@ console.log(reservation.brand_id);
           id: storeDetail.document_id
         }
       });
-      // console.log("documentDetail.document_type", documentDetail.document_type);
-      // console.log("documentDetail.document_content", documentDetail.document_content);
       if (documentDetail.document_type == 1) {
         section4HTML += `<Section style="margin: 50px 0;">
                 <a href="${process.env.BASE_URL + documentDetail.document_file}" download="${documentDetail.document_name}.pdf" target="_blank">
@@ -505,7 +497,6 @@ console.log(reservation.brand_id);
     } else {
       section4HTML += `<Section style="margin: 50px 0;">${storeDetail.store_wavier}</section>`;
     }
-    // console.log("section4HTML", section4HTML);
 
     const msg = {
       to: req.body.email,
@@ -539,7 +530,9 @@ console.log(reservation.brand_id);
         section4: section4HTML,
       },
     };
-    await sendReservationConfirmEmail(msg);
+
+    console.log('--------- send grid -----------------');
+    sendReservationConfirmEmail(msg);
 
     const templateText = storeDetail.text_confirmation
       .replaceAll('[store_name]', storeDetail.store_name)
@@ -558,6 +551,7 @@ console.log(reservation.brand_id);
       .replaceAll('[start_time]', storeDetail?.pickup_time??'')
       .replaceAll('[end_time]', storeDetail?.dropoff_time??'');
 
+    console.log('--------- Twilio -----------------');
     await sendSMSTwilio(req.body.phone_number, templateText);
     await reservationRow.update({textSent: true})
     return res.status(200).json();
