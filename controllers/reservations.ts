@@ -133,14 +133,14 @@ export const getReservationsData = (req, res, next) => {
     LEFT JOIN reservation_items AS t8
     ON t1.id = t8.reservation_id
   WHERE
-    t1.start_date >= :start_date
-    AND t1.start_date <= :end_date
+    (t1.start_date BETWEEN '2024-05-21' AND '2024-06-01'
+    OR t1.end_date BETWEEN '2024-05-21' AND '2024-06-01')
     ${searchOptions && searchOptions.customer ? `AND CONCAT(t2.first_name, ' ', t2.last_name) LIKE :customer` : ''}
     ${searchOptions && searchOptions.brand ? `AND t3.brand LIKE :brand` : ''}
     ${searchOptions && searchOptions.order_number ? `AND t1.order_number LIKE :order_number` : ''}
     ${searchOptions && searchOptions.stage && Array.isArray(searchOptions.stage) ? `AND t1.stage IN (:stage)` : searchOptions && searchOptions.stage ? `AND (t1.stage = :stage OR :stage IS NULL OR :stage = '')` : ''}
   GROUP BY t1.id
-  ORDER BY t1.order_number DESC, t1.start_date DESC, t1.end_date DESC
+  ORDER BY t1.start_date DESC, t1.end_date DESC
   `;
 
   sequelize.query(
@@ -154,7 +154,8 @@ export const getReservationsData = (req, res, next) => {
         order_number: `%${searchOptions.order_number}%`,
         stage: searchOptions.stage,
       },
-      type: sequelize.QueryTypes.SELECT 
+      type: sequelize.QueryTypes.SELECT,
+      logging: true,
     }
   )
   .then((reservations) => {
