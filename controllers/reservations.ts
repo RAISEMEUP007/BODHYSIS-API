@@ -133,8 +133,8 @@ export const getReservationsData = (req, res, next) => {
     LEFT JOIN reservation_items AS t8
     ON t1.id = t8.reservation_id
   WHERE
-    (t1.start_date BETWEEN '2024-05-21' AND '2024-06-01'
-    OR t1.end_date BETWEEN '2024-05-21' AND '2024-06-01')
+    (t1.start_date BETWEEN :start_date AND :end_date
+    OR t1.end_date BETWEEN :start_date AND :end_date)
     ${searchOptions && searchOptions.customer ? `AND CONCAT(t2.first_name, ' ', t2.last_name) LIKE :customer` : ''}
     ${searchOptions && searchOptions.brand ? `AND t3.brand LIKE :brand` : ''}
     ${searchOptions && searchOptions.order_number ? `AND t1.order_number LIKE :order_number` : ''}
@@ -148,7 +148,7 @@ export const getReservationsData = (req, res, next) => {
     { 
       replacements: {
         start_date: searchOptions.start_date,
-        end_date: searchOptions.end_date + ' 23:59:59',
+        end_date: searchOptions.end_date,
         customer: `%${searchOptions.customer}%`,
         brand: `%${searchOptions.brand}%`,
         order_number: `%${searchOptions.order_number}%`,
