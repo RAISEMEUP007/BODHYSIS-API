@@ -23,7 +23,7 @@ const generateRefreshToken = async (userId, email, userName) => {
     const expiresIn = dayjs().add(30, "day").unix();
     const refreshToken = jwt.sign({ email, userId, userName }, process.env.JWT_REFRESH_TOKEN_SECRET, {
         subject: userId.toString(),
-        expiresIn: '1d'
+        expiresIn: expiresIn
     });
 
     await UserRefreshToken.create({
@@ -87,7 +87,7 @@ export const getTestToken = async (req, res, next) => {
 	const expiresIn = dayjs().add(30, "day").unix()
 	const refreshToken = jwt.sign({ testEmail, testId, testUser }, process.env.JWT_REFRESH_TOKEN_SECRET, {
 		 subject: testId.toString(),
-		 expiresIn: '1d'
+		 expiresIn: expiresIn
 	});
 
 	res.status(200).send(refreshToken);
