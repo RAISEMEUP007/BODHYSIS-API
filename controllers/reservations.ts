@@ -103,22 +103,12 @@ export const getReservationsData = (req, res, next) => {
     SELECT
     t1.id,
     t1.order_number,
-    -- t1.customer_id,
-    -- t2.first_name,
-    -- t2.last_name,
     CONCAT(t2.first_name, ' ', t2.last_name) AS full_name,
-    -- t1.brand_id,
     t3.brand,
     t1.start_date,
     t1.end_date,
-    -- t1.promo_code,
+    t1.driver_tip,
     t6.code AS discount_code,
-    -- t1.note,
-    -- t1.subtotal,
-    -- t1.discount_amount,
-    -- t1.tax_rate,
-    -- t1.tax_amount,
-    -- t1.total_price,
     SUM(t8.quantity) as quantity,
     t1.stage,
     t1.color_id
@@ -144,7 +134,7 @@ export const getReservationsData = (req, res, next) => {
     ${searchOptions && searchOptions.ShowOnlyManual ? `AND t1.use_manual = 1` : ''}
     ${searchOptions && searchOptions.stage && Array.isArray(searchOptions.stage) ? `AND t1.stage IN (:stage)` : searchOptions && searchOptions.stage ? `AND (t1.stage = :stage OR :stage IS NULL OR :stage = '')` : ''}
   GROUP BY t1.id
-  ORDER BY t1.start_date DESC, t1.end_date DESC
+  ORDER BY t1.order_number DESC, t1.start_date DESC, t1.end_date DESC
   `;
 
   sequelize.query(
@@ -775,7 +765,7 @@ export const exportReservation = async (req, res, next) => {
 
     const pdfOptions = {
       path: outputPath,
-      format: 'A4',
+      format: 'letter',
       margin: {
         top: '40px',
         bottom: '40px',
@@ -791,6 +781,7 @@ export const exportReservation = async (req, res, next) => {
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'inline; filename="'+reservation.order_number+'.pdf"');
+    res.setHeader('Page-Size', 'Letter');
     res.send(pdfBuffer);
   } catch (error) {
     console.error('Error exporting reservation:', error);
