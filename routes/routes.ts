@@ -526,7 +526,7 @@ router.post("/reservation/verifyquantitybydisplayname/", verifyQuantityByDisplay
 router.get("/reservations/exportpdf/:id/:tc", exportReservation);
 router.post("/reservation/scanbarcode/", scanBarcode);
 router.post("/reservation/checkedinbarcode/", checkedInBarcode);
-router.get("/reservations/getavailablesheet", getAvailableSheet);
+router.post("/reservations/getavailablesheet", getAvailableSheet);
 
 /* ----- Stripe ----- */
 router.post("/createcustomerstripe/", createCustomerStripe);
