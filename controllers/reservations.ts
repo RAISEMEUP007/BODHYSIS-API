@@ -128,6 +128,8 @@ export const getReservationsData = (req, res, next) => {
     ON t1.customer_id = t2.id
     LEFT JOIN price_brands AS t3
     ON t1.brand_id = t3.id
+    LEFT JOIN settings_storedetails AS t4
+    ON t1.brand_id = t4.brand_id
     LEFT JOIN settings_discountcodes AS t6
     ON t1.promo_code = t6.id
     LEFT JOIN reservation_items AS t8
@@ -138,6 +140,8 @@ export const getReservationsData = (req, res, next) => {
     ${searchOptions && searchOptions.customer ? `AND CONCAT(t2.first_name, ' ', t2.last_name) LIKE :customer` : ''}
     ${searchOptions && searchOptions.brand ? `AND t3.brand LIKE :brand` : ''}
     ${searchOptions && searchOptions.order_number ? `AND t1.order_number LIKE :order_number` : ''}
+    ${searchOptions && searchOptions.hideBeachTennis ? `AND t4.use_beach_address != 1` : ''}
+    ${searchOptions && searchOptions.ShowOnlyManual ? `AND t1.use_manual = 1` : ''}
     ${searchOptions && searchOptions.stage && Array.isArray(searchOptions.stage) ? `AND t1.stage IN (:stage)` : searchOptions && searchOptions.stage ? `AND (t1.stage = :stage OR :stage IS NULL OR :stage = '')` : ''}
   GROUP BY t1.id
   ORDER BY t1.start_date DESC, t1.end_date DESC
@@ -571,11 +575,6 @@ export const exportReservation = async (req, res, next) => {
         model: ReservationItems, 
         as: 'items',
         include: [
-          { 
-            model: ProductFamilies, 
-            as: 'families', 
-            attributes: ['family', 'display_name'],
-          },
           {
             model: ReservationItemsExtras,
             as: 'item_extras',
@@ -609,7 +608,6 @@ export const exportReservation = async (req, res, next) => {
       ...reservationRow.toJSON(),
       items: reservationRow.items.map(item => ({
         ...item.toJSON(),
-        family: item?.families?.family??'',
         summary: item?.families?.summary??'',
         price_group_id: item.price_group_id,
         extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
@@ -931,12 +929,13 @@ export const getAvailableSheet = async (req, res, next) => {
     let families = await getPFDByDisplayName();
     const availableQuantities = await getAvaliableQuantityByDisplayName();
 
-    const today = new Date();
-    const futureDate = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const startDate = new Date(`${req.body.start_date} 0:0:0`);
+    const endDate = new Date(`${req.body.end_date} 0:0:0`);
 
     let stageAmounts = {};
-    for(let date = new Date(today); date <= futureDate; date.setDate(date.getDate() + 1)){
+    for(let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)){
       let formattedDate = formatDate(date);
+      console.log(formattedDate);
       stageAmounts[formattedDate] = await getStageAmountByAllDisplayName(formattedDate, formattedDate);
     }
 
@@ -944,7 +943,7 @@ export const getAvailableSheet = async (req, res, next) => {
       family.quantities = [];
       let availableQuantity = availableQuantities.find(item=>item.display_name == family.display_name);
 
-      for(let date = new Date(today); date <= futureDate; date.setDate(date.getDate() + 1)){
+      for(let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)){
         let formattedDate = formatDate(date);
         let stageAmount = stageAmounts[formattedDate].find(item=>item.display_name == family.display_name);
         family.quantities.push({
