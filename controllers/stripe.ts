@@ -531,7 +531,8 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
       },
     };
 
-    console.log('--------- send grid -----------------');
+    console.log('--------- sendgrid -----------------');
+    console.log("msg.to", msg.to);
     sendReservationConfirmEmail(msg);
 
     const templateText = storeDetail.text_confirmation
@@ -552,12 +553,14 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
       .replaceAll('[end_time]', storeDetail?.dropoff_time??'');
 
     console.log('--------- Twilio -----------------');
+    console.log("req.body.phone_number", req.body.phone_number);
+    console.log("templateText", templateText);
+    
     await sendSMSTwilio(req.body.phone_number, templateText);
     await reservationRow.update({textSent: true})
     return res.status(200).json();
   } catch (err) {
     console.error(err);
-    console.error('An error occurred:', err);
     return res.status(500).send("An error occurred");
   }
 }

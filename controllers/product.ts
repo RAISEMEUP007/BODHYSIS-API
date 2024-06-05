@@ -820,7 +820,7 @@ export const getAvaliableQuantityByfamily = async (family_id = null) =>{
       COUNT(id) AS quantity
     FROM
       product_products
-    WHERE STATUS IN (0)
+    WHERE STATUS IN (0, 3)
       ${lineIdCondition}
   `;
 
@@ -837,6 +837,31 @@ export const getAvaliableQuantityByfamily = async (family_id = null) =>{
     console.error(error);
     throw new Error('An error occurred while fetching stage amounts');
   });
+}
+
+export const getAvaliableQuantityByDisplayName = async () => {
+  try {
+    const query = `
+      SELECT
+        t2.display_name,
+        COUNT(t1.id) AS quantity
+      FROM
+        product_products AS t1
+        LEFT JOIN product_families AS t2
+          ON t1.family_id = t2.id
+      WHERE t1.status IN (0, 3)
+      GROUP BY t2.display_name
+    `;
+
+    const results = await sequelize.query(query, {
+      type: sequelize.QueryTypes.SELECT
+    });
+
+    return results
+  } catch (error) {
+    console.error(error);
+    throw new Error('An error occurred while fetching stage amounts');
+  }
 }
 
 export const getAvaliableQuantitiesByFamilyIds = (family_id = null) =>{
