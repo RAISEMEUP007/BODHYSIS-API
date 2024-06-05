@@ -784,7 +784,7 @@ export const getAvaliableQuantitiesByLine = (line_id = null) =>{
       COUNT(id) AS quantity
     FROM
       product_products
-    WHERE STATUS IN (0)
+    WHERE STATUS IN (0, 3)
       ${lineIdCondition}
     GROUP BY line_id
   `;
