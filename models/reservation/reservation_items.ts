@@ -16,9 +16,6 @@ const ReservationItems = sequelize.define(
     reservation_id: {
       type: DataTypes.INTEGER,
     },
-    family_id: {
-      type: DataTypes.INTEGER,
-    },
     display_name: {
       type: DataTypes.STRING,
     },
@@ -48,7 +45,5 @@ const ReservationItems = sequelize.define(
 
 ReservationItems.belongsTo(Reservations, { foreignKey: 'reservation_id', as: 'reservations' });
 Reservations.hasMany(ReservationItems, { foreignKey: 'reservation_id', as: 'items' });
-
-ReservationItems.belongsTo(ProductFamilies, { foreignKey: 'family_id', as: 'families' });
 
 export default ReservationItems;
