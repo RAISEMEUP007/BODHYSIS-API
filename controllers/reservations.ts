@@ -449,7 +449,6 @@ export const verifyQuantity = async (req, res, next) => {
     }
 
     res.status(200).json({ message: 'All quantities verified', quantities: response });
-    next();
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'An error occurred while verifying quantities' });
@@ -481,7 +480,6 @@ export const verifyQuantityByDisplayName = async (req, res, next) => {
     }
 
     res.status(200).json({ message: 'In Stock', quantities });
-    next();
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'An error occurred while verifying quantities' });
