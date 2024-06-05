@@ -336,11 +336,6 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
         model: ReservationItems, 
         as: 'items',
         include: [
-          { 
-            model: ProductFamilies, 
-            as: 'families', 
-            attributes: ['family', 'display_name'],
-          },
           {
             model: ReservationItemsExtras,
             as: 'item_extras',
