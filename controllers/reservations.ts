@@ -575,11 +575,6 @@ export const exportReservation = async (req, res, next) => {
         model: ReservationItems, 
         as: 'items',
         include: [
-          { 
-            model: ProductFamilies, 
-            as: 'families', 
-            attributes: ['family', 'display_name'],
-          },
           {
             model: ReservationItemsExtras,
             as: 'item_extras',
@@ -613,7 +608,6 @@ export const exportReservation = async (req, res, next) => {
       ...reservationRow.toJSON(),
       items: reservationRow.items.map(item => ({
         ...item.toJSON(),
-        family: item?.families?.family??'',
         summary: item?.families?.summary??'',
         price_group_id: item.price_group_id,
         extras: item.item_extras.length>0? item.item_extras.map(item_extra=>item_extra.extras).sort((a, b)=>a.id - b.id) : [],
