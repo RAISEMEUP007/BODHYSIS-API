@@ -103,21 +103,21 @@ export const updateAddress = (req, res, next) => {
 }
 
 export const getAddressesData = (req, res, next) => {
- const { searchKey } = req.body;
- const queryOptions = {
-   order: ['street', 'number', 'plantation', 'property_name']
- };
- if (searchKey) {
-   queryOptions.where = {
-     [Op.or]: [
-       { number: { [Op.like]: `%${searchKey}%` } },
-       { street: { [Op.like]: `%${searchKey}%` } },
-       { plantation: { [Op.like]: `%${searchKey}%` } },
-       { property_name: { [Op.like]: `%${searchKey}%` } }
-     ]
-   };
- }
- AllAddresses.findAll(queryOptions)
+  const { searchKey } = req.body;
+  const queryOptions = {
+    order: ['plantation', 'street', 'number', 'property_name'],
+  };
+  if (searchKey) {
+    queryOptions.where = {
+      [Op.or]: [
+        { number: { [Op.like]: `%${searchKey}%` } },
+        { street: { [Op.like]: `%${searchKey}%` } },
+        { plantation: { [Op.like]: `%${searchKey}%` } },
+        { property_name: { [Op.like]: `%${searchKey}%` } }
+      ]
+    };
+  }
+  AllAddresses.findAll(queryOptions)
   .then((addresses) => {
     res.status(200).json(addresses);
   })

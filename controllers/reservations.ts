@@ -924,7 +924,6 @@ export const getAvailableSheet = async (req, res, next) => {
     let stageAmounts = {};
     for(let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)){
       let formattedDate = formatDate(date);
-      console.log(formattedDate);
       stageAmounts[formattedDate] = await getStageAmountByAllDisplayName(formattedDate, formattedDate);
     }
 

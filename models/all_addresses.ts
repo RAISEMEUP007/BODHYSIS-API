@@ -37,10 +37,10 @@ const AllAddresses = sequelize.define('all_addresses', {
       type: Sequelize.STRING,
    },
    xploriefif: {
-      type: Sequelize.STRING,
+      type: Sequelize.BOOLEAN,
    },
    xplorievoucher: {
-      type: Sequelize.STRING,
+      type: Sequelize.BOOLEAN,
    },
    geolat: {
       type: Sequelize.STRING,
