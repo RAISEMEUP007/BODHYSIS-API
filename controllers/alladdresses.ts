@@ -338,7 +338,7 @@ export const getForecastingData = async (req, res, next) => {
     };
 
     if(searchOptions.xploriefif) queryOptions.where.xploriefif = true;
-    if(searchOptions.xplorievoucher) queryOptions.where.xplorievoucher = false;
+    if(searchOptions.xplorievoucher) queryOptions.where.xplorievoucher = true;
 
     // if (searchKey) {
     //   queryOptions.where = {
