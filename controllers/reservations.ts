@@ -663,7 +663,7 @@ export const exportReservation = async (req, res, next) => {
         if(reservation.use_manual){
           deliveryAddressStr = reservation.manual_address;
         }else {
-          deliveryAddressStr = `${reservation.all_addresses.number || ''} ${reservation.all_addresses.street || ''}${reservation.all_addresses.property_name? `${reservation.all_addresses.property_name}` :''}, ${reservation.all_addresses.plantation || ''}`
+          deliveryAddressStr = `${reservation?.all_addresses?.number??''} ${reservation?.all_addresses?.street??''} ${reservation?.all_addresses?.property_name??''}, ${reservation?.all_addresses?.plantation??''}`
         }
         htmlContent += `<tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Address</td><td>${deliveryAddressStr}</td></tr>`
         
