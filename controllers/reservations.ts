@@ -640,42 +640,42 @@ export const exportReservation = async (req, res, next) => {
       <h4 style="text-align: center;">59B New Orleans Road, Hilton Head, SC, 29928, US 843.785.2730</h4>
       <img src="data:image/png;base64,${barcodeImage.toString('base64')}" alt="Barcode Image" />
       <table style="margin-top:30px">
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Reservation</td><td>${reservation?.order_number??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Invoice</td><td>${reservation?.order_number??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Note</td><td>${reservation?.note??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Stage</td><td>${stage[reservation.stage]}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Type</td><td>client</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">First Name</td><td>${reservation.customer?.first_name??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Last Name</td><td>${reservation.customer?.last_name??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Email</td><td>${reservation.email ? reservation.email : reservation.customer && reservation.customer.email ? reservation.customer.email : ''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Phone Number</td><td>${reservation.phone_number ? reservation.phone_number : reservation.customer && reservation.customer.phone_number ? reservation.customer.phone_number : ''}</td></tr>`
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Reservation</td><td>${reservation?.order_number??''}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Note</td><td>${reservation?.note??''}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Stage</td><td>${stage[reservation.stage]}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">First Name</td><td>${reservation.customer?.first_name??''}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Last Name</td><td>${reservation.customer?.last_name??''}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Email</td><td>${reservation.email ? reservation.email : reservation.customer && reservation.customer.email ? reservation.customer.email : ''}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Phone Number</td><td>${reservation.phone_number ? reservation.phone_number : reservation.customer && reservation.customer.phone_number ? reservation.customer.phone_number : ''}</td></tr>`
 
-        if(!reservation.use_manual){
-          htmlContent += `<tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Unit Number</td><td>${reservation.all_addresses?.number??''} ${reservation.all_addresses?.street??''}</td></tr>
-          <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Property Name</td><td>${reservation.all_addresses?.property_name??''}</td></tr>`
-        }
+        // if(!reservation.use_manual){
+        //   htmlContent += `<tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Unit Number</td><td>${reservation.all_addresses?.number??''} ${reservation.all_addresses?.street??''}</td></tr>
+        //   <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Property Name</td><td>${reservation.all_addresses?.property_name??''}</td></tr>`
+        // }
 
-        htmlContent += `<tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">From</td><td>${new Date(`${reservation.start_date} 0:0:0`).toLocaleString('en-US', {
+        htmlContent += `<tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">From</td><td>${new Date(`${reservation.start_date} 0:0:0`).toLocaleString('en-US', {
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit',
-                  }) + ` @ ${storeDetail?.pickup_time}`??''}</td></tr>`
+                  })} @ ${storeDetail?.pickup_time??''}</td></tr>`
 
+        let deliveryAddressStr = "";
         if(reservation.use_manual){
-          htmlContent += `<tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Address</td><td>${reservation.manual_address??''}</td></tr>`
+          deliveryAddressStr = reservation.manual_address;
         }else {
-          htmlContent += `<tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">From Location</td><td>${reservation.all_addresses?.plantation??''}</td></tr>`
+          deliveryAddressStr = `${reservation.all_addresses.number || ''} ${reservation.all_addresses.street || ''}${reservation.all_addresses.property_name? `${reservation.all_addresses.property_name}` :''}, ${reservation.all_addresses.plantation || ''}`
         }
+        htmlContent += `<tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Address</td><td>${deliveryAddressStr}</td></tr>`
         
-        htmlContent += `<tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">To</td><td>${new Date(`${reservation.end_date} 0:0:0`).toLocaleString('en-US', {
+        htmlContent += `<tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">To</td><td>${new Date(`${reservation.end_date} 0:0:0`).toLocaleString('en-US', {
                   year: 'numeric',
                   month: '2-digit',
                   day: '2-digit',
-                }) + ` @ ${storeDetail?.dropoff_time}`??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Duration</td><td>${days} Day(s)</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Price</td><td>${reservation?.total_price?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Total Rec'd</td><td>${reservation?.paid?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })??''}</td></tr>
-        <tr><td width="150" style="padding:2px 30px 2px 0; font-weight:700;">Balance</td><td>${(reservation.paid - reservation.total_price)?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })??''}</td></tr>
+                })} @ ${storeDetail?.dropoff_time??''}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Duration</td><td>${days} Day(s)</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Total Price</td><td>${reservation?.total_price?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })??''}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Total Rec'd</td><td>${reservation?.paid?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })??''}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Balance</td><td>${(reservation.paid - reservation.total_price)?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })??''}</td></tr>
       </table>
       <table style="border-collapse: collapse; margin-top:50px;">
         <thead>
