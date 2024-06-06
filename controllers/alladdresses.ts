@@ -199,6 +199,35 @@ const getWeeksInYear = (year) => {
   return weeksArray;
 };
 
+const getWeeksArrayInRange = (startDate, endDate) => {
+  const weeksArray = [];
+  let currentDate = new Date(startDate);
+
+  while (currentDate <= new Date(endDate)) {
+    const weekStart = new Date(currentDate);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    
+    if (weekEnd > new Date(endDate)) {
+      weekEnd.setDate(new Date(endDate).getDate());
+    }
+
+    const formattedStartDate = `${(weekStart.getMonth() + 1).toString().padStart(2, '0')}/${weekStart.getDate().toString().padStart(2, '0')}/${weekStart.getFullYear().toString().slice(-2)}`;
+    const formattedEndDate = `${(weekEnd.getMonth() + 1).toString().padStart(2, '0')}/${weekEnd.getDate().toString().padStart(2, '0')}/${weekEnd.getFullYear().toString().slice(-2)}`;
+
+    weeksArray.push({ 
+      start_date: weekStart.toISOString().split('T')[0], 
+      end_date: weekEnd.toISOString().split('T')[0],
+      formattedStartDate: formattedStartDate,
+      formattedEndDate: formattedEndDate,
+    });
+
+    currentDate.setDate(currentDate.getDate() + 7);
+  }
+
+  return weeksArray;
+};
+
 export const deleteAddress = (req, res, next) => {
   AllAddresses.destroy({ where: { id: req.body.id } })
     .then((result) => {
@@ -299,24 +328,34 @@ export const deleteForecasting = (req, res, next) => {
 
 export const getForecastingData = async (req, res, next) => {
   try{
-    const { searchKey } = req.body;
+    const { searchOptions } = req.body;
     const queryOptions = {
-      order: ['plantation', 'street', 'number', 'property_name']
+      order: ['plantation', 'street', 'number', 'property_name'],
+      where: {
+        plantation: { [Op.notLike]: '%Beach & Tennis%' }
+      },
+      logging:true
     };
-    if (searchKey) {
-      queryOptions.where = {
-        [Op.or]: [
-          { plantation: { [Op.like]: `%${searchKey}%` } },
-          { street: { [Op.like]: `%${searchKey}%` } },
-          { number: { [Op.like]: `%${searchKey}%` } },
-          { property_name: { [Op.like]: `%${searchKey}%` } }
-        ]
-      };
-    }
+
+    if(searchOptions.xploriefif) queryOptions.where.xploriefif = true;
+    if(searchOptions.xplorievoucher) queryOptions.where.xplorievoucher = false;
+
+    // if (searchKey) {
+    //   queryOptions.where = {
+    //     [Op.or]: [
+    //       { plantation: { [Op.like]: `%${searchKey}%` } },
+    //       { street: { [Op.like]: `%${searchKey}%` } },
+    //       { number: { [Op.like]: `%${searchKey}%` } },
+    //       { property_name: { [Op.like]: `%${searchKey}%` } }
+    //     ],
+    //   };
+    // }
     const addresses = await AllAddresses.findAll(queryOptions);
 
     const year = new Date().getFullYear();
-    const weeksArray = getWeeksInYear(year);
+    const weeksArray = getWeeksArrayInRange(searchOptions.start_date, searchOptions.end_date);
+
+    let totalNights = 0;
 
     for (const week of weeksArray) {
       const { start_date: startDate, end_date: endDate } = week;
@@ -334,11 +373,12 @@ export const getForecastingData = async (req, res, next) => {
       for (const week of weeksArray){
         const { queryResult } = week;
         let filteredData = queryResult.find((result) => address.id === result.address_id);
+        if(filteredData) totalNights += filteredData.nights
         address.dataValues.queryResult.push(filteredData || null);
       }
     }
 
-    res.send({weeksArray:getWeeksInYear(year), gridData:addresses});
+    res.send({weeksArray:getWeeksArrayInRange(searchOptions.start_date, searchOptions.end_date), gridData:addresses, totalNights});
   } catch (error) {
     console.error(error);
     if (error.errors && error.errors[0].validatorKey === 'not_unique') {
@@ -355,9 +395,9 @@ const weeklySummary = (weekStartDate, weekEndDate) => {
   const query = `
     SELECT
       t1.address_id,
-      SUM(t1.booked_guests) as booked_guests,
-      SUM(t1.max_guests) as max_guests,
-      ROUND((SUM(t1.booked_guests) / SUM(t1.max_guests)), 3) as percentage
+      avg(t1.booked_guests) as potential,
+      avg(t1.percentage) as percentage,
+      count(DISTINCT t1.date) as nights
     FROM
       forecasting as t1
     WHERE t1.date < '${weekEndDate} 23:59:59'

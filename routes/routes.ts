@@ -566,7 +566,7 @@ router.post("/alladdresses/deleteaddress", deleteAddress);
 router.post("/forecasting/create", createForecasting);
 router.post("/forecasting/update", updateForecasting);
 router.post("/forecasting/delete", deleteForecasting);
-router.get("/forecasting/getsummary", getForecastingData);
+router.post("/forecasting/getsummary", getForecastingData);
 
 router.get("/public", (req, res, next) => {
   res.status(200).json({ message: "here is your public resource" });
