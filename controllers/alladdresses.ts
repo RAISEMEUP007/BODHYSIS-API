@@ -201,15 +201,15 @@ const getWeeksInYear = (year) => {
 
 const getWeeksArrayInRange = (startDate, endDate) => {
   const weeksArray = [];
-  let currentDate = new Date(startDate);
+  let currentDate = new Date(`${startDate} 00:00:00`);
 
-  while (currentDate <= new Date(endDate)) {
-    const weekStart = new Date(currentDate);
+  while (currentDate <= new Date(`${endDate}  00:00:00`)) {
+    const weekStart = currentDate;
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
     
-    if (weekEnd > new Date(endDate)) {
-      weekEnd.setDate(new Date(endDate).getDate());
+    if (weekEnd > new Date(`${endDate}  00:00:00`)) {
+      break;
     }
 
     const formattedStartDate = `${(weekStart.getMonth() + 1).toString().padStart(2, '0')}/${weekStart.getDate().toString().padStart(2, '0')}/${weekStart.getFullYear().toString().slice(-2)}`;
