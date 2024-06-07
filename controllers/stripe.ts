@@ -460,12 +460,12 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
       .replaceAll('[store_name]', storeDetail.store_name)
       .replaceAll('[customer_name]', (reservation.customer?.first_name??'') + ' ' + (reservation.customer?.last_name??''))
       .replaceAll('[order_number]', reservation.order_number)
-      .replaceAll('[start_date]', new Date(`${reservation.start_date} 0:0:0`).toLocaleString('en-US', {
+      .replaceAll('[start_date]', new Date(`${reservation.start_date} 00:00:00`).toLocaleString('en-US', {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
               }))
-      .replaceAll('[end_date]', new Date(`${reservation.end_date} 0:0:0`).toLocaleString('en-US', {
+      .replaceAll('[end_date]', new Date(`${reservation.end_date} 00:00:00`).toLocaleString('en-US', {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
@@ -534,12 +534,12 @@ export const sendReservationConfirmationEmail = async (req, res, next) => {
       .replaceAll('[store_name]', storeDetail.store_name)
       .replaceAll('[customer_name]', (reservation.customer?.first_name??'') + ' ' + (reservation.customer?.last_name??''))
       .replaceAll('[order_number]', reservation.order_number)
-      .replaceAll('[start_date]', new Date(`${reservation.start_date} 0:0:0`).toLocaleString('en-US', {
+      .replaceAll('[start_date]', new Date(`${reservation.start_date} 00:00:00`).toLocaleString('en-US', {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
               }))
-      .replaceAll('[end_date]', new Date(`${reservation.end_date} 0:0:0`).toLocaleString('en-US', {
+      .replaceAll('[end_date]', new Date(`${reservation.end_date} 00:00:00`).toLocaleString('en-US', {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',

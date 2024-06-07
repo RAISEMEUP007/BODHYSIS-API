@@ -232,7 +232,6 @@ export const getPFDByDisplayName = async (categoryId) => {
       [{ model: ProductDisplayGroupOrder, as: 'group_orders' }, 'order_index', 'ASC'],
       'display_name',
     ],
-    logging: true,
   };
 
   if (categoryId > 0) {
