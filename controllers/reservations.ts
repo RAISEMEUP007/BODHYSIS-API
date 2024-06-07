@@ -12,6 +12,7 @@ import ReservationItemsExtras from '../models/reservation/reservation_items_extr
 import ProductLines from '../models/product/product_lines';
 import ProductFamilies from '../models/product/product_families';
 import SettingsExtras from '../models/settings/settings_extras';
+import SettingsStoreDetails from '../models/settings/settings_storedetails';
 import CustomerCustomers from '../models/customer/customer_customers';
 import CustomerDeliveryAddress from '../models/customer/customer_delivery_address';
 import SettingsColorcombinations from '../models/settings/settings_colorcombinations';
@@ -149,7 +150,6 @@ export const getReservationsData = (req, res, next) => {
         stage: searchOptions.stage,
       },
       type: sequelize.QueryTypes.SELECT,
-      logging: true,
     }
   )
   .then((reservations) => {
@@ -203,10 +203,15 @@ export const getReservationDetails = async (req: Request, res: Response) => {
     {
       model: SettingsColorcombinations,
       as: 'color',
+    },
+    {
+      model: SettingsStoreDetails,
+      as: 'store',
     }],
     where: {
       id: id
     },
+    logging: true,
   };
   
   Reservations.findOne(queryOptions)
@@ -641,23 +646,18 @@ export const exportReservation = async (req, res, next) => {
       <img src="data:image/png;base64,${barcodeImage.toString('base64')}" alt="Barcode Image" />
       <table style="margin-top:30px">
         <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Reservation</td><td>${reservation?.order_number??''}</td></tr>
-        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Note</td><td>${reservation?.note??''}</td></tr>
-        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Stage</td><td>${stage[reservation.stage]}</td></tr>
         <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">First Name</td><td>${reservation.customer?.first_name??''}</td></tr>
         <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Last Name</td><td>${reservation.customer?.last_name??''}</td></tr>
-        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Email</td><td>${reservation.email ? reservation.email : reservation.customer && reservation.customer.email ? reservation.customer.email : ''}</td></tr>
-        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Phone Number</td><td>${reservation.phone_number ? reservation.phone_number : reservation.customer && reservation.customer.phone_number ? reservation.customer.phone_number : ''}</td></tr>`
-
-        // if(!reservation.use_manual){
-        //   htmlContent += `<tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Unit Number</td><td>${reservation.all_addresses?.number??''} ${reservation.all_addresses?.street??''}</td></tr>
-        //   <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Street / Property Name</td><td>${reservation.all_addresses?.property_name??''}</td></tr>`
-        // }
-
-        htmlContent += `<tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">From</td><td>${new Date(`${reservation.start_date} 0:0:0`).toLocaleString('en-US', {
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">From</td><td>${new Date(`${reservation.start_date} 00:00:00`).toLocaleString('en-US', {
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit',
-                  })} @ ${storeDetail?.pickup_time??''}</td></tr>`
+                  })} @ ${storeDetail?.pickup_time??''}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">To</td><td>${new Date(`${reservation.end_date} 00:00:00`).toLocaleString('en-US', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                })} @ ${storeDetail?.dropoff_time??''}</td></tr>`
 
         let deliveryAddressStr = "";
         if(reservation.use_manual){
@@ -667,11 +667,11 @@ export const exportReservation = async (req, res, next) => {
         }
         htmlContent += `<tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Delivery Address</td><td>${deliveryAddressStr}</td></tr>`
         
-        htmlContent += `<tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">To</td><td>${new Date(`${reservation.end_date} 0:0:0`).toLocaleString('en-US', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                })} @ ${storeDetail?.dropoff_time??''}</td></tr>
+        htmlContent += `
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Note</td><td>${reservation?.note??''}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Stage</td><td>${stage[reservation.stage]}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Email</td><td>${reservation.email ? reservation.email : reservation.customer && reservation.customer.email ? reservation.customer.email : ''}</td></tr>
+        <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Phone Number</td><td>${reservation.phone_number ? reservation.phone_number : reservation.customer && reservation.customer.phone_number ? reservation.customer.phone_number : ''}</td></tr>
         <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Duration</td><td>${days} Day(s)</td></tr>
         <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Total Price</td><td>${reservation?.total_price?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })??''}</td></tr>
         <tr><td width="170" style="padding:2px 30px 2px 0; font-weight:700;">Total Rec'd</td><td>${reservation?.paid?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })??''}</td></tr>
@@ -918,8 +918,8 @@ export const getAvailableSheet = async (req, res, next) => {
     let families = await getPFDByDisplayName();
     const availableQuantities = await getAvaliableQuantityByDisplayName();
 
-    const startDate = new Date(`${req.body.start_date} 0:0:0`);
-    const endDate = new Date(`${req.body.end_date} 0:0:0`);
+    const startDate = new Date(`${req.body.start_date} 00:00:00`);
+    const endDate = new Date(`${req.body.end_date} 00:00:00`);
 
     let stageAmounts = {};
     for(let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)){

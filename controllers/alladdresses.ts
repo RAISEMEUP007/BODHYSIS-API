@@ -139,7 +139,7 @@ const executeQueryForWeek = (weekStartDate, weekEndDate) => {
       INNER JOIN reservation_items as t3
         ON t2.id = t3.reservation_id
     WHERE t2.start_date < '${weekEndDate} 23:59:59'
-      AND t2.end_date > '${weekStartDate} 0:0:0'
+      AND t2.end_date > '${weekStartDate} 00:00:00'
     GROUP BY t1.id
   `;
 
@@ -401,7 +401,7 @@ const weeklySummary = (weekStartDate, weekEndDate) => {
     FROM
       forecasting as t1
     WHERE t1.date < '${weekEndDate} 23:59:59'
-      AND t1.date > '${weekStartDate} 0:0:0'
+      AND t1.date > '${weekStartDate} 00:00:00'
     GROUP BY t1.address_id
   `;
 

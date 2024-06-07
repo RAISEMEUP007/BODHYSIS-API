@@ -4,6 +4,7 @@ import sequelize from "../../utils/database";
 import ReservationItems from './reservation_items.ts';
 import CustomerCustomers from '../customer/customer_customers';
 import SettingsColorcombinations from '../settings/settings_colorcombinations';
+import SettingsStoreDetails from '../settings/settings_storedetails';
 import AllAddresses from '../all_addresses';
 
 const Reservations = sequelize.define(
@@ -89,11 +90,20 @@ const Reservations = sequelize.define(
 // Reservations.hasMany(ReservationItems, { foreignKey: 'reservation_id', as: 'reservationItems' });
 Reservations.belongsTo(SettingsColorcombinations, { foreignKey: 'color_id', as: 'color' });
 
-Reservations.belongsTo(CustomerCustomers,{
+Reservations.belongsTo(CustomerCustomers, {
   foreignKey: 'customer_id',
   as : 'customer'
 })
-Reservations.belongsTo(AllAddresses,{
+Reservations.belongsTo(SettingsStoreDetails, {
+  foreignKey: 'brand_id',
+  targetKey: 'brand_id',
+  as : 'store',
+  references: {
+    model: 'SettingsStoreDetails',
+    key: 'brand_id'
+  }
+})
+Reservations.belongsTo(AllAddresses, {
   foreignKey: 'address_id',
   as : 'all_addresses'
 })
