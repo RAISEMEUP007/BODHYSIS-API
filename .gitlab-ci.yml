@@ -31,6 +31,7 @@ before_script:
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
+  - npm -g install yarn
 
 deploy:
   stage: deploy
@@ -38,8 +39,9 @@ deploy:
   only:
     - master
   script:
+    - npm install
     - yarn
-    - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./folder/** $USERNAME@$HOST:$API_PATH
+    #- scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./folder/** $USERNAME@$HOST:$API_PATH
     ## ssh pm2 restart
 
 # This folder is cached between builds
