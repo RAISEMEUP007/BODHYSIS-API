@@ -20,9 +20,6 @@ image: node:latest
 # Pick zero or more services to be used on all builds.
 # Only needed when using a docker container to run your tests in.
 # Check out: https://docs.gitlab.com/ee/ci/services/index.html
-services:
-  - mysql:latest
-  - redis:latest
 
 variables:
   MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
@@ -31,8 +28,20 @@ variables:
   DATABASE_USERNAME: "root"
   DATABASE_NAME: "bohdisys"
 
+before_script:
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
 
-
+deploy:
+  stage: deploy
+  when: manual
+  only:
+    - master
+  script:
+    - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./folder/** $USERNAME@$HOST:/path/
 
 # This folder is cached between builds
 # https://docs.gitlab.com/ee/ci/yaml/index.html#cache
@@ -42,7 +51,6 @@ cache:
 
 stages:          # List of stages for jobs, and their order of execution
   - build
-  - test
   - deploy
 
 build-job:       # This job runs in the build stage, which runs first.
@@ -50,24 +58,3 @@ build-job:       # This job runs in the build stage, which runs first.
   script:
     - yarn
     - yarn start
-
-unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
-  script:
-    - echo "Running unit tests... This will take about 60 seconds."
-    - sleep 60
-    - echo "Code coverage is 90%"
-
-lint-test-job:   # This job also runs in the test stage.
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
-  script:
-    - echo "Linting code... This will take about 10 seconds."
-    - sleep 10
-    - echo "No lint issues found."
-
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
-  environment: production
-  script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
