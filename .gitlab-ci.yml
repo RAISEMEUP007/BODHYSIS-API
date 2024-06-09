@@ -17,10 +17,3 @@ build:
     - yarn config set cache-folder .yarn
   script:
     - yarn
-
-build-job:       # This job runs in the build stage, which runs first.
-  stage: build
-  before_script: 
-    - yarn config set cache-folder .yarn
-  script:
-    - yarn
