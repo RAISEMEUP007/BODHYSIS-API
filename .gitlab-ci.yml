@@ -15,16 +15,16 @@ cache:
     - .yarn
 
 stages:
-  - build
+#  - build
   - deploy
   
-build:
-  stage: build
-  before_script: 
-    - yarn config set cache-folder .yarn
-  script:
-    - yarn build
-    - ssh -v ubuntu@3.22.62.199
+#build:
+#  stage: build
+#  before_script: 
+#    - yarn config set cache-folder .yarn
+#  script:
+#    - yarn build
+#    - ssh -v ubuntu@3.22.62.199
 
 deploy:
   stage: deploy
