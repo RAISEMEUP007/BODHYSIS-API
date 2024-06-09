@@ -1,42 +1,12 @@
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
-image: node:latest
+image: node:lts
 
-variables:
-  MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
-  DATABASE_HOST: "localhost"
-  DATABASE_PASSWORD: ""
-  DATABASE_USERNAME: "root"
-  DATABASE_NAME: "bohdisys"
-
-before_script:
-  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - npm -g install yarn
-
-#deploy:
-#  stage: deploy
-#  when: manual
-#  only:
-#    - master
-  #script:
-    #- scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./folder/** $USERNAME@$HOST:$API_PATH
-    ## ssh pm2 restart
-
-# This folder is cached between builds
-# https://docs.gitlab.com/ee/ci/yaml/index.html#cache
-cache:
-  paths:
-    - node_modules/
-
-stages:          # List of stages for jobs, and their order of execution
-  - build
-  # - deploy
-
-build-job:       # This job runs in the build stage, which runs first.
-  stage: build
+stages:
+  - deploy
+  
+deploy:
+  stage: deploy
+  before_script:
+    - corepack enable
+    - yarn set version stable
   script:
-    - yarn
-    - yarn start
+    - yarn npm publish
