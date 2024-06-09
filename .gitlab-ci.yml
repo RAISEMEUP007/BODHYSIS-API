@@ -1,15 +1,22 @@
 image: node:lts
 
+before_script:  
+  - apt-get update -qq && apt-get install
 
+cache:
+  paths:
+    - node_modules/
+    - .yarn
 
 stages:
-  - deploy
+  - build
 
-deploy:
-  stage: deploy
-  before_script:
-#    - corepack enable
-    - yarn
-
+build:
+  stage: build
+  tags:
+    - node
+  before_script: 
+    - yarn config set cache-folder .yarn
+    - yarn install 
   script:
     - yarn
