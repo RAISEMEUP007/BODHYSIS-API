@@ -1,12 +1,15 @@
 image: node:lts
 
+
+
 stages:
   - deploy
-  
+
 deploy:
   stage: deploy
   before_script:
-    - corepack enable
-    - yarn set version stable
+#    - corepack enable
+    - yarn
+
   script:
-    - yarn npm publish
+    - yarn
