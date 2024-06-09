@@ -27,5 +27,5 @@ build:
 
 deploy:
   stage: deploy
-script:
-  - ssh -v ubuntu@$HOST
+  script:
+    - ssh -v ubuntu@$HOST
