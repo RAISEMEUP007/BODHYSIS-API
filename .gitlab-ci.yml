@@ -7,12 +7,12 @@ before_script:
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
-  - npm -g install yarn
+#  - npm -g install yarn
 
-cache:
-  paths:
-    - node_modules/
-    - .yarn
+#cache:
+#  paths:
+#    - node_modules/
+#    - .yarn
 
 stages:
   - build
@@ -20,11 +20,11 @@ stages:
   
 build:
   stage: build
-  before_script: 
-    - yarn config set cache-folder .yarn
+  #before_script: 
+  #  - yarn config set cache-folder .yarn
   script:
     - yarn
-
+    
 deploy:
   stage: deploy
   script:
