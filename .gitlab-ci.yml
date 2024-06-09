@@ -8,7 +8,8 @@ cache:
     - node_modules/
     - .yarn
 
-
+stages:
+  - build
   
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
