@@ -13,8 +13,6 @@ stages:
   
 build:
   stage: build
-  tags:
-    - node
   before_script: 
     - yarn config set cache-folder .yarn
   script:
@@ -22,8 +20,6 @@ build:
 
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
-  tags:
-    - node
   before_script: 
     - yarn config set cache-folder .yarn
   script:
