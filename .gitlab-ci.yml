@@ -41,8 +41,10 @@ deploy:
   only:
     - master
   script:
-    - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./folder/** $USERNAME@$HOST:/path/
-
+    - yarn
+    - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./folder/** $USERNAME@$HOST:$API_PATH
+    ## ssh pm2 restart
+    
 # This folder is cached between builds
 # https://docs.gitlab.com/ee/ci/yaml/index.html#cache
 cache:
