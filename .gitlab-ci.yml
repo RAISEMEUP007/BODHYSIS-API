@@ -2,6 +2,7 @@ image: node:lts
 
 before_script:  
   - apt-get update -qq && apt-get install
+  - npm install -g yarn
 
 cache:
   paths:
