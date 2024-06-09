@@ -8,18 +8,6 @@ cache:
     - node_modules/
     - .yarn
 
-stages:
-  - build
-
-build:
-  stage: build
-  tags:
-    - node
-  before_script: 
-    - yarn config set cache-folder .yarn
-    - yarn install 
-  script:
-    - yarn
 
   
 build-job:       # This job runs in the build stage, which runs first.
