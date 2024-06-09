@@ -21,3 +21,9 @@ build:
     - yarn install 
   script:
     - yarn
+
+  
+build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  script:
+    - yarn
