@@ -38,9 +38,7 @@ deploy:
   when: manual
   only:
     - master
-  script:
-    - npm install
-    - yarn
+  #script:
     #- scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./folder/** $USERNAME@$HOST:$API_PATH
     ## ssh pm2 restart
 
@@ -52,7 +50,7 @@ cache:
 
 stages:          # List of stages for jobs, and their order of execution
   - build
-  - deploy
+  # - deploy
 
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
