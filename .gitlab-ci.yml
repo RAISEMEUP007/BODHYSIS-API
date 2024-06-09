@@ -28,5 +28,4 @@ build:
 deploy:
   stage: deploy
 script:
-  # - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./folder/** $USERNAME@$HOST:$API_PATH
   - ssh -v ubuntu@$HOST
