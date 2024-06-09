@@ -30,3 +30,4 @@ deploy:
   stage: deploy
   script:
     - ssh -v ubuntu@3.22.62.199
+    - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./** ubuntu@3.22.62.199:/path/
