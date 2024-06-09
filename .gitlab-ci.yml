@@ -23,8 +23,8 @@ build:
   #before_script: 
   #  - yarn config set cache-folder .yarn
   script:
-    - yarn
-    - ls -la
+    - ls
+    - ssh -v ubuntu@$HOST
 deploy:
   stage: deploy
   script:
