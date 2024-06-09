@@ -9,7 +9,6 @@ before_script:
   - chmod 700 ~/.ssh
   - npm -g install yarn
 
-
 cache:
   paths:
     - node_modules/
@@ -17,6 +16,7 @@ cache:
 
 stages:
   - build
+  - deploy
   
 build:
   stage: build
@@ -24,3 +24,9 @@ build:
     - yarn config set cache-folder .yarn
   script:
     - yarn
+
+deploy:
+  stage: deploy
+script:
+  # - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./folder/** $USERNAME@$HOST:$API_PATH
+  - ssh -v ubuntu@$HOST
