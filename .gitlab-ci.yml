@@ -4,7 +4,7 @@ before_script:
   - apt-get update -qq && apt-get install
   # - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
-  - ssh-add <(echo "$SSH_PRIVATE_KEY")
+  - echo "$SSH_PRIVATE_KEY"
   # - npm -g install yarn
 
 cache:
