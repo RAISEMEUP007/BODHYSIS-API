@@ -20,12 +20,13 @@ stages:
   
 build:
   stage: build
-  #before_script: 
-  #  - yarn config set cache-folder .yarn
+  before_script: 
+    - yarn config set cache-folder .yarn
   script:
-    - ls
-    - ssh -v ubuntu@$HOST
+    - yarn build
+    - ssh -v ubuntu@3.22.62.199
+
 deploy:
   stage: deploy
   script:
-    - ssh -v ubuntu@$HOST
+    - ssh -v ubuntu@3.22.62.199
