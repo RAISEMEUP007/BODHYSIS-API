@@ -14,8 +14,7 @@ cache:
 
 stages:
 #  - build
-  - deploy_master
-  - deploy_staging
+  - deploy
 
 deploy master:
   stage: deploy
