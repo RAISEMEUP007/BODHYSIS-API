@@ -6,11 +6,6 @@ before_script:
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
   - cat "$TEST" | tr -d '\r' | ssh-add -
-  #- mkdir -p ~/.ssh
-  #- chmod 700 ~/.ssh
-  #- cp $TEST ~/.ssh/id_rsa
-  #- echo -e "Host *\n\tStrictHostKeyChecking no\n\tLogLevel=quiet\n\n" > ~/.ssh/config
-  # - npm -g install yarn
 
 cache:
   paths:
@@ -20,20 +15,11 @@ cache:
 stages:
 #  - build
   - deploy
-  
-#build:
-#  stage: build
-#  before_script: 
-#    - yarn config set cache-folder .yarn
-#  script:
-#    - yarn build
-#    - ssh -v ubuntu@3.22.62.199
 
 deploy:
   stage: deploy
   script:
-#    - ssh -o StrictHostKeyChecking=no -v ubuntu@3.22.62.199
-    # - scp -v -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./** ubuntu@3.22.62.199:/var/www/apps/bohdisys-api-test
-#    - rsync -avzh ./** ubuntu@3.22.62.199:/var/www/apps/bohdisys-api-test
     - rsync -avzh --rsh="ssh -o StrictHostKeyChecking=no -l ubuntu" ./** ubuntu@3.22.62.199:/var/www/apps/bohdisys-api-test
+    - ssh -o StrictHostKeyChecking=no -v ubuntu@3.22.62.199 "pm2 restart all"
+
 
