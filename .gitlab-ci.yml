@@ -2,7 +2,7 @@ image: node:lts
 
 before_script:  
   - apt-get update -qq && apt-get install
-  # - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
   - mkdir -p ~/.ssh
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r'
@@ -10,7 +10,7 @@ before_script:
   # - npm -g install yarn
 
 cache:
-  paths: 
+  paths:
     - node_modules/
     - .yarn
 
