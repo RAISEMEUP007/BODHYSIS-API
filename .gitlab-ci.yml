@@ -3,10 +3,10 @@ image: node:lts
 before_script:  
   - apt-get update -qq && apt-get install
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-  - eval $(ssh-agent -s)
-  - mkdir -p ~/.ssh
   - ssh-keygen -t ed25519
   - ls -la ~/.ssh/
+  - eval $(ssh-agent -s)
+  
 
 
   - cat ~/.ssh/id_rsa
