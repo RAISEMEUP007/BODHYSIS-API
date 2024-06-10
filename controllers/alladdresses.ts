@@ -228,6 +228,28 @@ const getWeeksArrayInRange = (startDate, endDate) => {
   return weeksArray;
 };
 
+const getDaysArrayInRange = (startDate, endDate) => {
+  const daysArray = [];
+  let currentDate = new Date(`${startDate} 00:00:00`);
+
+  while (currentDate <= new Date(`${endDate}  00:00:00`)) {
+    if (currentDate > new Date(`${endDate}  00:00:00`)) {
+      break;
+    }
+
+    const date = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
+    const formattedDate = `${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getDate().toString().padStart(2, '0')}/${currentDate.getFullYear().toString().slice(-2)}`;
+
+    daysArray.push({ 
+      date, formattedDate,
+    });
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return daysArray;
+};
+
 export const deleteAddress = (req, res, next) => {
   AllAddresses.destroy({ where: { id: req.body.id } })
     .then((result) => {
@@ -326,6 +348,61 @@ export const deleteForecasting = (req, res, next) => {
     });
 };
 
+// export const getForecastingData = async (req, res, next) => {
+//   try{
+//     const { searchOptions } = req.body;
+//     const queryOptions = {
+//       order: ['plantation', 'street', 'number', 'property_name'],
+//       where: {
+//         plantation: { [Op.notLike]: '%Beach & Tennis%' }
+//       },
+//       logging:true
+//     };
+
+//     if(searchOptions.xploriefif) queryOptions.where.xploriefif = true;
+//     if(searchOptions.xplorievoucher) queryOptions.where.xplorievoucher = true;
+
+//     const addresses = await AllAddresses.findAll(queryOptions);
+
+//     const year = new Date().getFullYear();
+//     const weeksArray = getWeeksArrayInRange(searchOptions.start_date, searchOptions.end_date);
+
+//     let totalNights = 0;
+
+//     for (const week of weeksArray) {
+//       const { start_date: startDate, end_date: endDate } = week;
+
+//       try {
+//         const result = await weeklySummary(startDate, endDate);
+//         week.queryResult = result;
+//       } catch (error) {
+//         console.error(`Error executing query for week ${startDate} to ${endDate}:`, error);
+//       }
+//     }
+
+//     for (const address of addresses){
+//       address.dataValues.queryResult = [];
+//       for (const week of weeksArray){
+//         const { queryResult } = week;
+//         let filteredData = queryResult.find((result) => address.id === result.address_id);
+//         if(filteredData) totalNights += filteredData.nights
+//         address.dataValues.queryResult.push(filteredData || null);
+//       }
+//     }
+
+//     res.send({weeksArray:getWeeksArrayInRange(searchOptions.start_date, searchOptions.end_date), gridData:addresses, totalNights});
+//   } catch (error) {
+//     console.error(error);
+//     if (error.errors && error.errors[0].validatorKey === 'not_unique') {
+//       const message = error.errors[0].message;
+//       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+//       res.status(409).json({ error: capitalizedMessage });
+//     } else {
+//       res.status(500).json({ error: 'Internal server error' });
+//     }
+//   }
+// };
+
 export const getForecastingData = async (req, res, next) => {
   try{
     const { searchOptions } = req.body;
@@ -340,45 +417,26 @@ export const getForecastingData = async (req, res, next) => {
     if(searchOptions.xploriefif) queryOptions.where.xploriefif = true;
     if(searchOptions.xplorievoucher) queryOptions.where.xplorievoucher = true;
 
-    // if (searchKey) {
-    //   queryOptions.where = {
-    //     [Op.or]: [
-    //       { plantation: { [Op.like]: `%${searchKey}%` } },
-    //       { street: { [Op.like]: `%${searchKey}%` } },
-    //       { number: { [Op.like]: `%${searchKey}%` } },
-    //       { property_name: { [Op.like]: `%${searchKey}%` } }
-    //     ],
-    //   };
-    // }
     const addresses = await AllAddresses.findAll(queryOptions);
 
     const year = new Date().getFullYear();
-    const weeksArray = getWeeksArrayInRange(searchOptions.start_date, searchOptions.end_date);
+    const daysArray = getDaysArrayInRange(searchOptions.start_date, searchOptions.end_date);
+    const dailySummary = await getDailySummary(searchOptions.start_date, searchOptions.end_date);
 
     let totalNights = 0;
 
-    for (const week of weeksArray) {
-      const { start_date: startDate, end_date: endDate } = week;
-
-      try {
-        const result = await weeklySummary(startDate, endDate);
-        week.queryResult = result;
-      } catch (error) {
-        console.error(`Error executing query for week ${startDate} to ${endDate}:`, error);
-      }
-    }
-
     for (const address of addresses){
       address.dataValues.queryResult = [];
-      for (const week of weeksArray){
-        const { queryResult } = week;
-        let filteredData = queryResult.find((result) => address.id === result.address_id);
-        if(filteredData) totalNights += filteredData.nights
+      for (const day of daysArray){
+        let filteredData = dailySummary.find((result) =>{
+          return address.id == result.address_id && day.date == result.date 
+        });
+        if(filteredData) totalNights ++;
         address.dataValues.queryResult.push(filteredData || null);
       }
     }
 
-    res.send({weeksArray:getWeeksArrayInRange(searchOptions.start_date, searchOptions.end_date), gridData:addresses, totalNights});
+    res.send({daysArray, gridData:addresses, totalNights});
   } catch (error) {
     console.error(error);
     if (error.errors && error.errors[0].validatorKey === 'not_unique') {
@@ -406,4 +464,17 @@ const weeklySummary = (weekStartDate, weekEndDate) => {
   `;
 
   return sequelize.query(query, { type: sequelize.QueryTypes.SELECT });
+};
+
+const getDailySummary = (startDate, endDate) => {
+  const query = `
+    SELECT
+      *
+    FROM
+      forecasting as t1
+    WHERE t1.date BETWEEN '${startDate}' AND '${endDate}'
+    ORDER BY t1.address_id, t1.date
+  `;
+
+  return sequelize.query(query, { type: sequelize.QueryTypes.SELECT, logging:true });
 };
