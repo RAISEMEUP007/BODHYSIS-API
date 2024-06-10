@@ -2,6 +2,7 @@ image: node:lts
 
 before_script:  
   - apt-get update -qq && apt-get install
+  - apt install rsync
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
   - cat "$TEST" | tr -d '\r' | ssh-add -
