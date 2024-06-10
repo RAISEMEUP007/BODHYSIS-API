@@ -25,13 +25,22 @@ deploy master:
     - rsync -azh --rsh="ssh -o StrictHostKeyChecking=no -l ubuntu" ./** ubuntu@3.22.62.199:/var/www/apps/bohdisys-api-test
     - ssh -o StrictHostKeyChecking=no ubuntu@3.22.62.199 "pm2 restart api"
 
-#deploy development:
-#  stage: deploy
-#  only:
-#    - dev
-#    - merge_requests
-#  script:
-#    - rsync -azh --rsh="ssh -o StrictHostKeyChecking=no -l ubuntu" ./** ubuntu@18.220.145.253:/var/www/apps/dev/bohdisys-api
-#    - ssh -o StrictHostKeyChecking=no ubuntu@18.220.145.253 "pm2 restart development-api"
+deploy staging:
+  stage: deploy
+  only:
+    - staging
+    - merge_requests
+  script:
+    - rsync -azh --rsh="ssh -o StrictHostKeyChecking=no -l ubuntu" ./** ubuntu@18.220.145.253:/var/www/apps/staging/bohdisys-api
+    - ssh -o StrictHostKeyChecking=no ubuntu@18.220.145.253 "pm2 restart staging-api"
+
+deploy development:
+  stage: deploy
+  only:
+    - dev
+    - merge_requests
+  script:
+    - rsync -azh --rsh="ssh -o StrictHostKeyChecking=no -l ubuntu" ./** ubuntu@18.220.145.253:/var/www/apps/dev/bohdisys-api
+    - ssh -o StrictHostKeyChecking=no ubuntu@18.220.145.253 "pm2 restart development-api"
 
 
