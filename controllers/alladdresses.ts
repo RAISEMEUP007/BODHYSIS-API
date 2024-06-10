@@ -434,7 +434,7 @@ export const getForecastingData = async (req, res, next) => {
         if(filteredData){
           totalNights ++; 
           address.dataValues.queryResult.push({
-            percentage: '1',
+            percentage: filteredData.percentage,
             nights: 1,
           });
         }else {
