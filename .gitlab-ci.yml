@@ -5,10 +5,9 @@ before_script:
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
   - cat "$TEST" | tr -d '\r' | ssh-add -
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
+  #- mkdir -p ~/.ssh
+  #- chmod 700 ~/.ssh
   #- cp $TEST ~/.ssh/id_rsa
-  
   #- echo -e "Host *\n\tStrictHostKeyChecking no\n\tLogLevel=quiet\n\n" > ~/.ssh/config
   # - npm -g install yarn
 
@@ -33,4 +32,4 @@ deploy:
   stage: deploy
   script:
     - ssh -o StrictHostKeyChecking=no -v ubuntu@3.22.62.199
-    - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./** ubuntu@3.22.62.199:/path/
+    - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./** ubuntu@3.22.62.199:/var/www/apps/bohdisys-api-test
