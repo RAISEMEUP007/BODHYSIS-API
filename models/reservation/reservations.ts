@@ -82,6 +82,9 @@ const Reservations = sequelize.define(
     textSent: {
       type: DataTypes.BOOLEAN,
     },
+    stripe_cus_id: {
+      type: DataTypes.STRING,
+    },
   },
   {
     timestamps: true,
