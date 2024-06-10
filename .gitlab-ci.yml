@@ -5,10 +5,8 @@ before_script:
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
   - mkdir -p ~/.ssh
-  #- echo "$SSH_PRIVATE_KEY" | tr -d '\r'
-  cat "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCJQXuxYHm53C0Moy/eMFRt/llzTQIqH65TQT3P4hCnnA/sozOUkJXewcyKQSXHQ6kaBxWqJxDSTQfc+OM3HGkegILBC8SiE6MG5dh9QQd60o5ybHr12QSqD0higA4Rb8OyHU8tT7nlxaIk4JMk1FgGj9+9Dpxcf85A+2ogEqskDkDLX2/1HCwMkMXdSCi5IIebsYLDlrJaoWhp4Nt8Mh4Rjq8sPT9LYCopNXWIkgBqAyLGxaVaU7UDc6b8wNTUxQqNG+rJ+RyuaJULeC7b8hE4rTXiKxqdJJ5jCubN2A98VYEU4kECl894EDHMqKop8/wd66swceZUuj3JGx8GiG+r gitlab-ci" > ~/.ssh/id_rsa
-  
-  - echo -e "Host *\n\tStrictHostKeyChecking no\n\tLogLevel=quiet\n\n" > ~/.ssh/config
+  - echo $SSH_PRIVATE_KEY >> ~/.ssh/id_rsa
+  # - echo -e "Host *\n\tStrictHostKeyChecking no\n\tLogLevel=quiet\n\n" > ~/.ssh/config
   # - npm -g install yarn
 
 cache:
