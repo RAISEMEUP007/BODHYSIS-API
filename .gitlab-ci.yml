@@ -5,8 +5,13 @@ before_script:
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
   - mkdir -p ~/.ssh
-  - echo $SSH_PRIVATE_KEY | tr -d '\r' > ~/.ssh/id_rsa
-  - echo $SSH_PRIVATE_KEY | tr -d '\r' | ssh-add -
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+  - eval "$(ssh-agent -s)"
+  - ssh-add ~/.ssh/id_rsa
+  - ssh-keyscan -H 'your.server.hostname' >> ~/.ssh/known_hosts
+
+
   - cat ~/.ssh/id_rsa
   - ls -la ~/.ssh/id_rsa
   # - echo -e "Host *\n\tStrictHostKeyChecking no\n\tLogLevel=quiet\n\n" > ~/.ssh/config
