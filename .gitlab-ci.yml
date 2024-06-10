@@ -3,14 +3,8 @@ image: node:lts
 before_script:  
   - apt-get update -qq && apt-get install
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-  - ssh-keygen -t ed25519
-  - ls -la ~/.ssh/
   - eval $(ssh-agent -s)
-  
-
-
-  - cat ~/.ssh/id_rsa
-  - ls -la ~/.ssh/id_rsa
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
   # - echo -e "Host *\n\tStrictHostKeyChecking no\n\tLogLevel=quiet\n\n" > ~/.ssh/config
   # - npm -g install yarn
 
