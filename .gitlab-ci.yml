@@ -33,5 +33,7 @@ deploy:
   stage: deploy
   script:
 #    - ssh -o StrictHostKeyChecking=no -v ubuntu@3.22.62.199
-    - scp -v -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./** ubuntu@3.22.62.199:/var/www/apps/bohdisys-api-test
+    # - scp -v -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./** ubuntu@3.22.62.199:/var/www/apps/bohdisys-api-test
 #    - rsync -avzh ./** ubuntu@3.22.62.199:/var/www/apps/bohdisys-api-test
+    - rsync -avzh --rsh="ssh -o StrictHostKeyChecking=no -l ubuntu" ./** ubuntu@3.22.62.199:/var/www/apps/bohdisys-api-test
+
