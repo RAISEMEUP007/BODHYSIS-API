@@ -4,7 +4,7 @@ before_script:
   - apt-get update -qq && apt-get install
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
-  - echo "$TEST" | tr -d '\r' | ssh-add -
+  - cat "$TEST" | tr -d '\r' | ssh-add -
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   #- cp $TEST ~/.ssh/id_rsa
