@@ -426,14 +426,15 @@ export const getForecastingData = async (req, res, next) => {
 
     for (const address of addresses){
       address.dataValues.queryResult = [];
+      let dailySummaryByAddress = dailySummary.filter((summary) => address.id === summary.address_id);
       for (const day of daysArray){
-        let filteredData = dailySummary.find((result) =>{
-          return address.id == result.address_id && day.date == result.date 
+        let filteredData = dailySummaryByAddress.find((result) =>{
+          return day.date == result.date 
         });
         if(filteredData){
           totalNights ++; 
           address.dataValues.queryResult.push({
-            percentage: filteredData.percentage,
+            percentage: '1',
             nights: 1,
           });
         }else {
