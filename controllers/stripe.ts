@@ -619,24 +619,24 @@ export const getCustomerIdById = async (req, res, next) => {
       }
     });
 
-    // if(customerId == null){
-    //   const customer = await createCustomerOnStripe({
-    //     email: customerDetail.email,
-    //     name: customerDetail.first_name + ' ' + customerDetail.last_name,
-    //     description: '',
-    //     phone: customerDetail.phone_number,
-    //     address: {
-    //       line1: customerDetail.home_address,
-    //       line2: customerDetail.address2,
-    //       city: customerDetail.city,
-    //       state: customerDetail.state,
-    //       postal_code: customerDetail.zipcode,
-    //       country: 'US'
-    //     }
-    //   })
+    if(customerId == null){
+      const customer = await createCustomerOnStripe({
+        email: customerDetail.email,
+        name: customerDetail.first_name + ' ' + customerDetail.last_name,
+        description: '',
+        phone: customerDetail.phone_number,
+        address: {
+          line1: customerDetail.home_address,
+          line2: customerDetail.address2,
+          city: customerDetail.city,
+          state: customerDetail.state,
+          postal_code: customerDetail.zipcode,
+          country: 'US'
+        }
+      })
 
-    //   customerId = customer.id;
-    // }
+      customerId = customer.id;
+    }
 
     res.json(customerId);
   } catch (error) {
