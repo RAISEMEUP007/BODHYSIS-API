@@ -411,7 +411,6 @@ export const getForecastingData = async (req, res, next) => {
       where: {
         plantation: { [Op.notLike]: '%Beach & Tennis%' }
       },
-      logging:true
     };
 
     if(searchOptions.xploriefif) queryOptions.where.xploriefif = true;
@@ -431,8 +430,15 @@ export const getForecastingData = async (req, res, next) => {
         let filteredData = dailySummary.find((result) =>{
           return address.id == result.address_id && day.date == result.date 
         });
-        if(filteredData) totalNights ++;
-        address.dataValues.queryResult.push(filteredData || null);
+        if(filteredData){
+          totalNights ++; 
+          address.dataValues.queryResult.push({
+            percentage: filteredData.percentage,
+            nights: 1,
+          });
+        }else {
+          address.dataValues.queryResult.push(null);
+        }
       }
     }
 
@@ -476,5 +482,5 @@ const getDailySummary = (startDate, endDate) => {
     ORDER BY t1.address_id, t1.date
   `;
 
-  return sequelize.query(query, { type: sequelize.QueryTypes.SELECT, logging:true });
+  return sequelize.query(query, { type: sequelize.QueryTypes.SELECT });
 };
