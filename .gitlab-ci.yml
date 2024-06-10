@@ -5,7 +5,7 @@ before_script:
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
   - mkdir -p ~/.ssh
-  - echo $SSH_PRIVATE_KEY >> ~/.ssh/id_rsa
+  - echo $SSH_PRIVATE_KEY | base64 -d |tr -d '\r' | ssh-add -
   # - echo -e "Host *\n\tStrictHostKeyChecking no\n\tLogLevel=quiet\n\n" > ~/.ssh/config
   # - npm -g install yarn
 
