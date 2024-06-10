@@ -10,7 +10,7 @@ before_script:
   # - npm -g install yarn
 
 cache:
-  paths:
+  paths: 
     - node_modules/
     - .yarn
 
