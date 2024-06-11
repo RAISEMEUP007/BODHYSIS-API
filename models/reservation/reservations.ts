@@ -85,6 +85,9 @@ const Reservations = sequelize.define(
     stripe_cus_id: {
       type: DataTypes.STRING,
     },
+    printed: {
+      type: DataTypes.BOOLEAN,
+    },
   },
   {
     timestamps: true,
