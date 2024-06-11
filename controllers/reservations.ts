@@ -112,7 +112,8 @@ export const getReservationsData = (req, res, next) => {
     t6.code AS discount_code,
     SUM(t8.quantity) as quantity,
     t1.stage,
-    t1.color_id
+    t1.color_id,
+    t1.printed
   FROM
     reservations AS t1
     LEFT JOIN customer_customers AS t2
