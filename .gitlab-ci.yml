@@ -16,12 +16,12 @@ stages:
 #  - build
   - deploy
 
-build development:
-  stage: build
-  only:
-    - dev
-  script:
-    - yarn
+#build development:
+#  stage: build
+#  only:
+#    - dev
+#  script:
+#    - yarn
 
 deploy master:
   stage: deploy
