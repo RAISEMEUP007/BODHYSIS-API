@@ -351,6 +351,25 @@ const saveReservationItemsExtras = (reservationItemId, extras) => {
   });
 }
 
+export const removeReservation = async (req, res, next) => {
+  try {
+    const result1 = await ReservationPayments.destroy({ where: { reservation_id: req.body.id } });
+    const result2 = await Reservations.destroy({ where: { id: req.body.id } });
+    if (result2) {
+      res.status(200).json({ message: "Reservation deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Reservation not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    if (error?.original?.errno == 1451 || error?.original?.code == 'ER_ROW_IS_REFERENCED_2' || error?.original?.sqlState == '23000') {
+      res.status(409).json({ error: "It cannot be deleted because it is used elsewhere" });
+    } else {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+};
+
 export const removeReservationItem = (req, res, next) => {
   ReservationItems.destroy({ where: { id: req.body.id } })
   .then((result) => {

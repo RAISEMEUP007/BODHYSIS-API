@@ -185,6 +185,7 @@ import {
   createTransaction,
   getTransactionsData,
   removeReservationItem,
+  removeReservation,
   verifyQuantity,
   exportReservation,
   scanBarcode,
@@ -513,6 +514,7 @@ router.post("/reservations/getreservationsdata/", getReservationsData);
 router.post("/reservations/createreservation/", createReservation);
 router.get("/reservations/getreservationslist/", getReservationsList);
 router.get("/reservations/list/", getReservationsList);
+router.post("/reservations/removereservation/", removeReservation);
 router.get("/reservations/getreservationdetails/:id", getReservationDetails);
 router.get("/reservation/:id", getReservationDetails);
 router.post("/reservations/updatereservation", updateReservation);
