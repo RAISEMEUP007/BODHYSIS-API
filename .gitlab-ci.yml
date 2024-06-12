@@ -16,13 +16,20 @@ stages:
 #  - build
   - deploy
 
+build development:
+  stage: build
+  only:
+    - dev
+  script:
+    - yarn
+
 deploy master:
   stage: deploy
   only:
     - master
     - merge_requests
   script:
-    - rsync -azh --rsh="ssh -o StrictHostKeyChecking=no -l ubuntu" ./** ubuntu@3.22.62.199:/var/www/apps/bohdisys-api-test
+    - rsync -azh --rsh="ssh -o StrictHostKeyChecking=no -l ubuntu" ./** ubuntu@3.22.62.199:/var/www/apps/bohdisys-api
     - ssh -o StrictHostKeyChecking=no ubuntu@3.22.62.199 "pm2 restart api"
 
 deploy staging:
