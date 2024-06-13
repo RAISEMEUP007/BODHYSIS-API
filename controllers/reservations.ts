@@ -127,8 +127,11 @@ export const getReservationsData = (req, res, next) => {
     LEFT JOIN reservation_items AS t8
     ON t1.id = t8.reservation_id
   WHERE
-    (t1.start_date BETWEEN :start_date AND :end_date
-    OR t1.end_date BETWEEN :start_date AND :end_date)
+    1=1
+    ${searchOptions && searchOptions.ids ? `AND t1.id IN (${searchOptions.ids})`:''}
+    ${searchOptions && searchOptions.start_date && searchOptions.end_date ? 
+    `AND (t1.start_date BETWEEN :start_date AND :end_date
+    OR t1.end_date BETWEEN :start_date AND :end_date)`:''}
     ${searchOptions && searchOptions.customer ? `AND CONCAT(t2.first_name, ' ', t2.last_name) LIKE :customer` : ''}
     ${searchOptions && searchOptions.brand ? `AND t3.brand LIKE :brand` : ''}
     ${searchOptions && searchOptions.order_number ? `AND t1.order_number LIKE :order_number` : ''}
@@ -139,18 +142,20 @@ export const getReservationsData = (req, res, next) => {
   ORDER BY t1.start_date DESC, t1.order_number DESC
   `;
 
+  let replacements = {}
+  if(searchOptions.start_date) replacements.start_date = searchOptions.start_date;
+  if(searchOptions.end_date) replacements.end_date = searchOptions.end_date;
+  if(searchOptions.customer) replacements.customer = searchOptions.customer;
+  if(searchOptions.brand) replacements.brand = searchOptions.brand;
+  if(searchOptions.order_number) replacements.order_number = searchOptions.order_number;
+  if(searchOptions.stage) replacements.stage = searchOptions.stage;
+
   sequelize.query(
     query,
     { 
-      replacements: {
-        start_date: searchOptions.start_date,
-        end_date: searchOptions.end_date,
-        customer: `%${searchOptions.customer}%`,
-        brand: `%${searchOptions.brand}%`,
-        order_number: `%${searchOptions.order_number}%`,
-        stage: searchOptions.stage,
-      },
+      replacements,
       type: sequelize.QueryTypes.SELECT,
+      // logging: true,
     }
   )
   .then((reservations) => {
@@ -553,7 +558,10 @@ export const getStageAmountByAllDisplayName = async (startDate, endDate) => {
         SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) AS reserved,
         SUM(IF(t2.stage = 3, t1.quantity, 0)) AS checked_out,
         SUM(IF(t2.stage = 4, t1.quantity, 0)) AS checked_in,
-        (SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) + SUM(IF(t2.stage = 3, t1.quantity, 0))) - SUM(IF(t2.stage = 4, t1.quantity, 0)) AS out_amount
+        (SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) + SUM(IF(t2.stage = 3, t1.quantity, 0))) - SUM(IF(t2.stage = 4, t1.quantity, 0)) AS out_amount,
+        MIN(start_date) AS start_date,
+        MAX(end_date) AS end_date,
+        GROUP_CONCAT(DISTINCT t2.id) AS ids
       FROM
         reservation_items AS t1
         INNER JOIN reservations AS t2
@@ -567,7 +575,8 @@ export const getStageAmountByAllDisplayName = async (startDate, endDate) => {
 
     const results = await sequelize.query(query, {
       replacements: { start_date: startDate, end_date: endDate },
-      type: sequelize.QueryTypes.SELECT
+      type: sequelize.QueryTypes.SELECT,
+      // logging: true
     });
 
     return results;
@@ -960,6 +969,9 @@ export const getAvailableSheet = async (req, res, next) => {
           date: formattedDate,
           inventoryAmount: availableQuantity?.quantity??0,
           out_amount: stageAmount?.out_amount??0,
+          start_date: stageAmount?.start_date??formattedDate,
+          end_date: stageAmount?.end_date??formattedDate,
+          ids: stageAmount?.ids??null,
         })
       }
     }
