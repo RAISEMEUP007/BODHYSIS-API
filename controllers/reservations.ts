@@ -86,7 +86,7 @@ export const getReservationsData = (req, res, next) => {
   if(searchOptions && searchOptions.status_filter){
     switch(searchOptions.status_filter){
       case 1:
-        searchOptions.stage = 3;
+        searchOptions.stage = 4;
         break;
       case 2:
         searchOptions.stage = 3;
@@ -145,9 +145,9 @@ export const getReservationsData = (req, res, next) => {
   let replacements = {}
   if(searchOptions.start_date) replacements.start_date = searchOptions.start_date;
   if(searchOptions.end_date) replacements.end_date = searchOptions.end_date;
-  if(searchOptions.customer) replacements.customer = searchOptions.customer;
-  if(searchOptions.brand) replacements.brand = searchOptions.brand;
-  if(searchOptions.order_number) replacements.order_number = searchOptions.order_number;
+  if(searchOptions.customer) replacements.customer = `%${searchOptions.customer}%`;
+  if(searchOptions.brand) replacements.brand = `%${searchOptions.brand}%`;
+  if(searchOptions.order_number) replacements.order_number = `%${searchOptions.order_number}%`;
   if(searchOptions.stage) replacements.stage = searchOptions.stage;
 
   sequelize.query(
@@ -156,6 +156,60 @@ export const getReservationsData = (req, res, next) => {
       replacements,
       type: sequelize.QueryTypes.SELECT,
       // logging: true,
+    }
+  )
+  .then((reservations) => {
+    res.status(200).json(reservations);
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+
+
+export const getReservationsCounts = (req, res, next) => {
+  const searchOptions = req.body.searchOptions;
+
+  const query = `
+    SELECT
+    t1.stage,
+    count(t1.id) as amounts
+  FROM
+    reservations AS t1
+    LEFT JOIN customer_customers AS t2
+    ON t1.customer_id = t2.id
+    LEFT JOIN price_brands AS t3
+    ON t1.brand_id = t3.id
+    LEFT JOIN settings_storedetails AS t4
+    ON t1.brand_id = t4.brand_id
+  WHERE
+    1=1
+    ${searchOptions && searchOptions.ids ? `AND t1.id IN (${searchOptions.ids})`:''}
+    ${searchOptions && searchOptions.start_date && searchOptions.end_date ? 
+    `AND (t1.start_date BETWEEN :start_date AND :end_date
+    OR t1.end_date BETWEEN :start_date AND :end_date)`:''}
+    ${searchOptions && searchOptions.customer ? `AND CONCAT(t2.first_name, ' ', t2.last_name) LIKE :customer` : ''}
+    ${searchOptions && searchOptions.brand ? `AND t3.brand LIKE :brand` : ''}
+    ${searchOptions && searchOptions.order_number ? `AND t1.order_number LIKE :order_number` : ''}
+    ${searchOptions && searchOptions.hideBeachTennis ? `AND t4.use_beach_address != 1` : ''}
+    ${searchOptions && searchOptions.ShowOnlyManual ? `AND t1.use_manual = 1` : ''}
+  GROUP BY t1.stage
+  `;
+
+  let replacements = {}
+  if(searchOptions.start_date) replacements.start_date = searchOptions.start_date;
+  if(searchOptions.end_date) replacements.end_date = searchOptions.end_date;
+  if(searchOptions.customer) replacements.customer = `%${searchOptions.customer}%`;
+  if(searchOptions.brand) replacements.brand = `%${searchOptions.brand}%`;
+  if(searchOptions.order_number) replacements.order_number = `%${searchOptions.order_number}%`;
+
+  sequelize.query(
+    query,
+    { 
+      replacements,
+      type: sequelize.QueryTypes.SELECT,
+      logging: true,
     }
   )
   .then((reservations) => {
@@ -531,7 +585,7 @@ const getStageAmountByDisplayName = async (startDate, endDate, display_name = ""
         ON t1.reservation_id = t2.id
     WHERE
       t2.start_date <= :end_date
-      AND t2.end_date >= :start_date
+      AND t2.end_date > :start_date
       AND t2.stage IN (1, 2, 3, 4)
       AND t1.display_name = :display_name
     -- GROUP BY t2.stage;
@@ -550,7 +604,7 @@ const getStageAmountByDisplayName = async (startDate, endDate, display_name = ""
   }
 }
 
-export const getStageAmountByAllDisplayName = async (startDate, endDate) => {
+export const getDemandAmountByAllDisplayNameByDate = async (date) => {
   try {
     const query = `
       SELECT
@@ -567,8 +621,8 @@ export const getStageAmountByAllDisplayName = async (startDate, endDate) => {
         INNER JOIN reservations AS t2
           ON t1.reservation_id = t2.id
       WHERE
-        t2.start_date <= :end_date
-        AND t2.end_date >= :start_date
+        t2.start_date <= :date
+        AND :date < t2.end_date
         AND t2.stage IN (1, 2, 3, 4)
       GROUP BY t1.display_name;
     `;
@@ -955,7 +1009,7 @@ export const getAvailableSheet = async (req, res, next) => {
     let stageAmounts = {};
     for(let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)){
       let formattedDate = formatDate(date);
-      stageAmounts[formattedDate] = await getStageAmountByAllDisplayName(formattedDate, formattedDate);
+      stageAmounts[formattedDate] = await getDemandAmountByAllDisplayNameByDate(formattedDate);
     }
 
     for(const family of families){
