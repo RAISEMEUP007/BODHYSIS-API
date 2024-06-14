@@ -145,9 +145,9 @@ export const getReservationsData = (req, res, next) => {
   let replacements = {}
   if(searchOptions.start_date) replacements.start_date = searchOptions.start_date;
   if(searchOptions.end_date) replacements.end_date = searchOptions.end_date;
-  if(searchOptions.customer) replacements.customer = searchOptions.customer;
-  if(searchOptions.brand) replacements.brand = searchOptions.brand;
-  if(searchOptions.order_number) replacements.order_number = searchOptions.order_number;
+  if(searchOptions.customer) replacements.customer = `%${searchOptions.customer}%`;
+  if(searchOptions.brand) replacements.brand = `%${searchOptions.brand}%`;
+  if(searchOptions.order_number) replacements.order_number = `%${searchOptions.order_number}%`;
   if(searchOptions.stage) replacements.stage = searchOptions.stage;
 
   sequelize.query(
