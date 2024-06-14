@@ -177,6 +177,7 @@ import {
 } from "../controllers/customer";
 import {
   getReservationsData,
+  getReservationsCounts,
   createReservation,
   getReservationDetails,
   getReservationsList,
@@ -511,6 +512,7 @@ router.post("/settings/updatecompatibility", updateCompatibility);
 // Reservations
 router.get("/reservations/getreservationsdata/", getReservationsData);
 router.post("/reservations/getreservationsdata/", getReservationsData);
+router.post("/reservations/getreservationscounts/", getReservationsCounts);
 router.post("/reservations/createreservation/", createReservation);
 router.get("/reservations/getreservationslist/", getReservationsList);
 router.get("/reservations/list/", getReservationsList);
