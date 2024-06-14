@@ -628,7 +628,7 @@ export const getDemandAmountByAllDisplayNameByDate = async (date) => {
     `;
 
     const results = await sequelize.query(query, {
-      replacements: { start_date: startDate, end_date: endDate },
+      replacements: { date: date },
       type: sequelize.QueryTypes.SELECT,
       // logging: true
     });
