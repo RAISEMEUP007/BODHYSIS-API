@@ -109,6 +109,7 @@ const verifyToken = (req, res, next) => {
     '/uploads',
     '/exportpdf',
     '/forecasting',
+    '/scan',
     // '/auth/gettesttoken',
   ];
 
