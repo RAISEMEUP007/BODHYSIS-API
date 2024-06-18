@@ -113,7 +113,8 @@ export const getReservationsData = (req, res, next) => {
     SUM(t8.quantity) as quantity,
     t1.stage,
     t1.color_id,
-    t1.printed
+    t1.printed,
+    t1.createdAt
   FROM
     reservations AS t1
     LEFT JOIN customer_customers AS t2
