@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import sequelize from '../utils/database';
 import { Op } from 'sequelize';
+import ExcelJS from 'exceljs'
 
 import AllAddresses from '../models/all_addresses';
 import Forecasting from '../models/marketing/forecasting';
@@ -444,6 +445,89 @@ export const getForecastingData = async (req, res, next) => {
     }
 
     res.send({daysArray, gridData:addresses, totalNights});
+  } catch (error) {
+    console.error(error);
+    if (error.errors && error.errors[0].validatorKey === 'not_unique') {
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+};
+
+export const exportForecastingData = async (req, res, next) => {
+
+  try{
+    const queryOptions = {
+      order: ['plantation', 'street', 'number', 'property_name'],
+      where: {
+        plantation: { [Op.notLike]: '%Beach & Tennis%' }
+      },
+    };
+
+    const addresses = await AllAddresses.findAll(queryOptions);
+
+    const year = new Date().getFullYear();
+    const daysArray = getDaysArrayInRange(req.query.start_date, req.query.end_date);
+    const dailySummary = await getDailySummary(req.query.start_date, req.query.end_date);
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.removeWorksheet('My sheet')
+    const worksheet = workbook.addWorksheet('My sheet')
+
+    const columns = [
+      { header: 'Plantation/Area', key: 'plantation', width: 20 },
+      { header: 'Xploriefif', key: 'xploriefif', width: 10 },
+      { header: 'Xplorievoucher', key: 'xplorievoucher', width: 15 },
+      { header: 'Number', key: 'number', width: 10 },
+      { header: 'Street', key: 'street', width: 25},
+      { header: 'Property_name', key: 'property_name', width: 25 },
+      { header: 'Weekly Potential', key: 'weekly_potential', width: 15 },
+      { header: 'Guests', key: 'guests', width: 10},
+    ];
+
+    for (const day of daysArray){
+      columns.push({header: day.formattedDate, key: day.date, width: 10})
+    }
+
+    worksheet.columns = columns;
+
+    for (const address of addresses){
+      let row = {...address.dataValues};
+      if(row.xploriefif == true) row.xploriefif = 1;
+      else if(row.xploriefif == false) row.xploriefif = 0;
+
+      if(row.xplorievoucher == true) row.xplorievoucher = 1;
+      else if(row.xplorievoucher == false) row.xplorievoucher = 0;
+
+      let dailySummaryByAddress = dailySummary.filter((summary) => address.id === summary.address_id);
+      for (const day of daysArray){
+        let filteredData = dailySummaryByAddress.find((result) =>{
+          return day.date == result.date 
+        });
+        if(filteredData){
+          // address.dataValues.queryResult.push({
+          //   percentage: filteredData.percentage,
+          //   nights: 1,
+          // });
+          row[day.date] = 1
+        }else {
+          // address.dataValues.queryResult.push(null);
+          row[day.date] = ""
+        }
+      }
+
+      worksheet.addRow(row)
+    }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `Content-Disposition': 'attachment; filename="export.xlsx"`);
+    res.send(buffer);
+
   } catch (error) {
     console.error(error);
     if (error.errors && error.errors[0].validatorKey === 'not_unique') {
