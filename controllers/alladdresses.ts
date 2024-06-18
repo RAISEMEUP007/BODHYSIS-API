@@ -525,7 +525,7 @@ export const exportForecastingData = async (req, res, next) => {
     const buffer = await workbook.xlsx.writeBuffer();
 
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    res.setHeader("Content-Disposition", `Content-Disposition': 'attachment; filename="export.xlsx"`);
+    res.setHeader("Content-Disposition", `attachment; filename="forecasting-${req.query.start_date}-${req.query.end_date}.xlsx"`);
     res.send(buffer);
 
   } catch (error) {
