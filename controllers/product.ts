@@ -838,25 +838,30 @@ export const getAvaliableQuantityByfamily = async (family_id = null) =>{
   });
 }
 
-export const getAvaliableQuantityByDisplayName = async () => {
+export const getAvaliableQuantityByDisplayName = async (categoryId) => {
   try {
-    const query = `
+    let query = `
       SELECT
         t2.display_name,
         COUNT(t1.id) AS quantity
       FROM
         product_products AS t1
-        LEFT JOIN product_families AS t2
+        INNER JOIN product_families AS t2
           ON t1.family_id = t2.id
       WHERE t1.status IN (0, 3)
-      GROUP BY t2.display_name
     `;
+
+    if (categoryId) {
+      query += ` AND t1.category_id = ${categoryId}`;
+    }
+    
+    query += ` GROUP BY t2.display_name`;
 
     const results = await sequelize.query(query, {
       type: sequelize.QueryTypes.SELECT
     });
 
-    return results
+    return results;
   } catch (error) {
     console.error(error);
     throw new Error('An error occurred while fetching stage amounts');

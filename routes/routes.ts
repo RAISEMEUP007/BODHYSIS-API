@@ -193,6 +193,7 @@ import {
   checkedInBarcode,
   verifyQuantityByDisplayName,
   getAvailableSheet,
+  getAvailableSheetEcommerce,
 } from "../controllers/reservations";
 
 import {
@@ -531,6 +532,7 @@ router.get("/reservations/exportpdf/:id/:tc", exportReservation);
 router.post("/reservation/scanbarcode/", scanBarcode);
 router.post("/reservation/checkedinbarcode/", checkedInBarcode);
 router.post("/reservations/getavailablesheet", getAvailableSheet);
+router.post("/reservations/getavailablesheetecommerce", getAvailableSheetEcommerce);
 
 /* ----- Stripe ----- */
 router.post("/createcustomerstripe/", createCustomerStripe);

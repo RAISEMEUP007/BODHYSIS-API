@@ -585,7 +585,7 @@ const getStageAmountByDisplayName = async (startDate, endDate, display_name = ""
       INNER JOIN reservations AS t2
         ON t1.reservation_id = t2.id
     WHERE
-      t2.start_date <= :end_date
+      t2.start_date < :end_date
       AND t2.end_date > :start_date
       AND t2.stage IN (1, 2, 3, 4)
       AND t1.display_name = :display_name
@@ -595,7 +595,8 @@ const getStageAmountByDisplayName = async (startDate, endDate, display_name = ""
   try {
      const stageAmounts = await sequelize.query(query, {
        replacements,
-       type: sequelize.QueryTypes.SELECT
+       type: sequelize.QueryTypes.SELECT,
+       logging: true
      });
 
     return stageAmounts[0];
@@ -1001,8 +1002,10 @@ export const checkedInBarcode = async (req, res, next) => {
 
 export const getAvailableSheet = async (req, res, next) => {
   try {
-    let families = await getPFDByDisplayName();
-    const availableQuantities = await getAvaliableQuantityByDisplayName();
+    const categoryId = req?.body?.categoryId??undefined;
+
+    let families = await getPFDByDisplayName(categoryId);
+    const availableQuantities = await getAvaliableQuantityByDisplayName(categoryId);
 
     const startDate = new Date(`${req.body.start_date} 00:00:00`);
     const endDate = new Date(`${req.body.end_date} 00:00:00`);
@@ -1010,9 +1013,10 @@ export const getAvailableSheet = async (req, res, next) => {
     let stageAmounts = {};
     for(let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)){
       let formattedDate = formatDate(date);
-      stageAmounts[formattedDate] = await getDemandAmountByAllDisplayNameByDate(formattedDate);
+      stageAmounts[formattedDate] = await getDemandAmountByAllDisplayNameByDate(formattedDate, categoryId);
     }
 
+    const responseData = [];
     for(const family of families){
       family.quantities = [];
       let availableQuantity = availableQuantities.find(item=>item.display_name == family.display_name);
@@ -1029,9 +1033,54 @@ export const getAvailableSheet = async (req, res, next) => {
           ids: stageAmount?.ids??null,
         })
       }
+
+      responseData.push({
+        display_name: family.display_name,
+        quantities: family.quantities
+      })
     }
 
-    res.json(families);
+    res.json(responseData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred" });
+  }
+};
+
+export const getAvailableSheetEcommerce = async (req, res, next) => {
+  try {
+    const categoryId = req?.body?.categoryId??undefined;
+
+    let families = await getPFDByDisplayName(categoryId);
+    const availableQuantities = await getAvaliableQuantityByDisplayName(categoryId);
+
+    const startDate = new Date(`${req.body.start_date} 00:00:00`);
+    const endDate = new Date(`${req.body.end_date} 00:00:00`);
+
+    let stageAmounts = {};
+    for(let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)){
+      let formattedDate = formatDate(date);
+      stageAmounts[formattedDate] = await getDemandAmountByAllDisplayNameByDate(formattedDate, categoryId);
+    }
+
+    const responseData = {};
+    for(const family of families){
+      family.quantities = [];
+      let availableQuantity = availableQuantities.find(item=>item.display_name == family.display_name);
+      let available = availableQuantity?.quantity??0;
+
+      let maxOut = 0;
+      for(let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)){
+        let formattedDate = formatDate(date);
+        let stageAmount = stageAmounts[formattedDate].find(item=>item.display_name == family.display_name);
+        let outAmount = stageAmount?.out_amount??0;
+        if(maxOut < outAmount) maxOut = outAmount;
+      }
+
+      responseData[family.display_name] = available - maxOut;
+    }
+
+    res.json(responseData);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "An error occurred" });
