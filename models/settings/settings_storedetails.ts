@@ -71,6 +71,9 @@ const SettingsStoreDetails = sequelize.define('settings_storedetails', {
    week_start_day: {
       type: Sequelize.STRING,
    },
+   cut_off_time: {
+      type: Sequelize.STRING,
+   },
    taxcode_id: {
       type: Sequelize.INTEGER,
    },

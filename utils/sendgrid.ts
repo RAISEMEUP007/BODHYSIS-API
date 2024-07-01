@@ -1,4 +1,3 @@
-
 import sgMail, { ClientResponse, MailDataRequired, ResponseError } from '@sendgrid/mail';
 
 type SendEmailDataType = Omit<MailDataRequired,"from"|"templateId">
@@ -12,7 +11,7 @@ export const sendEmail=async(data: SendEmailDataType | SendEmailDataType[], isMu
     ...data
   };
 
-  try {    
+  try {
     await sgMail.send(msg,isMultiple,cb);
   } catch (error) {
     console.error(error);

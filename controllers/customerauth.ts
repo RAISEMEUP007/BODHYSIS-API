@@ -219,77 +219,12 @@ export const adminTry = async (req, res, next) => {
   }
 };
 
-export const resetPass = async (req, res, next) => {
-	try {
-	  const dbUser = await User.findOne({ where: { email: req.body.email } });
-	  if (!dbUser) {
-		return res.status(404).json({ message: "User not found" });
-	  } else {
-		const id = uuidv4();
-  
-		const verifyLink = `${process.env.BASE_URL}/changepass/${id}`;
-		const clientDirection = `${req.body.clientHost}/changepass/${id}`;
-
-		const currentDate = new Date();
-		currentDate.setMinutes(currentDate.getMinutes() + 15);
-		const formattedExpireDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
-
-		UserForgotPassword.create({
-			user_id: dbUser.id,
-			recover_id: id,
-			client_direction: clientDirection,
-			expire_date: formattedExpireDate,
-		}, {
-			fields: ['user_id', 'recover_id', 'client_direction', 'expire_date']
-		});
-
-
-		const msg = {
-		  to: dbUser.email,
-		  dynamic_template_data: {
-				subject: 'Reset Your Password',
-				name: dbUser.name,
-				link: verifyLink,
-		  },
-		};
-		await sendEmail(msg);
-		return res.status(200).json({ message: "Reset password link is sent. Please check your email" });
-	  }
-	} catch (err) {
-	  console.error('An error occurred:', err);
-	  return res.status(500).send("An error occurred");
-	}
-};
-
-export const verifyChangePass = (req, res, next) => {
-	const recoveryId = req.params.id;
+export const customerNewPass = (req, res, next) => {
+	console.log("req.body", req.body);
 	const currentDate = new Date();
 	UserForgotPassword.findOne({
 		where: {
-			recover_id: recoveryId
-		}
-	}).then((result) => {
-		if (result) {
-			const expireDate = new Date(result.expire_date);
-			if (result.is_expired == 1 || expireDate < currentDate) {
-				res.status(400).json({ error: "The link is expired" });
-			} else {
-				res.redirect(result.client_direction);
-			}
-		} else {
-			res.status(404).json({ error: "Record not found" });
-		}
-	}).catch((error) => {
-		console.error(error);
-		res.status(500).json({ error: "Internal server error" });
-	});
-};
-
-export const newPass = (req, res, next) => {
-	const currentDate = new Date();
-	UserForgotPassword.findOne({
-		where: {
-			recover_id: req.body.recoveryId
+			recover_id: req.body.recover_id
 		}
 	}).then((result) => {
 		if (result) {
@@ -299,13 +234,13 @@ export const newPass = (req, res, next) => {
 			} else {
 				bcrypt.hash(req.body.password, 12, (err, passwordHash) => {
 					if (passwordHash) {
-						User.update(
+						CustomerCustomers.update(
 						  { password: passwordHash },
 						  { where: { id: result.user_id } }
 						).then((result) => {
 							UserForgotPassword.update(
 								{ is_expired: 1 },
-								{ where: { recover_id: req.body.recoveryId } }
+								{ where: { recover_id: req.body.recover_id } }
 							)
 							res.status(200).json({ error: "Password updated successfully" });
 						}).catch((error) => {
