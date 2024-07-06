@@ -615,6 +615,7 @@ export const getDemandAmountByAllDisplayNameByDate = async (date) => {
         SUM(IF(t2.stage = 3, t1.quantity, 0)) AS checked_out,
         SUM(IF(t2.stage = 4, t1.quantity, 0)) AS checked_in,
         (SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) + SUM(IF(t2.stage = 3, t1.quantity, 0))) - SUM(IF(t2.stage = 4, t1.quantity, 0)) AS out_amount,
+        (SUM(IF(t2.stage IN (1, 2), t1.quantity, 0)) + SUM(IF(t2.stage = 3, t1.quantity, 0))) + SUM(IF(t2.stage = 4, t1.quantity, 0)) AS total_amount,
         MIN(start_date) AS start_date,
         MAX(end_date) AS end_date,
         GROUP_CONCAT(DISTINCT t2.id) AS ids
@@ -632,7 +633,7 @@ export const getDemandAmountByAllDisplayNameByDate = async (date) => {
     const results = await sequelize.query(query, {
       replacements: { date: date },
       type: sequelize.QueryTypes.SELECT,
-      // logging: true
+      logging: true
     });
 
     return results;
@@ -1027,7 +1028,7 @@ export const getAvailableSheet = async (req, res, next) => {
         family.quantities.push({
           date: formattedDate,
           inventoryAmount: availableQuantity?.quantity??0,
-          out_amount: stageAmount?.out_amount??0,
+          out_amount: stageAmount?.total_amount??0,
           start_date: stageAmount?.start_date??formattedDate,
           end_date: stageAmount?.end_date??formattedDate,
           ids: stageAmount?.ids??null,
