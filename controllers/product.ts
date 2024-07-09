@@ -733,6 +733,7 @@ export const getProductQuantitiesByFamily = (req, res, next) => {
   ProductProducts.findAll({
     attributes: ['family_id', [sequelize.fn('COUNT', sequelize.col('id')), 'quantity']],
     group: ['family_id'],
+    // logging: true,
   })
   .then(results => {
     const transformedResults = results.reduce((acc, curr) => {
@@ -838,6 +839,36 @@ export const getAvaliableQuantityByfamily = async (family_id = null) =>{
   });
 }
 
+export const getQuantityByDisplayName = async (categoryId) => {
+  try {
+    let query = `
+      SELECT
+        t2.display_name,
+        COUNT(t1.id) AS quantity
+      FROM
+        product_products AS t1
+        INNER JOIN product_families AS t2
+          ON t1.family_id = t2.id
+    `;
+
+    if (categoryId) {
+      query += ` AND t1.category_id = ${categoryId}`;
+    }
+    
+    query += ` GROUP BY t2.display_name`;
+
+    const results = await sequelize.query(query, {
+      type: sequelize.QueryTypes.SELECT,
+      // logging: true,
+    });
+
+    return results;
+  } catch (error) {
+    console.error(error);
+    throw new Error('An error occurred while fetching stage amounts');
+  }
+}
+
 export const getAvaliableQuantityByDisplayName = async (categoryId) => {
   try {
     let query = `
@@ -858,7 +889,8 @@ export const getAvaliableQuantityByDisplayName = async (categoryId) => {
     query += ` GROUP BY t2.display_name`;
 
     const results = await sequelize.query(query, {
-      type: sequelize.QueryTypes.SELECT
+      type: sequelize.QueryTypes.SELECT,
+      // logging: true,
     });
 
     return results;

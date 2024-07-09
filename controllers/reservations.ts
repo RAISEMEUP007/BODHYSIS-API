@@ -4,7 +4,7 @@ import puppeteer from 'puppeteer';
 import bwipjs from 'bwip-js'; 
 
 import { getAvaliableQuantitiesByLine, getAvaliableQuantitiesByFamilyIds, getAvaliableQuantityByfamily,
-  getProductFamilyIdsByDisplayName, getPFDByDisplayName, getAvaliableQuantityByDisplayName } from "./product";
+  getProductFamilyIdsByDisplayName, getPFDByDisplayName, getAvaliableQuantityByDisplayName, getQuantityByDisplayName } from "./product";
 import Reservations from "../models/reservation/reservations";
 import ReservationPayments from '../models/reservation/reservation_payments';
 import ReservationItems from '../models/reservation/reservation_items';
@@ -210,7 +210,7 @@ export const getReservationsCounts = (req, res, next) => {
     { 
       replacements,
       type: sequelize.QueryTypes.SELECT,
-      logging: true,
+      // logging: true,
     }
   )
   .then((reservations) => {
@@ -596,7 +596,7 @@ const getStageAmountByDisplayName = async (startDate, endDate, display_name = ""
      const stageAmounts = await sequelize.query(query, {
        replacements,
        type: sequelize.QueryTypes.SELECT,
-       logging: true
+       // logging: true
      });
 
     return stageAmounts[0];
@@ -633,7 +633,7 @@ export const getDemandAmountByAllDisplayNameByDate = async (date) => {
     const results = await sequelize.query(query, {
       replacements: { date: date },
       type: sequelize.QueryTypes.SELECT,
-      logging: true
+      // logging: true
     });
 
     return results;
@@ -1006,7 +1006,7 @@ export const getAvailableSheet = async (req, res, next) => {
     const categoryId = req?.body?.categoryId??undefined;
 
     let families = await getPFDByDisplayName(categoryId);
-    const availableQuantities = await getAvaliableQuantityByDisplayName(categoryId);
+    const availableQuantities = await getQuantityByDisplayName(categoryId);
 
     const startDate = new Date(`${req.body.start_date} 00:00:00`);
     const endDate = new Date(`${req.body.end_date} 00:00:00`);
@@ -1016,6 +1016,8 @@ export const getAvailableSheet = async (req, res, next) => {
       let formattedDate = formatDate(date);
       stageAmounts[formattedDate] = await getDemandAmountByAllDisplayNameByDate(formattedDate, categoryId);
     }
+
+    console.log(stageAmounts);
 
     const responseData = [];
     for(const family of families){
