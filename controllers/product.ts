@@ -733,7 +733,7 @@ export const getProductQuantitiesByFamily = (req, res, next) => {
   ProductProducts.findAll({
     attributes: ['family_id', [sequelize.fn('COUNT', sequelize.col('id')), 'quantity']],
     group: ['family_id'],
-    logging: true,
+    // logging: true,
   })
   .then(results => {
     const transformedResults = results.reduce((acc, curr) => {
@@ -859,7 +859,7 @@ export const getQuantityByDisplayName = async (categoryId) => {
 
     const results = await sequelize.query(query, {
       type: sequelize.QueryTypes.SELECT,
-      logging: true,
+      // logging: true,
     });
 
     return results;
@@ -890,7 +890,7 @@ export const getAvaliableQuantityByDisplayName = async (categoryId) => {
 
     const results = await sequelize.query(query, {
       type: sequelize.QueryTypes.SELECT,
-      logging: true,
+      // logging: true,
     });
 
     return results;

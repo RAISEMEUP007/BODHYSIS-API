@@ -1017,6 +1017,8 @@ export const getAvailableSheet = async (req, res, next) => {
       stageAmounts[formattedDate] = await getDemandAmountByAllDisplayNameByDate(formattedDate, categoryId);
     }
 
+    console.log(stageAmounts);
+
     const responseData = [];
     for(const family of families){
       family.quantities = [];
