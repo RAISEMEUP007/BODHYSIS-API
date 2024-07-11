@@ -24,8 +24,11 @@ const AllAddresses = sequelize.define('all_addresses', {
    property_type: {
       type: Sequelize.STRING,
    },
-   price: {
-      type: Sequelize.STRING,
+   voucher_potential: {
+      type: Sequelize.FLOAT,
+   },
+   fif_potential: {
+      type: Sequelize.FLOAT,
    },
    guests: {
       type: Sequelize.STRING,

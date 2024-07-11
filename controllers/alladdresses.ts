@@ -457,6 +457,61 @@ export const getForecastingData = async (req, res, next) => {
   }
 };
 
+export const getOrderPotential = async (req, res, next) => {
+  try{
+    const { searchOptions } = req.body;
+    const queryOptions = {
+      order: ['plantation', 'street', 'number', 'property_name'],
+      where: {
+        plantation: { [Op.notLike]: '%Beach & Tennis%' }
+      },
+    };
+
+    if(searchOptions.xploriefif) queryOptions.where.xploriefif = true;
+    if(searchOptions.xplorievoucher) queryOptions.where.xplorievoucher = true;
+
+    const addresses = await AllAddresses.findAll(queryOptions);
+
+    const year = new Date().getFullYear();
+    const daysArray = getDaysArrayInRange(searchOptions.start_date, searchOptions.end_date);
+    const dailySummary = await getOrderSummary(searchOptions.start_date, searchOptions.end_date);
+
+    // let totalNights = 0;
+
+    for (const address of addresses){
+      address.dataValues.queryResult = [];
+      let dailySummaryByAddress = dailySummary.filter((summary) => address.id === summary.address_id);
+      for (const day of daysArray){
+        let filteredData = dailySummaryByAddress.find((result) =>{
+          return day.date == result.start_date 
+        });
+        if(filteredData){
+          // totalNights ++; 
+          const potential = address.voucher_potential || address.fif_potential || 0;
+          const percentage = (filteredData.price && potential) ? filteredData.price / potential : 0
+          address.dataValues.queryResult.push({
+            percentage: percentage,
+            price: Math.round(filteredData.price * 10)/10,
+          });
+        }else {
+          address.dataValues.queryResult.push(null);
+        }
+      }
+    }
+
+    res.send({daysArray, gridData:addresses});
+  } catch (error) {
+    console.error(error);
+    if (error.errors && error.errors[0].validatorKey === 'not_unique') {
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+};
+
 export const exportForecastingData = async (req, res, next) => {
 
   try{
@@ -568,4 +623,20 @@ const getDailySummary = (startDate, endDate) => {
   `;
 
   return sequelize.query(query, { type: sequelize.QueryTypes.SELECT });
+};
+
+const getOrderSummary = (startDate, endDate) => {
+  const query = `
+    SELECT
+      address_id,
+      start_date,
+      sum(total_price) as price
+    FROM
+      reservations
+    WHERE start_date BETWEEN '${startDate}' AND '${endDate}'
+    AND address_id is not null
+    GROUP BY address_id, start_date
+  `;
+
+  return sequelize.query(query, { type: sequelize.QueryTypes.SELECT, logging:true });
 };
