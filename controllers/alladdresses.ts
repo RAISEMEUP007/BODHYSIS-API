@@ -57,13 +57,13 @@ export const searchAddress = async (req, res, next) => {
         return await AllAddresses.findAll({
           where: whereCondition,
           order: ['number', 'street', 'property_name', 'plantation'],
-          limit: 20
+          limit: 30
         });
       })
     ]);
 
     let addresses = addressResults.flat();
-    addresses = addresses.slice(0, 20);
+    addresses = addresses.slice(0, 30);
 
     res.json(addresses);
   } catch (error) {
