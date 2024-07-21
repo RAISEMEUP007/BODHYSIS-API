@@ -196,10 +196,10 @@ export const getPFDByDisplayName = async (categoryId) => {
       'notes',
       'summary',
       'description',
-      'brand_ids',
-      [sequelize.fn('GROUP_CONCAT', sequelize.col('product_families.id')), 'familiesIds'],
-      [sequelize.fn('GROUP_CONCAT', sequelize.col('lines.id')), 'linesIds'],
-      [sequelize.fn('GROUP_CONCAT', sequelize.fn('DISTINCT',sequelize.col('lines.price_group_id'))), 'priceGroupIds']
+      [sequelize.literal("GROUP_CONCAT(DISTINCT product_families.brand_ids SEPARATOR '-')"), 'brand_ids'],
+      [sequelize.literal("GROUP_CONCAT(DISTINCT product_families.id)"), 'familiesIds'],
+      [sequelize.literal("GROUP_CONCAT(DISTINCT lines.id)"), 'linesIds'],
+      [sequelize.literal("GROUP_CONCAT(DISTINCT lines.price_group_id)"), 'priceGroupIds']
     ],
     include: [
       {
@@ -232,6 +232,8 @@ export const getPFDByDisplayName = async (categoryId) => {
       [{ model: ProductDisplayGroupOrder, as: 'group_orders' }, 'order_index', 'ASC'],
       'display_name',
     ],
+      logging: true,
+
   };
 
   if (categoryId > 0) {
