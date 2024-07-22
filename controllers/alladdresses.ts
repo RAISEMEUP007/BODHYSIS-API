@@ -7,6 +7,7 @@ import { Op } from 'sequelize';
 import ExcelJS from 'exceljs'
 
 import AllAddresses from '../models/all_addresses';
+import AllAddressPlantations from '../models/address/all_address_plantations';
 import Forecasting from '../models/marketing/forecasting';
 import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
 
@@ -107,7 +108,6 @@ export const getAddressesData = (req, res, next) => {
   let queryOptions = {
     order: ['plantation', 'street', 'number', 'property_name'],
     where: {},
-    logging: true,
   };
   if (req.body.searchKey) {
     queryOptions.where = {
@@ -655,4 +655,60 @@ const getOrderSummary = (startDate, endDate) => {
   `;
 
   return sequelize.query(query, { type: sequelize.QueryTypes.SELECT });
+};
+
+// Plantation
+export const createPlantation = (req, res, next) => {
+  AllAddressPlantations.create(req.body)
+  .then(newPlantation => {
+    res.status(201).json({ message: 'Plantation created successfully', plantation: newPlantation });
+  })
+  .catch(error => {
+    console.error(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updatePlantation = (req, res, next) => {
+  const updateFields = req.body;
+
+  AllAddressPlantations.update(updateFields, { where: { id: req.body.id } })
+  .then(newPlantation => {
+    res.status(201).json({ message: 'Plantation updated successfully', plantation: newPlantation });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getPlantationsData = (req, res, next) => {
+  AllAddressPlantations.findAll()
+  .then((plantaions) => {
+    res.status(200).json(plantaions);
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+export const deletePlantation = (req, res, next) => {
+  AllAddressPlantations.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Plantation deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Plantation not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
 };
