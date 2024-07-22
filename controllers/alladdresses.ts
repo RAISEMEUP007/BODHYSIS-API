@@ -120,8 +120,8 @@ export const getAddressesData = (req, res, next) => {
     };
   }
   if(req.body.plantation) queryOptions.where.plantation = req.body.plantation;
-  if(req.body.street) queryOptions.where.plantation = req.body.street;
-  if(req.body.property_name) queryOptions.where.plantation = req.body.property_name;
+  if(req.body.street) queryOptions.where.street = req.body.street;
+  if(req.body.property_name) queryOptions.where.property_name = req.body.property_name;
   AllAddresses.findAll(queryOptions)
   .then((addresses) => {
     res.status(200).json(addresses);
