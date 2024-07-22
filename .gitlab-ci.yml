@@ -29,17 +29,9 @@ deploy master:
     - master
     - merge_requests
   script:
-    - rsync -azh --rsh="ssh -o StrictHostKeyChecking=no -l ubuntu" ./** ubuntu@3.22.62.199:/var/www/apps/bohdisys-api
-    - ssh -o StrictHostKeyChecking=no ubuntu@3.22.62.199 "cd /var/www/apps/bohdisys-api; yarn; pm2 restart api"
+    - rsync -azh --rsh="ssh -o StrictHostKeyChecking=no -l gitlab" ./** gitlab@100.69.4.76:/var/storage/apps/bodhisys/apps-dev/bohdisys-api
+    - ssh -o StrictHostKeyChecking=no ubuntu@100.69.4.76 "cd /var/storage/apps/bodhisys/apps-dev/bohdisys-api; yarn; pm2 restart bodhisys-api"
 
-deploy staging:
-  stage: deploy
-  only:
-    - staging
-    - merge_requests
-  script:
-    - rsync -azh --rsh="ssh -o StrictHostKeyChecking=no -l ubuntu" ./** ubuntu@18.220.145.253:/var/www/apps/staging/bohdisys-api
-    - ssh -o StrictHostKeyChecking=no ubuntu@18.220.145.253 "cd /var/www/apps/staging/bohdisys-api; yarn; pm2 restart staging-api"
 
 deploy development:
   stage: deploy
@@ -47,7 +39,7 @@ deploy development:
     - dev
     - merge_requests
   script:
-    - rsync -azh --rsh="ssh -o StrictHostKeyChecking=no -l ubuntu" ./** ubuntu@18.220.145.253:/var/www/apps/dev/bohdisys-api
-    - ssh -o StrictHostKeyChecking=no ubuntu@18.220.145.253 "cd /var/www/apps/dev/bohdisys-api; yarn; pm2 restart development-api"
+    - rsync -azh --rsh="ssh -o StrictHostKeyChecking=no -l gitlab" ./** gitlab@100.69.4.76:/var/storage/apps/bodhisys/apps-dev/bohdisys-api
+    - ssh -o StrictHostKeyChecking=no gitlab@100.69.4.76 "cd /var/storage/apps/bodhisys/apps-dev/bohdisys-api; yarn; pm2 restart bodhisys-dev-api"
 
 
