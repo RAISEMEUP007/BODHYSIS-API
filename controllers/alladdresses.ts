@@ -104,11 +104,12 @@ export const updateAddress = (req, res, next) => {
 }
 
 export const getAddressesData = (req, res, next) => {
-  const { searchKey } = req.body;
-  const queryOptions = {
+  let queryOptions = {
     order: ['plantation', 'street', 'number', 'property_name'],
+    where: {},
+    logging: true,
   };
-  if (searchKey) {
+  if (req.body.searchKey) {
     queryOptions.where = {
       [Op.or]: [
         { number: { [Op.like]: `%${searchKey}%` } },
@@ -118,6 +119,9 @@ export const getAddressesData = (req, res, next) => {
       ]
     };
   }
+  if(req.body.plantation) queryOptions.where.plantation = req.body.plantation;
+  if(req.body.street) queryOptions.where.plantation = req.body.street;
+  if(req.body.property_name) queryOptions.where.plantation = req.body.property_name;
   AllAddresses.findAll(queryOptions)
   .then((addresses) => {
     res.status(200).json(addresses);
@@ -349,60 +353,53 @@ export const deleteForecasting = (req, res, next) => {
     });
 };
 
-// export const getForecastingData = async (req, res, next) => {
-//   try{
-//     const { searchOptions } = req.body;
-//     const queryOptions = {
-//       order: ['plantation', 'street', 'number', 'property_name'],
-//       where: {
-//         plantation: { [Op.notLike]: '%Beach & Tennis%' }
-//       },
-//       logging:true
-//     };
+export const getStreetsInAddresses = async (req, res, next) => {
+  try{
+    const distinctStreets = await AllAddresses.findAll({
+      attributes: [
+        [sequelize.literal('DISTINCT street'), 'street']
+      ],
+      order: ['street'],
+      raw: true,
+    });
+    res.send(distinctStreets.map(item=>item.street));
+  } catch (error) {
+    console.error(error);
+    res.status(502).json({error: "An error occurred"});
+  }
+};
 
-//     if(searchOptions.xploriefif) queryOptions.where.xploriefif = true;
-//     if(searchOptions.xplorievoucher) queryOptions.where.xplorievoucher = true;
+export const getPlantationsInAddresses = async (req, res, next) => {
+  try{
+    const distinctPlantations = await AllAddresses.findAll({
+      attributes: [
+        [sequelize.literal('DISTINCT plantation'), 'plantation']
+      ],
+      order: ['plantation'],
+      raw: true,
+    });
+    res.send(distinctPlantations.map(item=>item.plantation));
+  } catch (error) {
+    console.error(error);
+    res.status(502).json({error: "An error occurred"});
+  }
+};
 
-//     const addresses = await AllAddresses.findAll(queryOptions);
-
-//     const year = new Date().getFullYear();
-//     const weeksArray = getWeeksArrayInRange(searchOptions.start_date, searchOptions.end_date);
-
-//     let totalNights = 0;
-
-//     for (const week of weeksArray) {
-//       const { start_date: startDate, end_date: endDate } = week;
-
-//       try {
-//         const result = await weeklySummary(startDate, endDate);
-//         week.queryResult = result;
-//       } catch (error) {
-//         console.error(`Error executing query for week ${startDate} to ${endDate}:`, error);
-//       }
-//     }
-
-//     for (const address of addresses){
-//       address.dataValues.queryResult = [];
-//       for (const week of weeksArray){
-//         const { queryResult } = week;
-//         let filteredData = queryResult.find((result) => address.id === result.address_id);
-//         if(filteredData) totalNights += filteredData.nights
-//         address.dataValues.queryResult.push(filteredData || null);
-//       }
-//     }
-
-//     res.send({weeksArray:getWeeksArrayInRange(searchOptions.start_date, searchOptions.end_date), gridData:addresses, totalNights});
-//   } catch (error) {
-//     console.error(error);
-//     if (error.errors && error.errors[0].validatorKey === 'not_unique') {
-//       const message = error.errors[0].message;
-//       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
-//       res.status(409).json({ error: capitalizedMessage });
-//     } else {
-//       res.status(500).json({ error: 'Internal server error' });
-//     }
-//   }
-// };
+export const getPropertyNamesInAddresses = async (req, res, next) => {
+  try{
+    const distinctPropertyNames = await AllAddresses.findAll({
+      attributes: [
+        [sequelize.literal('DISTINCT property_name'), 'property_name']
+      ],
+      order: ['property_name'],
+      raw: true,
+    });
+    res.send(distinctPropertyNames.map(item=>item.property_name));
+  } catch (error) {
+    console.error(error);
+    res.status(502).json({error: "An error occurred"});
+  }
+};
 
 export const getForecastingData = async (req, res, next) => {
   try{
@@ -461,7 +458,7 @@ export const getOrderPotential = async (req, res, next) => {
   try{
     const { searchOptions } = req.body;
     const queryOptions = {
-      order: ['plantation', 'street', 'number', 'property_name'],
+      order: ['id', 'plantation', 'street', 'number', 'property_name'],
       where: {
         plantation: { [Op.notLike]: '%Beach & Tennis%' }
       },
@@ -481,17 +478,33 @@ export const getOrderPotential = async (req, res, next) => {
     for (const address of addresses){
       address.dataValues.queryResult = [];
       let dailySummaryByAddress = dailySummary.filter((summary) => address.id === summary.address_id);
+      let dailyTotals = {}
+      let ids = {};
+      for(let i=0; i<dailySummaryByAddress.length; i++){
+        let dSum = dailySummaryByAddress[i];
+        let pricePerDay = dSum.total_price?dSum.total_price/dSum.durations:0;
+        let dSumdaysArray = getDaysArrayInRange(dSum.start_date, dSum.end_date);
+        dSumdaysArray.forEach(date=>{
+          if(!dailyTotals[date['date']]) dailyTotals[date['date']] = pricePerDay;
+          else dailyTotals[date['date']] += pricePerDay
+
+          if(!ids[date['date']]) ids[date['date']] = [dSum.id];
+          else ids[date['date']].push(dSum.id)
+        })
+      }
       for (const day of daysArray){
-        let filteredData = dailySummaryByAddress.find((result) =>{
-          return day.date == result.start_date 
-        });
-        if(filteredData){
+        // let filteredData = dailySummaryByAddress.find((result) =>{
+        //   return day.date == result.date 
+        // });
+        if(dailyTotals[day.date]){
           // totalNights ++; 
           const potential = address.voucher_potential || address.fif_potential || 0;
-          const percentage = (filteredData.price && potential) ? filteredData.price / potential : 0
+          const percentage = potential ? dailyTotals[day.date] / potential : 0
           address.dataValues.queryResult.push({
+            ids: ids[day.date],
+            date: day.date,
             percentage: percentage,
-            price: Math.round(filteredData.price * 10)/10,
+            price: Math.round(dailyTotals[day.date] * 10)/10,
           });
         }else {
           address.dataValues.queryResult.push(null);
@@ -628,15 +641,18 @@ const getDailySummary = (startDate, endDate) => {
 const getOrderSummary = (startDate, endDate) => {
   const query = `
     SELECT
+      id,
       address_id,
+      total_price,
       start_date,
-      sum(total_price) as price
+      end_date,
+      DATEDIFF(end_date, start_date) AS durations
     FROM
       reservations
-    WHERE start_date BETWEEN '${startDate}' AND '${endDate}'
+    WHERE (start_date BETWEEN '${startDate}' AND '${endDate}' OR end_date BETWEEN '${startDate}' AND '${endDate}')
     AND address_id is not null
     GROUP BY address_id, start_date
   `;
 
-  return sequelize.query(query, { type: sequelize.QueryTypes.SELECT, logging:true });
+  return sequelize.query(query, { type: sequelize.QueryTypes.SELECT });
 };

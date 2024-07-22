@@ -217,7 +217,8 @@ import {
 import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
 import { getSettingsTemplate, getSettingsTemplateByType, postSettingsTemplate, putSettingsTemplate } from "../controllers/settings_templates";
 import { searchAddress, getAddressesData, createAddress, updateAddress, deleteAddress, getForecastingData, getOrderPotential,
-  createForecasting, updateForecasting, deleteForecasting, exportForecastingData } from "../controllers/alladdresses";
+  createForecasting, updateForecasting, deleteForecasting, exportForecastingData, getStreetsInAddresses,
+  getPlantationsInAddresses, getPropertyNamesInAddresses } from "../controllers/alladdresses";
 
 const router = express.Router();
 
@@ -570,6 +571,9 @@ router.post("/alladdresses/getaddressesdata/", getAddressesData);
 router.post("/alladdresses/createaddress", createAddress);
 router.post("/alladdresses/updateaddress", updateAddress);
 router.post("/alladdresses/deleteaddress", deleteAddress);
+router.get("/alladdresses/getstreets", getStreetsInAddresses);
+router.get("/alladdresses/getplantations", getPlantationsInAddresses);
+router.get("/alladdresses/getpropertynames", getPropertyNamesInAddresses);
 
 router.post("/forecasting/create", createForecasting);
 router.post("/forecasting/update", updateForecasting);
