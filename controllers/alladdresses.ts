@@ -8,6 +8,7 @@ import ExcelJS from 'exceljs'
 
 import AllAddresses from '../models/all_addresses';
 import AllAddressPlantations from '../models/address/all_address_plantations';
+import AllAddressStreets from '../models/address/all_address_streets';
 import Forecasting from '../models/marketing/forecasting';
 import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
 
@@ -706,6 +707,62 @@ export const deletePlantation = (req, res, next) => {
         res.status(200).json({ message: "Plantation deleted successfully" });
       } else {
         res.status(404).json({ error: "Plantation not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+// Street
+export const createStreet = (req, res, next) => {
+  AllAddressStreets.create(req.body)
+  .then(newStreet => {
+    res.status(201).json({ message: 'Street created successfully', street: newStreet });
+  })
+  .catch(error => {
+    console.error(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateStreet = (req, res, next) => {
+  const updateFields = req.body;
+
+  AllAddressStreets.update(updateFields, { where: { id: req.body.id } })
+  .then(newStreet => {
+    res.status(201).json({ message: 'Street updated successfully', street: newStreet });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getStreetsData = (req, res, next) => {
+  AllAddressStreets.findAll()
+  .then((streets) => {
+    res.status(200).json(streets);
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+export const deleteStreet = (req, res, next) => {
+  AllAddressStreets.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Street deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Street not found" });
       }
     })
     .catch((error) => {

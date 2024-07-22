@@ -219,6 +219,7 @@ import { getSettingsTemplate, getSettingsTemplateByType, postSettingsTemplate, p
 import { searchAddress, getAddressesData, createAddress, updateAddress, deleteAddress, getForecastingData, getOrderPotential,
   createForecasting, updateForecasting, deleteForecasting, exportForecastingData, getStreetsInAddresses, getPlantationsInAddresses, getPropertyNamesInAddresses, 
   getPlantationsData, updatePlantation, createPlantation, deletePlantation,
+  getStreetsData, updateStreet, createStreet, deleteStreet,
 } from "../controllers/alladdresses";
 
 const router = express.Router();
@@ -580,6 +581,11 @@ router.get("/alladdresses/getplantationsdata/", getPlantationsData);
 router.post("/alladdresses/createplantation", createPlantation);
 router.post("/alladdresses/updateplantation", updatePlantation);
 router.post("/alladdresses/deleteplantation", deletePlantation);
+
+router.get("/alladdresses/getstreetsdata/", getStreetsData);
+router.post("/alladdresses/createstreet", createStreet);
+router.post("/alladdresses/updatestreet", updateStreet);
+router.post("/alladdresses/deletestreet", deleteStreet);
 
 router.post("/forecasting/create", createForecasting);
 router.post("/forecasting/update", updateForecasting);
