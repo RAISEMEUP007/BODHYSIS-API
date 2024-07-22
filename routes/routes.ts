@@ -220,6 +220,7 @@ import { searchAddress, getAddressesData, createAddress, updateAddress, deleteAd
   createForecasting, updateForecasting, deleteForecasting, exportForecastingData, getStreetsInAddresses, getPlantationsInAddresses, getPropertyNamesInAddresses, 
   getPlantationsData, updatePlantation, createPlantation, deletePlantation,
   getStreetsData, updateStreet, createStreet, deleteStreet,
+  getPropertyNamesData, updatePropertyName, createPropertyName, deletePropertyName,
 } from "../controllers/alladdresses";
 
 const router = express.Router();
@@ -586,6 +587,11 @@ router.get("/alladdresses/getstreetsdata/", getStreetsData);
 router.post("/alladdresses/createstreet", createStreet);
 router.post("/alladdresses/updatestreet", updateStreet);
 router.post("/alladdresses/deletestreet", deleteStreet);
+
+router.get("/alladdresses/getpropertynamesdata/", getPropertyNamesData);
+router.post("/alladdresses/createpropertyname", createPropertyName);
+router.post("/alladdresses/updatepropertyname", updatePropertyName);
+router.post("/alladdresses/deletepropertyname", deletePropertyName);
 
 router.post("/forecasting/create", createForecasting);
 router.post("/forecasting/update", updateForecasting);
