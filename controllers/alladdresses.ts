@@ -98,6 +98,7 @@ export const updateAddress = (req, res, next) => {
     res.status(201).json({ message: 'Address updated successfully', address: newAddress });
   })
   .catch(error => {
+    console.error(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -114,10 +115,10 @@ export const getAddressesData = (req, res, next) => {
   if (req.body.searchKey) {
     queryOptions.where = {
       [Op.or]: [
-        { number: { [Op.like]: `%${searchKey}%` } },
-        { street: { [Op.like]: `%${searchKey}%` } },
-        { plantation: { [Op.like]: `%${searchKey}%` } },
-        { property_name: { [Op.like]: `%${searchKey}%` } }
+        { number: { [Op.like]: `%${req.body.searchKey}%` } },
+        { street: { [Op.like]: `%${req.body.searchKey}%` } },
+        { plantation: { [Op.like]: `%${req.body.searchKey}%` } },
+        { property_name: { [Op.like]: `%${req.body.searchKey}%` } }
       ]
     };
   }
