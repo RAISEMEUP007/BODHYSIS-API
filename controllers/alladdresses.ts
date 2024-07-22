@@ -7,6 +7,9 @@ import { Op } from 'sequelize';
 import ExcelJS from 'exceljs'
 
 import AllAddresses from '../models/all_addresses';
+import AllAddressPlantations from '../models/address/all_address_plantations';
+import AllAddressStreets from '../models/address/all_address_streets';
+import AllAddressPropertyNames from '../models/address/all_address_property_names';
 import Forecasting from '../models/marketing/forecasting';
 import SettingsStoreDetails from '../models/settings/settings_storedetails.js';
 
@@ -95,6 +98,7 @@ export const updateAddress = (req, res, next) => {
     res.status(201).json({ message: 'Address updated successfully', address: newAddress });
   })
   .catch(error => {
+    console.error(error);
     if(error.errors && error.errors[0].validatorKey == 'not_unique'){
       const message = error.errors[0].message;
       const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
@@ -107,15 +111,14 @@ export const getAddressesData = (req, res, next) => {
   let queryOptions = {
     order: ['plantation', 'street', 'number', 'property_name'],
     where: {},
-    logging: true,
   };
   if (req.body.searchKey) {
     queryOptions.where = {
       [Op.or]: [
-        { number: { [Op.like]: `%${searchKey}%` } },
-        { street: { [Op.like]: `%${searchKey}%` } },
-        { plantation: { [Op.like]: `%${searchKey}%` } },
-        { property_name: { [Op.like]: `%${searchKey}%` } }
+        { number: { [Op.like]: `%${req.body.searchKey}%` } },
+        { street: { [Op.like]: `%${req.body.searchKey}%` } },
+        { plantation: { [Op.like]: `%${req.body.searchKey}%` } },
+        { property_name: { [Op.like]: `%${req.body.searchKey}%` } }
       ]
     };
   }
@@ -655,4 +658,172 @@ const getOrderSummary = (startDate, endDate) => {
   `;
 
   return sequelize.query(query, { type: sequelize.QueryTypes.SELECT });
+};
+
+// Plantation
+export const createPlantation = (req, res, next) => {
+  AllAddressPlantations.create(req.body)
+  .then(newPlantation => {
+    res.status(201).json({ message: 'Plantation created successfully', plantation: newPlantation });
+  })
+  .catch(error => {
+    console.error(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updatePlantation = (req, res, next) => {
+  const updateFields = req.body;
+
+  AllAddressPlantations.update(updateFields, { where: { id: req.body.id } })
+  .then(newPlantation => {
+    res.status(201).json({ message: 'Plantation updated successfully', plantation: newPlantation });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getPlantationsData = (req, res, next) => {
+  AllAddressPlantations.findAll()
+  .then((plantaions) => {
+    res.status(200).json(plantaions);
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+export const deletePlantation = (req, res, next) => {
+  AllAddressPlantations.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Plantation deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Plantation not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+// Street
+export const createStreet = (req, res, next) => {
+  AllAddressStreets.create(req.body)
+  .then(newStreet => {
+    res.status(201).json({ message: 'Street created successfully', street: newStreet });
+  })
+  .catch(error => {
+    console.error(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updateStreet = (req, res, next) => {
+  const updateFields = req.body;
+
+  AllAddressStreets.update(updateFields, { where: { id: req.body.id } })
+  .then(newStreet => {
+    res.status(201).json({ message: 'Street updated successfully', street: newStreet });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getStreetsData = (req, res, next) => {
+  AllAddressStreets.findAll()
+  .then((streets) => {
+    res.status(200).json(streets);
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+export const deleteStreet = (req, res, next) => {
+  AllAddressStreets.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Street deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Street not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
+};
+
+// PropertyName
+export const createPropertyName = (req, res, next) => {
+  AllAddressPropertyNames.create(req.body)
+  .then(newPropertyName => {
+    res.status(201).json({ message: 'Property name created successfully', propertyname: newPropertyName });
+  })
+  .catch(error => {
+    console.error(error);
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const updatePropertyName = (req, res, next) => {
+  const updateFields = req.body;
+
+  AllAddressPropertyNames.update(updateFields, { where: { id: req.body.id } })
+  .then(newPropertyName => {
+    res.status(201).json({ message: 'Property name updated successfully', propertyname: newPropertyName });
+  })
+  .catch(error => {
+    if(error.errors && error.errors[0].validatorKey == 'not_unique'){
+      const message = error.errors[0].message;
+      const capitalizedMessage = message.charAt(0).toUpperCase() + message.slice(1);
+      res.status(409).json({ error: capitalizedMessage});
+    }else res.status(500).json({ error: "Internal server error" });
+  });
+}
+
+export const getPropertyNamesData = (req, res, next) => {
+  AllAddressPropertyNames.findAll()
+  .then((propertynames) => {
+    res.status(200).json(propertynames);
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(502).json({error: "An error occurred"});
+  });
+};
+export const deletePropertyName = (req, res, next) => {
+  AllAddressPropertyNames.destroy({ where: { id: req.body.id } })
+    .then((result) => {
+      if (result === 1) {
+        res.status(200).json({ message: "Property name deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Property name not found" });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Internal server error" });
+    });
 };

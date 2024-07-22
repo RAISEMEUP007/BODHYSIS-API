@@ -15,11 +15,20 @@ const AllAddresses = sequelize.define('all_addresses', {
    street: {
       type: Sequelize.STRING,
    },
+   street_id: {
+      type: Sequelize.INTEGER,
+   },
    plantation: {
       type: Sequelize.STRING,
    },
+   plantation_id: {
+      type: Sequelize.INTEGER,
+   },
    property_name: {
       type: Sequelize.STRING,
+   },
+   property_name_id: {
+      type: Sequelize.INTEGER,
    },
    property_type: {
       type: Sequelize.STRING,

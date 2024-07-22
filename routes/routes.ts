@@ -217,8 +217,11 @@ import {
 import { getOrders, getOrdersById, getOrdersData } from "../controllers/orders.js";
 import { getSettingsTemplate, getSettingsTemplateByType, postSettingsTemplate, putSettingsTemplate } from "../controllers/settings_templates";
 import { searchAddress, getAddressesData, createAddress, updateAddress, deleteAddress, getForecastingData, getOrderPotential,
-  createForecasting, updateForecasting, deleteForecasting, exportForecastingData, getStreetsInAddresses,
-  getPlantationsInAddresses, getPropertyNamesInAddresses } from "../controllers/alladdresses";
+  createForecasting, updateForecasting, deleteForecasting, exportForecastingData, getStreetsInAddresses, getPlantationsInAddresses, getPropertyNamesInAddresses, 
+  getPlantationsData, updatePlantation, createPlantation, deletePlantation,
+  getStreetsData, updateStreet, createStreet, deleteStreet,
+  getPropertyNamesData, updatePropertyName, createPropertyName, deletePropertyName,
+} from "../controllers/alladdresses";
 
 const router = express.Router();
 
@@ -574,6 +577,21 @@ router.post("/alladdresses/deleteaddress", deleteAddress);
 router.get("/alladdresses/getstreets", getStreetsInAddresses);
 router.get("/alladdresses/getplantations", getPlantationsInAddresses);
 router.get("/alladdresses/getpropertynames", getPropertyNamesInAddresses);
+
+router.get("/alladdresses/getplantationsdata/", getPlantationsData);
+router.post("/alladdresses/createplantation", createPlantation);
+router.post("/alladdresses/updateplantation", updatePlantation);
+router.post("/alladdresses/deleteplantation", deletePlantation);
+
+router.get("/alladdresses/getstreetsdata/", getStreetsData);
+router.post("/alladdresses/createstreet", createStreet);
+router.post("/alladdresses/updatestreet", updateStreet);
+router.post("/alladdresses/deletestreet", deleteStreet);
+
+router.get("/alladdresses/getpropertynamesdata/", getPropertyNamesData);
+router.post("/alladdresses/createpropertyname", createPropertyName);
+router.post("/alladdresses/updatepropertyname", updatePropertyName);
+router.post("/alladdresses/deletepropertyname", deletePropertyName);
 
 router.post("/forecasting/create", createForecasting);
 router.post("/forecasting/update", updateForecasting);
