@@ -88,6 +88,12 @@ const Reservations = sequelize.define(
     printed: {
       type: DataTypes.BOOLEAN,
     },
+    lat: {
+      type: DataTypes.FLOAT,
+    },
+    lng: {
+      type: DataTypes.FLOAT,
+    }
   },
   {
     timestamps: true,
