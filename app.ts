@@ -110,7 +110,8 @@ const verifyToken = (req, res, next) => {
     '/exportpdf',
     '/forecasting',
     '/scan',
-    'forecasting/exportforecasting'
+    'forecasting/exportforecasting',
+    'reservations/updateposition',
     // '/auth/gettesttoken',
   ];
 

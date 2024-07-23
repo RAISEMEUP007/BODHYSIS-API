@@ -414,6 +414,16 @@ export const getForecastingData = async (req, res, next) => {
       },
     };
 
+    if (searchOptions.plantation) {
+      queryOptions.where = {
+        [Op.and]: [
+          queryOptions.where,
+          { plantation: searchOptions.plantation }
+        ]
+      };
+    }
+    // if(searchOptions.street) queryOptions.where.street = searchOptions.street;
+    if(searchOptions.property_name) queryOptions.where.property_name = searchOptions.property_name;
     if(searchOptions.xploriefif) queryOptions.where.xploriefif = true;
     if(searchOptions.xplorievoucher) queryOptions.where.xplorievoucher = true;
 
@@ -465,7 +475,19 @@ export const getOrderPotential = async (req, res, next) => {
       where: {
         plantation: { [Op.notLike]: '%Beach & Tennis%' }
       },
+      logging:true,
     };
+
+    if (searchOptions.plantation) {
+      queryOptions.where = {
+        [Op.and]: [
+          queryOptions.where,
+          { plantation: searchOptions.plantation }
+        ]
+      };
+    }
+    // if(searchOptions.street) queryOptions.where.street = searchOptions.street;
+    if(searchOptions.property_name) queryOptions.where.property_name = searchOptions.property_name;
 
     if(searchOptions.xploriefif) queryOptions.where.xploriefif = true;
     if(searchOptions.xplorievoucher) queryOptions.where.xplorievoucher = true;
@@ -496,10 +518,7 @@ export const getOrderPotential = async (req, res, next) => {
         })
       }
       for (const day of daysArray){
-        // let filteredData = dailySummaryByAddress.find((result) =>{
-        //   return day.date == result.date 
-        // });
-        if(dailyTotals[day.date]){
+        if(dailyTotals[day.date] !== undefined && dailyTotals[day.date] !== null){
           // totalNights ++; 
           const potential = address.voucher_potential || address.fif_potential || 0;
           const percentage = potential ? dailyTotals[day.date] / potential : 0

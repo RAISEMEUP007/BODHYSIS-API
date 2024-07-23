@@ -527,6 +527,7 @@ router.post("/reservations/removereservation/", removeReservation);
 router.get("/reservations/getreservationdetails/:id", getReservationDetails);
 router.get("/reservation/:id", getReservationDetails);
 router.post("/reservations/updatereservation", updateReservation);
+router.post("/reservations/updateposition", updateReservation);
 router.post("/reservations/updatereservationitem", updateReservationItem);
 
 router.post("/reservation/createtransaction/", createTransaction);
