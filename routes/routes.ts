@@ -207,6 +207,8 @@ import {
   addPaymentMethodToCustomer,
   makePayment,
   listPaymentMethods,
+  listRefunds,
+  cancelRefund,
   getSecret,
   chargeStripeCard,
   refundStripe,
@@ -551,6 +553,8 @@ router.post("/stripe/addcardtokentocustomer/", addCardTokenToCustomer);
 router.post("/stripe/detachcardtokentocustomer/", detachCardTokenToCustomer);
 router.post("/stripe/makepayment/", makePayment);
 router.post("/stripe/listpaymentmethods/", listPaymentMethods);
+router.post("/stripe/listrefunds/", listRefunds);
+router.post("/stripe/cancelrefund/", cancelRefund);
 router.post("/stripe/getsecret/", getSecret);
 router.post("/stripe/chargeStripeCard/", chargeStripeCard);
 router.post("/stripe/sendreservationconfirmationemail/", sendReservationConfirmationEmail);

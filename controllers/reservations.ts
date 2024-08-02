@@ -897,11 +897,11 @@ export const scanBarcode = async (req, res, next) => {
     if(!product) {
       return res.status(404).json({ error: "Product not found" });
     }
-    if(product.status == 2){
-      return res.status(403).json({ error: "This product is already checked out" });
-    }else if(product.status != 0 && product.status != 1 && product.status != 3){
-      return res.status(403).json({ error: "This product is currently unavailable" });
-    }
+    // if(product.status == 2){
+    //   return res.status(403).json({ error: "This product is already checked out" });
+    // }else if(product.status != 0 && product.status != 1 && product.status != 3){
+    //   return res.status(403).json({ error: "This product is currently unavailable" });
+    // }
     
     const displayName = product.family.display_name;
     const availableProductItem = await ReservationItems.findOne({

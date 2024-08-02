@@ -601,6 +601,39 @@ export const refundStripe = async (req, res, next) => {
   }
 }
 
+export const listRefunds = async (req, res, next) => {
+  try {
+
+    const list = await stripe().refunds.list({
+      payment_intent: req.body.payment_intent,
+    });
+
+    res.json(list);
+
+  } catch (error) {
+    res.status(500).json({error: error.message});
+  }
+}
+
+export const cancelRefund = async (req, res, next) => {
+  const refundId = req.body.refundId;
+
+  try {
+    const response = await fetch(`https://api.stripe.com/v1/refunds/${refundId}/cancel`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}`
+      }
+    });
+
+    const result = await response.json();
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+}
+
 export const getCustomerIdById = async (req, res, next) => {
   try {
 
